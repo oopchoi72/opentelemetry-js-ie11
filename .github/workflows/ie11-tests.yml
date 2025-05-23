@@ -1,0 +1,359 @@
+name: IE11 Compatibility Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: "0 2 * * *"
+
+env:
+  NODE_VERSION: "16"
+  BROWSERSTACK_BUILD_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+  BROWSERSTACK_LOCAL_IDENTIFIER: ${{ github.run_id }}
+
+jobs:
+  # Build and prepare for testing
+  build:
+    name: Build IE11 Bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build IE11 bundle
+        run: npm run build:ie11
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ie11-build
+          path: |
+            dist/
+            test/
+          retention-days: 1
+
+  # Local IE11 testing (Windows)
+  test-ie11-local:
+    name: IE11 Local Tests
+    runs-on: windows-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ie11-build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install IE11 test dependencies
+        run: |
+          npm install -g karma-cli
+          npm install karma-ie-launcher
+
+      - name: Run IE11 tests locally
+        run: npm run test:ie11:local
+        env:
+          CI: true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ie11-local-test-results
+          path: |
+            test-results/
+            coverage/ie11/
+          retention-days: 7
+
+  # BrowserStack IE11 testing
+  test-ie11-browserstack:
+    name: IE11 BrowserStack Tests
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'test-browserstack')
+
+    strategy:
+      matrix:
+        os: ["Windows 10", "Windows 8.1", "Windows 7"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ie11-build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install BrowserStack dependencies
+        run: |
+          npm install -g karma-cli
+          npm install karma-browserstack-launcher
+
+      - name: Start BrowserStack Local
+        uses: browserstack/github-actions@master
+        with:
+          username: ${{ secrets.BROWSERSTACK_USERNAME }}
+          access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          local-testing: start
+          local-identifier: ${{ env.BROWSERSTACK_LOCAL_IDENTIFIER }}
+
+      - name: Run IE11 tests on ${{ matrix.os }}
+        run: npm run test:ie11:browserstack
+        env:
+          CI: true
+          USE_BROWSERSTACK: true
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          BROWSERSTACK_BUILD_ID: ${{ env.BROWSERSTACK_BUILD_ID }}
+          BROWSERSTACK_LOCAL_IDENTIFIER: ${{ env.BROWSERSTACK_LOCAL_IDENTIFIER }}
+          BROWSERSTACK_OS: ${{ matrix.os }}
+
+      - name: Stop BrowserStack Local
+        uses: browserstack/github-actions@master
+        if: always()
+        with:
+          username: ${{ secrets.BROWSERSTACK_USERNAME }}
+          access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          local-testing: stop
+          local-identifier: ${{ env.BROWSERSTACK_LOCAL_IDENTIFIER }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ie11-browserstack-test-results-${{ matrix.os }}
+          path: |
+            test-results/
+            coverage/ie11/
+          retention-days: 7
+
+  # Performance benchmarking
+  benchmark-ie11:
+    name: IE11 Performance Benchmark
+    runs-on: windows-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ie11-build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run performance benchmarks
+        run: npm run benchmark:ie11
+        env:
+          CI: true
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ie11-benchmark-results
+          path: |
+            benchmark-results/
+          retention-days: 30
+
+  # Bundle size analysis
+  analyze-bundle:
+    name: IE11 Bundle Analysis
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ie11-build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Analyze bundle size
+        run: npm run analyze:ie11
+
+      - name: Upload bundle analysis
+        uses: actions/upload-artifact@v3
+        with:
+          name: ie11-bundle-analysis
+          path: |
+            bundle-analysis/
+          retention-days: 30
+
+      - name: Comment bundle size on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            try {
+              const analysisPath = path.join('bundle-analysis', 'ie11-bundle-stats.json');
+              if (fs.existsSync(analysisPath)) {
+                const stats = JSON.parse(fs.readFileSync(analysisPath, 'utf8'));
+                const bundleSize = Math.round(stats.assets[0].size / 1024);
+                
+                const comment = `## IE11 Bundle Analysis
+                
+                📦 **Bundle Size**: ${bundleSize} KB
+                🎯 **Target**: < 150 KB
+                ${bundleSize > 150 ? '⚠️ Bundle size exceeds target!' : '✅ Bundle size within target'}
+                
+                <details>
+                <summary>Detailed Analysis</summary>
+                
+                - **Gzipped Size**: ${Math.round(stats.assets[0].gzipSize / 1024)} KB
+                - **Modules**: ${stats.modules.length}
+                - **Chunks**: ${stats.chunks.length}
+                
+                </details>`;
+                
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: comment
+                });
+              }
+            } catch (error) {
+              console.log('Could not post bundle analysis comment:', error);
+            }
+
+  # Test result aggregation and reporting
+  report-results:
+    name: Test Results Summary
+    runs-on: ubuntu-latest
+    needs:
+      [test-ie11-local, test-ie11-browserstack, benchmark-ie11, analyze-bundle]
+    if: always()
+
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v3
+
+      - name: Generate test summary
+        run: |
+          echo "# IE11 Test Results Summary" > test-summary.md
+          echo "" >> test-summary.md
+          echo "## Test Status" >> test-summary.md
+
+          if [ -d "ie11-local-test-results" ]; then
+            echo "✅ Local IE11 tests completed" >> test-summary.md
+          else
+            echo "❌ Local IE11 tests failed" >> test-summary.md
+          fi
+
+          if [ -d "ie11-browserstack-test-results-Windows 10" ]; then
+            echo "✅ BrowserStack tests completed" >> test-summary.md
+          else
+            echo "❌ BrowserStack tests failed or skipped" >> test-summary.md
+          fi
+
+          if [ -d "ie11-benchmark-results" ]; then
+            echo "✅ Performance benchmarks completed" >> test-summary.md
+          else
+            echo "❌ Performance benchmarks failed or skipped" >> test-summary.md
+          fi
+
+          echo "" >> test-summary.md
+          echo "## Artifacts" >> test-summary.md
+          echo "- Test results and coverage reports available in artifacts" >> test-summary.md
+          echo "- Bundle analysis and performance benchmarks included" >> test-summary.md
+
+      - name: Upload test summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-summary
+          path: test-summary.md
+          retention-days: 30
+
+      - name: Comment test summary on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+
+            try {
+              if (fs.existsSync('test-summary.md')) {
+                const summary = fs.readFileSync('test-summary.md', 'utf8');
+                
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: summary
+                });
+              }
+            } catch (error) {
+              console.log('Could not post test summary comment:', error);
+            }
+
+  # Cleanup
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    needs: [report-results]
+    if: always()
+
+    steps:
+      - name: Cleanup BrowserStack sessions
+        if: contains(needs.*.result, 'failure')
+        run: |
+          echo "Cleaning up any remaining BrowserStack sessions..."
+          # Add cleanup logic if needed

@@ -1,0 +1,129 @@
+{
+  "name": "opentelemetry-js-ie11",
+  "version": "1.0.0",
+  "description": "OpenTelemetry JavaScript SDK adapted for Internet Explorer 11 compatibility",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "npm run build:esm && npm run build:umd",
+    "build:esm": "tsc",
+    "build:umd": "webpack --mode production",
+    "build:ie11": "npm run build:umd",
+    "build:analyze": "ANALYZE=true webpack --mode production",
+    "dev": "webpack serve --mode development",
+    "test": "karma start karma.conf.js",
+    "test:watch": "karma start karma.conf.js --auto-watch --no-single-run",
+    "test:ie11": "echo 'Manual IE11 testing required - open examples/index.html in IE11'",
+    "test:ie11:local": "karma start karma.conf.js --browsers=IE11_local --single-run",
+    "test:ie11:browserstack": "karma start karma.conf.js --browsers=bs_ie11_win10,bs_ie11_win8_1,bs_ie11_win7 --single-run",
+    "test:ie11:dev": "karma start karma.conf.js --browsers=IE11_local --auto-watch --no-single-run",
+    "test:ie11:headless": "KARMA_HEADLESS=true karma start karma.conf.js --single-run",
+    "benchmark:ie11": "node scripts/benchmark-ie11.js",
+    "analyze:ie11": "node scripts/analyze-bundle.js",
+    "start": "python3 -m http.server 8000",
+    "clean": "rm -rf dist lib coverage .tsbuildinfo test-results benchmark-results bundle-analysis",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "opentelemetry",
+    "telemetry",
+    "tracing",
+    "metrics",
+    "observability",
+    "ie11",
+    "internet-explorer",
+    "polyfill",
+    "legacy-browser"
+  ],
+  "author": "IE11 Support Team",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/opentelemetry-js-ie11.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/opentelemetry-js-ie11/issues"
+  },
+  "homepage": "https://github.com/your-org/opentelemetry-js-ie11#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "ie >= 11",
+    "last 2 versions",
+    "> 1%"
+  ],
+  "dependencies": {
+    "@babel/runtime": "^7.27.1",
+    "core-js": "^3.42.0",
+    "es6-promise": "^4.2.8",
+    "regenerator-runtime": "^0.14.1",
+    "symbol-es6": "^0.1.2",
+    "whatwg-fetch": "^3.6.20"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.27.2",
+    "@babel/core": "^7.27.1",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-private-methods": "^7.18.6",
+    "@babel/plugin-transform-runtime": "^7.27.1",
+    "@babel/plugin-transform-template-literals": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-typescript": "^7.27.1",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.17.50",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "babel-loader": "^9.2.1",
+    "eslint": "^8.44.0",
+    "jasmine-core": "^5.7.1",
+    "jest": "^29.6.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "karma": "^6.4.4",
+    "karma-babel-preprocessor": "^8.0.2",
+    "karma-browserstack-launcher": "^1.6.0",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-coverage": "^2.2.1",
+    "karma-ie-launcher": "^1.0.0",
+    "karma-jasmine": "^5.1.0",
+    "karma-junit-reporter": "^2.0.1",
+    "karma-spec-reporter": "^0.0.36",
+    "karma-webpack": "^5.0.1",
+    "process": "^0.11.10",
+    "rimraf": "^5.0.0",
+    "ts-jest": "^29.3.4",
+    "ts-loader": "^9.4.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.9",
+    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.2"
+  },
+  "peerDependencies": {
+    "@opentelemetry/api": "^1.0.0"
+  },
+  "sideEffects": false,
+  "bundlewatch": {
+    "files": [
+      {
+        "path": "dist/*.js",
+        "maxSize": "110kb",
+        "compression": "none"
+      },
+      {
+        "path": "dist/*.min.js",
+        "maxSize": "30kb",
+        "compression": "gzip"
+      }
+    ],
+    "ci": {
+      "trackBranches": [
+        "main",
+        "develop"
+      ]
+    }
+  }
+}

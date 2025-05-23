@@ -1,0 +1,155 @@
+# Task ID: 10
+# Title: Implement DOM Event Instrumentation
+# Status: done
+# Dependencies: 6
+# Priority: medium
+# Description: Create IE11 compatible instrumentation for DOM events
+# Details:
+1. Create a dedicated DOM event instrumentation module
+2. Implement IE11 compatible event listener attachment
+3. Track user interactions and page lifecycle events
+4. Capture event timing and propagation information
+5. Handle event bubbling and capturing phases correctly
+6. Implement performance optimizations for frequent events
+
+Implementation details:
+- Module location: `src/web/dom-event-instrumentation.ts`
+- Comprehensive features implemented:
+  - Event listener patching and restoration
+  - Throttling for high-frequency events (mousemove, scroll, etc.)
+  - Event history management with memory limits
+  - Element selector generation (IE11 compatible)
+  - Error handling
+  - WeakMap-based instrumentation state management
+
+API:
+- `createDOMEventInstrumentation(config)`: Creates main instrumentation object
+- `instrumentDocument(config)`: Document-level instrumentation
+- `instrumentWindow(config)`: Window-level instrumentation
+- `autoInstrument(config)`: Automatic instrumentation setup
+
+Example DOM event instrumentation:
+```javascript
+function instrumentDOMEvents(tracer, element, eventTypes) {
+  var originalAddEventListener = element.addEventListener;
+  
+  element.addEventListener = function(type, listener, options) {
+    // Only instrument tracked event types
+    if (eventTypes.indexOf(type) >= 0) {
+      var wrappedListener = function(event) {
+        var span = tracer.startSpan('DOM.' + type);
+        span.setAttribute('event.type', type);
+        span.setAttribute('event.target', event.target.tagName.toLowerCase());
+        
+        try {
+          listener.call(this, event);
+        } catch (error) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: error.message
+          });
+          throw error;
+        } finally {
+          span.end();
+        }
+      };
+      
+      // Store reference to original for potential removal
+      if (!listener._otelWrapped) {
+        listener._otelWrapped = wrappedListener;
+      }
+      
+      return originalAddEventListener.call(
+        this, 
+        type, 
+        wrappedListener, 
+        typeof options === 'boolean' ? options : options && options.capture
+      );
+    }
+    
+    return originalAddEventListener.apply(this, arguments);
+  };
+  
+  // Also patch removeEventListener to handle wrapped listeners
+  var originalRemoveEventListener = element.removeEventListener;
+  element.removeEventListener = function(type, listener, options) {
+    if (listener && listener._otelWrapped) {
+      return originalRemoveEventListener.call(
+        this,
+        type,
+        listener._otelWrapped,
+        typeof options === 'boolean' ? options : options && options.capture
+      );
+    }
+    return originalRemoveEventListener.apply(this, arguments);
+  };
+}
+```
+
+# Test Strategy:
+1. Test with various DOM event types (click, load, error, etc.)
+2. Verify event capturing and bubbling is correctly tracked
+3. Test with dynamically created elements
+4. Verify event listener removal works correctly
+5. Benchmark performance impact on frequent events like mousemove
+6. Test memory usage to ensure no leaks from event listeners
+7. Verify integration with user interaction tracking
+
+Test environment setup:
+- Jest configuration file (`jest.config.js`)
+- IE11 compatible test environment (`tests/setup.js`)
+- DOM environment mocking and polyfills
+
+Current test status:
+- 17 test cases implemented and passing in Jest environment
+- Tests cover all major functionality including event listener patching, throttling, and cleanup
+
+# Subtasks:
+## 10.1. Create DOM event instrumentation module [done]
+### Dependencies: None
+### Description: Created IE11 compatible DOM event instrumentation module at `src/web/dom-event-instrumentation.ts`
+### Details:
+
+
+## 10.2. Implement event listener patching [done]
+### Dependencies: None
+### Description: Implemented IE11 compatible addEventListener/removeEventListener patching with proper support for capture/bubbling phases
+### Details:
+
+
+## 10.3. Implement performance optimizations [done]
+### Dependencies: None
+### Description: Added throttling for high-frequency events (mousemove, scroll) and memory management for event history
+### Details:
+
+
+## 10.4. Create API methods [done]
+### Dependencies: None
+### Description: Implemented core API methods: createDOMEventInstrumentation, instrumentDocument, instrumentWindow, and autoInstrument
+### Details:
+
+
+## 10.5. Set up test environment [done]
+### Dependencies: None
+### Description: Created Jest configuration and IE11 compatible test environment with DOM mocking and polyfills
+### Details:
+
+
+## 10.6. Implement test cases [done]
+### Dependencies: None
+### Description: Created and verified 17 test cases covering all major functionality
+### Details:
+
+
+## 10.7. Create usage example [done]
+### Dependencies: None
+### Description: Created HTML example file at `examples/dom-event-instrumentation-example.html` demonstrating real-world usage scenarios
+### Details:
+
+
+## 10.8. Document API and implementation details [done]
+### Dependencies: None
+### Description: Create comprehensive documentation for the DOM event instrumentation API and implementation details
+### Details:
+
+

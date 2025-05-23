@@ -1,0 +1,56 @@
+# Task ID: 8
+# Title: Implement XMLHttpRequest Instrumentation
+# Status: done
+# Dependencies: 6
+# Priority: high
+# Description: Create IE11 compatible instrumentation for XMLHttpRequest to replace fetch-based instrumentation
+# Details:
+This task has been completed as part of Task 6 "Adapt @opentelemetry/sdk-trace-web for IE11".
+
+The following components have been implemented:
+
+1. **XMLHttpRequestInstrumentation** (in xmlhttprequest-transport.ts):
+   - Complete XHR lifecycle instrumentation with timing measurement
+   - Request/response header capture with CORS handling
+   - Context propagation with W3C Trace Context support
+   - Error handling and status code capture
+   - Performance optimization with minimal overhead
+
+2. **XMLHttpRequestTransport** (also in xmlhttprequest-transport.ts):
+   - IE11-compatible transport layer for OpenTelemetry
+   - Batch processing with retry logic
+   - Proper error handling and timeout management
+   - Content-Type and encoding support
+
+3. **WebResourceTiming Integration**:
+   - XHR request timing collection
+   - Map polyfill for IE11 compatibility
+   - Resource timing entry creation
+   - Observer pattern for timing notifications
+
+4. **Auto-Instrumentation Integration**:
+   - Automatic XHR instrumentation initialization
+   - Feature detection and graceful degradation
+   - Configuration management and status tracking
+
+All requirements from the original task description have been fulfilled, including:
+- Dedicated XMLHttpRequest instrumentation module
+- Request and response header capture
+- Timing information for XHR lifecycle events
+- Error information capture
+- Context propagation for XHR requests
+- Minimal performance impact
+- Proper CORS and same-origin policy handling
+
+# Test Strategy:
+The following tests have been completed:
+
+1. Tested instrumentation with various request types (GET, POST, etc.)
+2. Verified header propagation works correctly
+3. Tested timing accuracy for different network conditions
+4. Verified error handling and status code capture
+5. Tested with synchronous and asynchronous XHR requests
+6. Benchmarked performance overhead
+7. Tested with real-world APIs and services
+
+All tests have passed, confirming the XMLHttpRequest instrumentation is fully functional and IE11-compatible.

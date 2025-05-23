@@ -1,0 +1,387 @@
+# Task ID: 6
+# Title: Adapt @opentelemetry/sdk-trace-web for IE11
+# Status: done
+# Dependencies: 5
+# Priority: high
+# Description: Modify the web-specific tracing SDK to be compatible with IE11
+# Details:
+1. Fork or create a modified version of @opentelemetry/sdk-trace-web
+2. Replace fetch API usage with XMLHttpRequest
+3. Adapt event listener handling for IE11 compatibility
+4. Modify DOM interaction code to work with IE11 DOM API
+5. Replace modern browser performance API calls with IE11 alternatives
+6. Ensure web resource timing captures correctly in IE11
+7. Adapt the auto-instrumentation to work with IE11 event model
+
+Example XMLHttpRequest implementation:
+```javascript
+function sendRequest(url, data, headers) {
+  return new Promise(function(resolve, reject) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    
+    for (var key in headers) {
+      if (headers.hasOwnProperty(key)) {
+        xhr.setRequestHeader(key, headers[key]);
+      }
+    }
+    
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.response);
+      } else {
+        reject(new Error('HTTP error ' + xhr.status));
+      }
+    };
+    
+    xhr.onerror = function() {
+      reject(new Error('Network error'));
+    };
+    
+    xhr.send(JSON.stringify(data));
+  });
+}
+```
+
+# Test Strategy:
+1. Test all web-specific instrumentation in IE11
+2. Verify XMLHttpRequest instrumentation captures correct timing
+3. Test DOM event instrumentation with various event types
+4. Verify resource timing collection accuracy
+5. Test user interaction tracing
+6. Compare trace data between IE11 and modern browsers to ensure consistency
+7. Test with real-world web applications to validate integration
+
+# Subtasks:
+## 1. Fetch API Replacement with XMLHttpRequest [done]
+### Dependencies: None
+### Description: Replace all Fetch API usage with XMLHttpRequest implementation to ensure IE11 compatibility
+### Details:
+Identify all instances of Fetch API in the OpenTelemetry SDK. Create a polyfill wrapper that uses XMLHttpRequest internally but maintains the same Promise-based interface. Ensure proper handling of request/response headers, timeout configurations, and error scenarios. Test with various payload sizes and connection conditions.
+<info added on 2025-05-23T02:54:32.635Z>
+✅ Comprehensive Fetch API Polyfill Implementation:
+
+1. **IE11FetchPolyfill**: Complete fetch implementation using XMLHttpRequest
+   - Response, Headers, Request constructors with IE11 compatibility
+   - Promise-based interface matching modern fetch API
+   - Auto-installation when fetch is not available
+   - Support for all HTTP methods (GET, POST, PUT, DELETE, etc.)
+   - Proper header handling and response parsing
+
+2. **XMLHttpRequestTransport**: Advanced transport layer for trace data
+   - Promise-based send operations with error handling
+   - Configurable timeout, headers, and credentials
+   - Batch sending with retry logic (exponential backoff)
+   - Proper JSON payload formatting for spans
+   - Support for multiple export targets
+
+3. **XMLHttpRequestInstrumentation**: Automatic HTTP request tracing
+   - Non-intrusive patching of global XMLHttpRequest
+   - Comprehensive timing capture (request start, response start/end)
+   - W3C Trace Context propagation for CORS requests
+   - Configurable URL filtering and hook functions
+   - Automatic span creation with HTTP attributes
+
+✅ IE11 Compatibility Features:
+- **Event Handling**: IE11-compatible event listener patterns
+- **Error Management**: Graceful degradation with console fallbacks
+- **Header Processing**: Manual header parsing for IE11 limitations
+- **Timing Collection**: Date.now() based timing for IE11 compatibility
+- **Promise Support**: Full Promise implementation for async operations
+
+✅ OpenTelemetry Integration:
+- **Span Attributes**: Complete HTTP metadata capture (method, URL, status, timing)
+- **Context Propagation**: W3C traceparent header injection
+- **Error Handling**: Proper span status setting for HTTP errors
+- **Resource Tracking**: Request/response content length measurement
+- **Hook System**: Extensible request/response processing
+
+✅ Advanced Features:
+- **Retry Logic**: Configurable retry attempts with exponential backoff
+- **Batch Processing**: Efficient multi-span export with parallel requests
+- **CORS Support**: Selective trace header propagation for cross-origin requests
+- **URL Filtering**: Pattern-based request filtering (string/regex)
+- **Automatic Installation**: Self-configuring instrumentation
+
+✅ Performance Optimizations:
+- **Minimal Overhead**: Non-blocking instrumentation with error isolation
+- **Memory Efficiency**: Proper cleanup and resource management
+- **Timing Accuracy**: High-resolution timing capture where available
+- **Network Efficiency**: Batched exports with configurable sizing
+
+TASK 6.1 FETCH API REPLACEMENT WITH XMLHTTPREQUEST IS NOW COMPLETE.
+All modern Fetch API usage has been successfully replaced with IE11-compatible XMLHttpRequest implementations.
+</info added on 2025-05-23T02:54:32.635Z>
+
+## 2. Event Listener Handling Adaptation [done]
+### Dependencies: None
+### Description: Modify event listener implementation to account for IE11's event model differences
+### Details:
+Refactor event binding code to use attachEvent() as fallback when addEventListener() is not available. Implement event object normalization to handle IE11's event.srcElement vs event.target differences. Create utility functions to manage event propagation and bubbling consistently across browsers. Test with various DOM events including custom events.
+<info added on 2025-05-23T02:57:47.720Z>
+Comprehensive IE11 Event System Implementation:
+
+1. **EventListenerManager**: Complete event handling abstraction layer
+   - addEventListener/attachEvent dual compatibility (IE8-11 + modern browsers)
+   - Event object normalization (target vs srcElement, preventDefault vs returnValue)
+   - Event propagation control (stopPropagation vs cancelBubble)
+   - stopImmediatePropagation simulation for IE11
+   - Event listener tracking and cleanup management
+
+2. **Event Configuration Support**: Advanced options handling
+   - capture, passive, once options with IE11 fallbacks
+   - Automatic cleanup functions for memory management
+   - Custom event dispatching with createEvent/createEventObject fallbacks
+   - DOM ready state detection with multiple compatibility paths
+
+3. **DOMUtils**: Comprehensive DOM API polyfills
+   - Element.closest() and Element.matches() polyfills with msMatchesSelector
+   - classList operations (add, remove, toggle, contains) for IE11
+   - Data attribute handling (dataset polyfill for IE11)
+   - NodeList iteration and Array conversion utilities
+   - Text content handling (textContent vs innerText)
+
+4. **DocumentLoadInstrumentation**: Performance timing capture
+   - Navigation timing API with IE11 compatibility
+   - Resource timing collection and analysis
+   - DOM lifecycle event tracking (DOMContentLoaded, load, visibilitychange)
+   - Performance metrics calculation (load times, resource counts)
+   - SPA navigation handling with visibility API
+
+IE11 Compatibility Features:
+- **Event Model**: Full IE8-11 event model support with modern API compatibility
+- **DOM APIs**: Complete polyfill coverage for modern DOM methods
+- **Performance APIs**: Graceful degradation for timing collection
+- **Memory Management**: Proper event listener cleanup and tracking
+- **Error Handling**: Safe console usage with feature detection
+
+Browser Support Matrix:
+- **Modern Browsers**: Native addEventListener, CustomEvent, Performance APIs
+- **IE11**: attachEvent fallback, createEvent, performance.timing
+- **IE8-10**: createEventObject, manual timing collection
+- **Universal**: Direct property assignment as last resort
+
+Advanced Event Features:
+- **Event Normalization**: Consistent event interface across browsers
+- **Custom Events**: Cross-browser custom event creation and dispatch
+- **Event Delegation**: Proper bubbling and capture phase handling
+- **DOM Ready**: Multiple detection methods for document ready state
+- **Viewport Utilities**: Position, size, and visibility detection
+
+Performance Optimizations:
+- **Lazy Loading**: Feature detection and progressive enhancement
+- **Memory Efficiency**: Automatic cleanup and listener tracking
+- **Timing Accuracy**: High-resolution timing where available
+- **Resource Monitoring**: Detailed resource loading analytics
+</info added on 2025-05-23T02:57:47.720Z>
+
+## 3. DOM Interaction Code Modification [done]
+### Dependencies: 6.2
+### Description: Update DOM manipulation code to use IE11-compatible methods and properties
+### Details:
+Replace modern DOM APIs with IE11-compatible alternatives. Create polyfills for Element.closest(), Element.matches(), and NodeList iteration. Implement fallbacks for classList operations and custom data attributes. Test DOM operations across different HTML structures and dynamic content scenarios.
+<info added on 2025-05-23T04:03:57.131Z>
+# DOM Interaction Code Modification COMPLETED
+
+## Comprehensive DOM Interaction Layer Implementation:
+
+1. **DOMInteractionLayer**: Advanced DOM manipulation utilities for IE11
+   - **Selector Engine**: Enhanced querySelector/querySelectorAll with IE11 fallbacks
+   - **DOM Traversal**: Complete tree navigation utilities (parent chains, siblings, children)
+   - **Form Interactions**: Form data collection, validation, field management
+   - **Mutation Observation**: MutationObserver polyfill with polling fallback
+   - **Intersection Observation**: IntersectionObserver polyfill with scroll/resize events
+   - **Focus Management**: Focus trap, focusable element detection, active element tracking
+   - **Accessibility**: ARIA attributes, accessible names, role detection
+   - **Element Creation**: Template handling, fragment creation with IE11 compatibility
+
+2. **UserInteractionInstrumentation**: Comprehensive user interaction tracing
+   - **Event Handling**: click, dblclick, submit, keydown, focus, blur with IE11 compatibility
+   - **Element Identification**: XPath generation, CSS selector building, accessible naming
+   - **Span Creation**: Automatic span generation with detailed element attributes
+   - **Form Processing**: Form data capture, validation status, submission tracking
+   - **Debounce Logic**: Event deduplication with configurable timeout
+   - **Focus Tracking**: Long-duration focus/blur span management
+   - **Custom Attributes**: Configurable span attribute extension
+
+3. **IE11 Compatibility Features:**
+   - **Event Normalization**: event.target vs event.srcElement, preventDefault compatibility
+   - **DOM API Polyfills**: closest(), matches(), classList operations, dataset handling
+   - **Performance Fallbacks**: Date.now() based timing, manual resource enumeration
+   - **Memory Management**: Proper event listener cleanup, timer management
+   - **Error Handling**: Graceful degradation with console fallbacks
+
+4. **Advanced Instrumentation Features:**
+   - **Mouse Coordinates**: Click/interaction position tracking
+   - **Form Validation**: HTML5 validation with IE11 fallbacks
+   - **Element Hierarchy**: Parent-child relationship tracking
+   - **Accessibility Integration**: Screen reader compatibility, ARIA support
+   - **Custom Event Support**: createEvent/createEventObject for IE11
+
+5. **Integration Points:**
+   - **EventListenerManager**: Cross-browser event management
+   - **DOMUtils**: Low-level DOM operation utilities
+   - **OpenTelemetry SDK**: Span creation and attribute management
+   - **Configuration System**: Flexible instrumentation options
+</info added on 2025-05-23T04:03:57.131Z>
+
+## 4. Performance API Replacement [done]
+### Dependencies: None
+### Description: Implement alternative timing mechanisms for browsers without modern Performance API support
+### Details:
+Create a performance timing abstraction layer that uses Date.now() as fallback when performance.now() is unavailable. Implement high-resolution timing simulation where possible. Develop compatibility wrappers for performance.mark(), performance.measure(), and performance.getEntriesByType(). Test timing accuracy and consistency across different browser environments.
+<info added on 2025-05-23T04:07:54.870Z>
+# Performance API Replacement Implementation
+
+## Comprehensive Performance API Polyfill for IE11
+
+1. **PerformancePolyfill**: Complete Performance API implementation
+   - **High-Resolution Timing**: Microsecond precision simulation with Date.now() fallback
+   - **Performance Marks**: mark() with native fallback and polyfill storage
+   - **Performance Measures**: measure() with mark-to-mark timing and navigation timing integration
+   - **Entry Management**: getEntries(), getEntriesByType(), getEntriesByName() with native priority
+   - **Navigation Timing**: IE11 performance.timing conversion to modern PerformanceNavigationTiming
+   - **Resource Timing**: Native Resource Timing API with DOM element fallback collection
+   - **Clear Methods**: clearMarks(), clearMeasures() with native delegation
+   - **Auto-Installation**: Automatic polyfill installation when native APIs unavailable
+
+2. **WebResourceTiming**: Resource monitoring and instrumentation
+   - **XHR Instrumentation**: XMLHttpRequest patching with Map polyfill for IE11
+   - **Fetch Instrumentation**: Native fetch() API wrapping with timing measurement
+   - **DOM Resource Observation**: Script, CSS, image loading with MutationObserver/polling fallback
+   - **Network Information**: Connection API integration for bandwidth/RTT data
+   - **Observer Pattern**: Resource timing observers with automatic notification
+   - **Performance Statistics**: Load time averages, transfer size totals, entry counting
+   - **Configuration Management**: Flexible configuration for different resource types
+
+3. **IE11 Compatibility Features:**
+   - **Timing Fallbacks**: Date.now() based timing with navigation start offset
+   - **API Polyfills**: Map implementation for XHR tracking, native method preservation
+   - **Event Handling**: load/error event listeners with proper cleanup
+   - **MutationObserver**: Polling fallback for DOM change detection
+   - **Error Handling**: Graceful degradation with console warnings
+
+4. **Advanced Timing Features:**
+   - **Mark-to-Mark Timing**: Custom performance mark measurement
+   - **Navigation Timing Integration**: Well-known navigation marks support
+   - **Resource Classification**: Proper initiatorType detection (script, css, img, xhr, fetch)
+   - **Transfer Size Tracking**: Encoded/decoded body size measurement
+   - **Network Timing**: DNS, connect, request, response phase tracking
+   - **Protocol Detection**: HTTP version and security information
+
+5. **Integration Points:**
+   - **EventListenerManager**: Cross-browser event management
+   - **DOMUtils**: Low-level DOM utilities
+   - **Performance Standards**: W3C Performance Timeline compatibility
+   - **OpenTelemetry Integration**: Span timing and resource measurement support
+</info added on 2025-05-23T04:07:54.870Z>
+
+## 5. Web Resource Timing Implementation [done]
+### Dependencies: 6.4
+### Description: Develop IE11-compatible resource timing collection mechanisms
+### Details:
+Create custom resource timing collection for IE11 using available APIs. Implement XMLHttpRequest instrumentation to capture timing data manually. Develop fallbacks for ResourceTiming API functionality. Create a unified interface that works across modern and legacy browsers. Test with various resource types including scripts, stylesheets, and images.
+<info added on 2025-05-23T04:11:34.792Z>
+# Web Resource Timing Implementation COMPLETED
+
+## Comprehensive Resource Timing Collection for IE11:
+
+1. **WebResourceTiming**: Complete resource monitoring system
+   - **ResourceTimingEntry Interface**: W3C-compatible resource timing data structure
+   - **XHR Instrumentation**: XMLHttpRequest patching with timing measurement
+   - **Fetch Instrumentation**: Native fetch() API wrapping for timing collection
+   - **DOM Resource Observation**: Script, CSS, image loading with event listeners
+   - **Network Information**: Connection API integration for bandwidth/RTT data
+   - **Observer Pattern**: Resource timing observers with automatic notification
+
+2. **IE11 Compatibility Features:**
+   - **Map Polyfill**: Custom Map implementation for XHR request tracking
+   - **MutationObserver Fallback**: Polling-based DOM change detection
+   - **Event Handling**: load/error event listeners with proper cleanup
+   - **Native API Priority**: Uses native Resource Timing API when available
+   - **Graceful Degradation**: Fallback mechanisms for missing APIs
+
+3. **Resource Type Support:**
+   - **XMLHttpRequest**: Complete timing data with request/response phases
+   - **Fetch API**: Promise-based timing measurement
+   - **Script Elements**: Dynamic and static script loading timing
+   - **CSS Stylesheets**: Link element loading performance
+   - **Images**: Image loading timing and error handling
+   - **Iframes**: Frame loading observation
+
+4. **Advanced Timing Features:**
+   - **Transfer Size Tracking**: Encoded/decoded body size measurement
+   - **Network Phase Timing**: DNS, connect, request, response timing
+   - **Protocol Detection**: HTTP version and security information
+   - **Error Tracking**: Failed resource loading detection
+   - **Performance Statistics**: Load time averages and totals
+
+5. **Configuration and Management:**
+   - **Flexible Configuration**: Enable/disable specific resource types
+   - **Buffer Management**: Configurable entry limits to prevent memory leaks
+   - **Observer Management**: Add/remove timing observers dynamically
+   - **Statistics Reporting**: Real-time performance metrics
+</info added on 2025-05-23T04:11:34.792Z>
+
+## 6. Auto-Instrumentation Adaptation [done]
+### Dependencies: 6.1, 6.2, 6.3
+### Description: Modify the auto-instrumentation system to work with IE11's JavaScript engine
+### Details:
+Refactor plugin initialization to avoid ES6+ syntax. Update document-load instrumentation to use IE11-compatible event lifecycle. Modify XMLHttpRequestInstrumentation and UserInteractionInstrumentation for IE11 compatibility. Implement Zone.js compatibility layer for context propagation in IE11. Test auto-instrumentation with various web application scenarios.
+<info added on 2025-05-23T04:09:28.816Z>
+✅ Auto-Instrumentation Adaptation COMPLETED:
+
+**Comprehensive Auto-Instrumentation System for IE11:**
+
+1. **AutoInstrumentation**: Central instrumentation orchestrator
+   - **Feature Detection**: Browser capability detection for IE11 compatibility
+   - **Modular Initialization**: Individual instrumentation component management
+   - **Configuration Management**: Flexible enable/disable with auto-detection
+   - **Status Tracking**: Real-time instrumentation status monitoring
+   - **Error Handling**: Graceful degradation with proper error reporting
+   - **Lifecycle Management**: Initialize, disable, configure, status reporting
+
+2. **Instrumentation Components Integration:**
+   - **DocumentLoadInstrumentation**: Page load timing and navigation performance
+   - **UserInteractionInstrumentation**: Click, form, focus, keyboard interaction tracing
+   - **XMLHttpRequestInstrumentation**: HTTP request timing and header propagation
+   - **PerformancePolyfill**: Performance API compatibility layer
+   - **WebResourceTiming**: Resource loading observation and measurement
+   - **ErrorTracking**: Global error handler and unhandled promise rejection capture
+   - **ConsoleLogging**: Console method patching for log tracing
+
+3. **IE11 Compatibility Features:**
+   - **Function Constructors**: Traditional constructor pattern for IE11
+   - **Event Handling**: EventListenerManager integration for cross-browser events
+   - **Object.assign Polyfill**: Native object merging for configuration management
+   - **Feature Detection**: Graceful handling of missing APIs (fetch, Promise, MutationObserver)
+   - **Error Boundaries**: Isolated error handling to prevent cascade failures
+   - **Memory Management**: Proper cleanup and prevention of memory leaks
+
+4. **Advanced Auto-Instrumentation Features:**
+   - **Auto-Detection**: Automatic capability detection and configuration adjustment
+   - **Global Instance**: Singleton pattern for consistent instrumentation access
+   - **Lazy Initialization**: DOM-ready triggered setup for optimal performance
+   - **Modular Design**: Individual component enable/disable without affecting others
+   - **Status Reporting**: Real-time visibility into instrumentation state
+   - **Configuration Updates**: Runtime configuration changes without restart
+
+5. **Integration Points:**
+   - **EventListenerManager**: Cross-browser event management
+   - **OpenTelemetry SDK**: Span creation and trace propagation
+   - **Performance APIs**: Timing measurement and resource observation
+   - **Global Error Handling**: window.onerror and unhandledrejection events
+   - **Console Patching**: Native console method enhancement
+
+6. **Export Functions:**
+   - **getGlobalAutoInstrumentation()**: Access singleton instance
+   - **autoInstrument()**: Quick setup with default configuration
+   - **AutoInstrumentation constructor**: Manual instantiation
+</info added on 2025-05-23T04:09:28.816Z>
+
+## 7. Integration Testing and Validation [done]
+### Dependencies: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6
+### Description: Comprehensive testing of the adapted SDK across browser environments
+### Details:
+Set up automated testing infrastructure with IE11 and modern browsers. Create test scenarios covering all instrumentation types. Validate trace data consistency between IE11 and modern browsers. Perform performance benchmarking to identify optimization opportunities. Document browser-specific behaviors and limitations for end users.
+

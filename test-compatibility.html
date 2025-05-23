@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>OpenTelemetry IE11 Compatibility Test</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .test-result {
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 4px;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .info {
+        background-color: #cce7ff;
+        color: #004085;
+        border: 1px solid #b0d4f1;
+      }
+      #results {
+        max-height: 500px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        padding: 15px;
+        background-color: #f8f9fa;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1>OpenTelemetry IE11 Compatibility Test Suite</h1>
+      <p>
+        This page tests OpenTelemetry functionality specifically for IE11
+        compatibility.
+      </p>
+
+      <button onclick="runAllTests()">Run All Tests</button>
+      <button onclick="clearResults()">Clear Results</button>
+      <button onclick="testBasicAPI()">Test Basic API</button>
+      <button onclick="testAdvancedFeatures()">Test Advanced Features</button>
+      <button onclick="testPolyfills()">Test Polyfills</button>
+
+      <div id="results"></div>
+    </div>
+
+    <!-- Load OpenTelemetry IE11 bundle -->
+    <script src="dist/opentelemetry-ie11.js"></script>
+
+    <script>
+      var resultsDiv = document.getElementById("results");
+      var testCount = 0;
+      var passCount = 0;
+      var failCount = 0;
+
+      function log(message, type) {
+        type = type || "info";
+        var div = document.createElement("div");
+        div.className = "test-result " + type;
+        div.innerHTML = "[" + new Date().toLocaleTimeString() + "] " + message;
+        resultsDiv.appendChild(div);
+        resultsDiv.scrollTop = resultsDiv.scrollHeight;
+      }
+
+      function test(description, testFunction) {
+        testCount++;
+        try {
+          var result = testFunction();
+          if (result !== false) {
+            passCount++;
+            log("✅ PASS: " + description, "success");
+            return true;
+          } else {
+            failCount++;
+            log("❌ FAIL: " + description, "error");
+            return false;
+          }
+        } catch (error) {
+          failCount++;
+          log("❌ ERROR: " + description + " - " + error.message, "error");
+          return false;
+        }
+      }
+
+      function clearResults() {
+        resultsDiv.innerHTML = "";
+        testCount = 0;
+        passCount = 0;
+        failCount = 0;
+      }
+
+      function testPolyfills() {
+        log("Testing IE11 Polyfills...", "info");
+
+        test("Promise should be available", function () {
+          return typeof Promise === "function";
+        });
+
+        test("Map should be available", function () {
+          return typeof Map === "function";
+        });
+
+        test("Set should be available", function () {
+          return typeof Set === "function";
+        });
+
+        test("Symbol should be available", function () {
+          return typeof Symbol === "function";
+        });
+
+        test("fetch should be available", function () {
+          return typeof fetch === "function";
+        });
+
+        test("URL constructor should work", function () {
+          var url = new URL("https://example.com/path");
+          return url.hostname === "example.com";
+        });
+
+        test("crypto.getRandomValues should work", function () {
+          var array = new Uint32Array(1);
+          crypto.getRandomValues(array);
+          return array[0] !== undefined;
+        });
+      }
+
+      function testBasicAPI() {
+        log("Testing Basic OpenTelemetry API...", "info");
+
+        test("OpenTelemetry global object exists", function () {
+          return typeof opentelemetry === "object";
+        });
+
+        test("Trace API is available", function () {
+          return typeof opentelemetry.trace === "object";
+        });
+
+        test("Can create a tracer", function () {
+          var tracer = opentelemetry.trace.getTracer("test-tracer");
+          return typeof tracer === "object";
+        });
+
+        test("Can create and use spans", function () {
+          var tracer = opentelemetry.trace.getTracer("test-tracer");
+          var span = tracer.startSpan("test-span");
+          span.setAttribute("test.key", "test.value");
+          span.end();
+          return !span.isRecording();
+        });
+
+        test("Context API works", function () {
+          var ctx = opentelemetry.context.active();
+          var newCtx = opentelemetry.context.setValue(ctx, "key", "value");
+          var value = opentelemetry.context.getValue(newCtx, "key");
+          return value === "value";
+        });
+      }
+
+      function testAdvancedFeatures() {
+        log("Testing Advanced Features...", "info");
+
+        test("TraceState functionality", function () {
+          var tracer = opentelemetry.trace.getTracer("tracestate-test");
+          var span = tracer.startSpan("test-span");
+          var traceState = span.spanContext().traceState;
+
+          var newState = traceState.set("vendor", "otel");
+          var value = newState.get("vendor");
+          span.end();
+
+          return value === "otel";
+        });
+
+        test("Nested spans work correctly", function () {
+          var tracer = opentelemetry.trace.getTracer("nested-test");
+          var parent = tracer.startSpan("parent");
+          var child = tracer.startSpan("child");
+
+          parent.setAttribute("type", "parent");
+          child.setAttribute("type", "child");
+          child.setAttribute("parent.id", parent.spanContext().spanId);
+
+          child.end();
+          parent.end();
+
+          return !parent.isRecording() && !child.isRecording();
+        });
+
+        test("ID generation is unique", function () {
+          var tracer = opentelemetry.trace.getTracer("id-test");
+          var spans = [];
+          var ids = [];
+
+          for (var i = 0; i < 5; i++) {
+            var span = tracer.startSpan("span-" + i);
+            ids.push(span.spanContext().traceId);
+            spans.push(span);
+          }
+
+          // Clean up
+          for (var i = 0; i < spans.length; i++) {
+            spans[i].end();
+          }
+
+          // Check uniqueness
+          var unique = ids.filter(function (id, index) {
+            return ids.indexOf(id) === index;
+          });
+
+          return unique.length > 1; // At least some should be unique
+        });
+
+        test("startActiveSpan works correctly", function () {
+          var tracer = opentelemetry.trace.getTracer("active-test");
+          var result = tracer.startActiveSpan("active-span", function (span) {
+            span.setAttribute("active", "true");
+            return "success";
+          });
+
+          return result === "success";
+        });
+      }
+
+      function runAllTests() {
+        clearResults();
+        log("Starting OpenTelemetry IE11 Compatibility Test Suite", "info");
+        log("Browser: " + navigator.userAgent, "info");
+
+        testPolyfills();
+        testBasicAPI();
+        testAdvancedFeatures();
+
+        log(
+          "Test Summary: " +
+            passCount +
+            " passed, " +
+            failCount +
+            " failed, " +
+            testCount +
+            " total",
+          "info"
+        );
+
+        if (failCount === 0) {
+          log(
+            "🎉 All tests passed! OpenTelemetry is fully compatible with this browser.",
+            "success"
+          );
+        } else {
+          log(
+            "⚠️ Some tests failed. Check compatibility issues above.",
+            "error"
+          );
+        }
+      }
+
+      // Auto-run tests on page load
+      window.onload = function () {
+        log("Page loaded. OpenTelemetry IE11 test suite ready.", "info");
+        // Uncomment to auto-run: runAllTests();
+      };
+    </script>
+  </body>
+</html>

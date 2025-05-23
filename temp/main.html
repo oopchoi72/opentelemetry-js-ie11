@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>OpenTelemetry IE11 Data Collection & Export</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+        margin: -30px -30px 30px -30px;
+        padding: 30px;
+        border-radius: 8px 8px 0 0;
+      }
+
+      .section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+      }
+
+      .section h3 {
+        margin-top: 0;
+        color: #333;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .button {
+        background-color: #667eea;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+        font-size: 14px;
+      }
+
+      .button:hover {
+        background-color: #5a6fd8;
+      }
+
+      .button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .button.success {
+        background-color: #28a745;
+      }
+
+      .button.error {
+        background-color: #dc3545;
+      }
+
+      .log-output {
+        background-color: #2d3748;
+        color: #68d391;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        max-height: 400px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+      }
+
+      .status-display {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .status-success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .status-error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+
+      .status-warning {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      .controls {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .info-grid {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .info-row {
+        display: table-row;
+      }
+
+      .info-label,
+      .info-value {
+        display: table-cell;
+        padding: 8px 12px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .info-label {
+        font-weight: bold;
+        background-color: #f8f9fa;
+        width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>OpenTelemetry IE11 Data Collection</h1>
+        <p>Collect and export telemetry data to OTLP collector</p>
+      </div>
+
+      <!-- Collector Configuration -->
+      <div class="section">
+        <h3>🔗 Collector Configuration</h3>
+        <div class="info-grid">
+          <div class="info-row">
+            <div class="info-label">Collector URL</div>
+            <div class="info-value" id="collector-url">
+              https://otel-test-collector.imqa.io
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Export Format</div>
+            <div class="info-value">OTLP/HTTP (JSON)</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Connection Status</div>
+            <div class="info-value" id="connection-status">
+              <span class="status-display status-warning">Not Tested</span>
+            </div>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="button" onclick="testCollectorConnection()">
+            Test Connection
+          </button>
+        </div>
+      </div>
+
+      <!-- Data Collection -->
+      <div class="section">
+        <h3>📊 Data Collection</h3>
+        <div class="controls">
+          <button class="button" onclick="startDataCollection()">
+            Start Collection
+          </button>
+          <button class="button" onclick="stopDataCollection()">
+            Stop Collection
+          </button>
+          <button class="button" onclick="generateTestData()">
+            Generate Test Data
+          </button>
+          <button class="button" onclick="exportCollectedData()">
+            Export to Collector
+          </button>
+        </div>
+        <div class="info-grid" id="collection-info">
+          <div class="info-row">
+            <div class="info-label">Collection Status</div>
+            <div class="info-value" id="collection-status">
+              <span class="status-display status-warning">Stopped</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Spans Collected</div>
+            <div class="info-value" id="spans-count">0</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Metrics Collected</div>
+            <div class="info-value" id="metrics-count">0</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Last Export</div>
+            <div class="info-value" id="last-export">Never</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test Actions -->
+      <div class="section">
+        <h3>🎯 Test Actions</h3>
+        <div class="controls">
+          <button class="button" onclick="simulateUserInteraction()">
+            Simulate User Interaction
+          </button>
+          <button class="button" onclick="simulatePageLoad()">
+            Simulate Page Load
+          </button>
+          <button class="button" onclick="simulateApiCall()">
+            Simulate API Call
+          </button>
+          <button class="button" onclick="simulateError()">
+            Simulate Error
+          </button>
+        </div>
+        <p><em>These actions will generate telemetry data for testing</em></p>
+      </div>
+
+      <!-- Log Output -->
+      <div class="section">
+        <h3>📝 Activity Log</h3>
+        <div class="controls">
+          <button class="button" onclick="clearLog()">Clear Log</button>
+          <button class="button" onclick="exportLog()">Export Log</button>
+        </div>
+        <div class="log-output" id="log-output">
+          OpenTelemetry IE11 Data Collection Demo
+          ====================================== Initializing...
+        </div>
+      </div>
+    </div>
+
+    <!-- Load IE11 Compatible Modules -->
+    <script src="../dist/vendor-polyfills.js"></script>
+    <script src="../dist/ie11-performance.js"></script>
+    <script src="../dist/ie11-browser.js"></script>
+    <script src="../dist/ie11-dom-events.js"></script>
+
+    <script>
+      (function () {
+        "use strict";
+
+        // Global state
+        var isCollecting = false;
+        var collectedSpans = [];
+        var collectedMetrics = [];
+        var performanceAnalyzer = null;
+        var domInstrumentation = null;
+        var collectorUrl = "https://otel-test-collector.imqa.io";
+        var serviceInfo = {
+          name: "ie11-demo-app",
+          version: "1.0.0",
+          environment: "demo",
+        };
+
+        // Utility functions
+        function log(message, type) {
+          type = type || "info";
+          var timestamp = new Date().toISOString();
+          var logOutput = document.getElementById("log-output");
+          var logMessage =
+            "[" +
+            timestamp +
+            "] [" +
+            type.toUpperCase() +
+            "] " +
+            message +
+            "\n";
+          logOutput.textContent += logMessage;
+          logOutput.scrollTop = logOutput.scrollHeight;
+          console.log(message);
+        }
+
+        function generateTraceId() {
+          var chars = "0123456789abcdef";
+          var result = "";
+          for (var i = 0; i < 32; i++) {
+            result += chars[Math.floor(Math.random() * 16)];
+          }
+          return result;
+        }
+
+        function generateSpanId() {
+          var chars = "0123456789abcdef";
+          var result = "";
+          for (var i = 0; i < 16; i++) {
+            result += chars[Math.floor(Math.random() * 16)];
+          }
+          return result;
+        }
+
+        function getCurrentTimestamp() {
+          // Return timestamp in nanoseconds as string
+          return (Date.now() * 1000000).toString();
+        }
+
+        // OTLP Data Structures
+        function createOTLPSpan(
+          name,
+          startTime,
+          endTime,
+          traceId,
+          spanId,
+          parentSpanId,
+          attributes,
+          events
+        ) {
+          return {
+            traceId: traceId || generateTraceId(),
+            spanId: spanId || generateSpanId(),
+            parentSpanId: parentSpanId || undefined,
+            name: name,
+            kind: 1, // SPAN_KIND_INTERNAL
+            startTimeUnixNano: startTime || getCurrentTimestamp(),
+            endTimeUnixNano: endTime || getCurrentTimestamp(),
+            attributes: attributes
+              ? Object.keys(attributes).map(function (key) {
+                  return {
+                    key: key,
+                    value: { stringValue: String(attributes[key]) },
+                  };
+                })
+              : [],
+            events: events || [],
+            status: { code: 1 }, // STATUS_CODE_OK
+          };
+        }
+
+        function createOTLPMetric(name, value, unit, timestamp, attributes) {
+          return {
+            name: name,
+            unit: unit || "",
+            gauge: {
+              dataPoints: [
+                {
+                  timeUnixNano: timestamp || getCurrentTimestamp(),
+                  asDouble: value,
+                  attributes: attributes
+                    ? Object.keys(attributes).map(function (key) {
+                        return {
+                          key: key,
+                          value: { stringValue: String(attributes[key]) },
+                        };
+                      })
+                    : [],
+                },
+              ],
+            },
+          };
+        }
+
+        function createOTLPExportPayload(spans, metrics) {
+          var payload = {
+            resourceSpans: [],
+            resourceMetrics: [],
+          };
+
+          if (spans && spans.length > 0) {
+            payload.resourceSpans.push({
+              resource: {
+                attributes: [
+                  {
+                    key: "service.name",
+                    value: { stringValue: serviceInfo.name },
+                  },
+                  {
+                    key: "service.version",
+                    value: { stringValue: serviceInfo.version },
+                  },
+                  {
+                    key: "service.environment",
+                    value: { stringValue: serviceInfo.environment },
+                  },
+                  {
+                    key: "telemetry.sdk.name",
+                    value: { stringValue: "opentelemetry-js-ie11" },
+                  },
+                  {
+                    key: "telemetry.sdk.version",
+                    value: { stringValue: "1.0.0" },
+                  },
+                ],
+              },
+              scopeSpans: [
+                {
+                  scope: {
+                    name: "ie11-instrumentation",
+                    version: "1.0.0",
+                  },
+                  spans: spans,
+                },
+              ],
+            });
+          }
+
+          if (metrics && metrics.length > 0) {
+            payload.resourceMetrics.push({
+              resource: {
+                attributes: [
+                  {
+                    key: "service.name",
+                    value: { stringValue: serviceInfo.name },
+                  },
+                  {
+                    key: "service.version",
+                    value: { stringValue: serviceInfo.version },
+                  },
+                ],
+              },
+              scopeMetrics: [
+                {
+                  scope: {
+                    name: "ie11-instrumentation",
+                    version: "1.0.0",
+                  },
+                  metrics: metrics,
+                },
+              ],
+            });
+          }
+
+          return payload;
+        }
+
+        // HTTP request function for IE11 compatibility
+        function sendHTTPRequest(url, method, data, headers, callback) {
+          var xhr = new XMLHttpRequest();
+
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+              var success = xhr.status >= 200 && xhr.status < 300;
+              callback(success, xhr.status, xhr.responseText);
+            }
+          };
+
+          try {
+            xhr.open(method || "POST", url, true);
+
+            // Set headers
+            if (headers) {
+              for (var key in headers) {
+                if (headers.hasOwnProperty(key)) {
+                  xhr.setRequestHeader(key, headers[key]);
+                }
+              }
+            }
+
+            var payload = data ? JSON.stringify(data) : null;
+            xhr.send(payload);
+          } catch (error) {
+            callback(false, 0, error.message);
+          }
+        }
+
+        // Collector functions
+        function testCollectorConnection() {
+          log("Testing collector connection...");
+
+          var testData = {
+            resourceSpans: [
+              {
+                resource: {
+                  attributes: [
+                    {
+                      key: "service.name",
+                      value: { stringValue: "connection-test" },
+                    },
+                  ],
+                },
+                scopeSpans: [
+                  {
+                    scope: { name: "test" },
+                    spans: [
+                      {
+                        traceId: generateTraceId(),
+                        spanId: generateSpanId(),
+                        name: "connection-test",
+                        kind: 1,
+                        startTimeUnixNano: getCurrentTimestamp(),
+                        endTimeUnixNano: getCurrentTimestamp(),
+                        status: { code: 1 },
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          };
+
+          sendHTTPRequest(
+            collectorUrl + "/v1/traces",
+            "POST",
+            testData,
+            {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            function (success, status, response) {
+              var statusElement = document.getElementById("connection-status");
+              if (success) {
+                log("Collector connection successful (Status: " + status + ")");
+                statusElement.innerHTML =
+                  '<span class="status-display status-success">Connected</span>';
+              } else {
+                log(
+                  "Collector connection failed (Status: " +
+                    status +
+                    "): " +
+                    response,
+                  "error"
+                );
+                statusElement.innerHTML =
+                  '<span class="status-display status-error">Failed</span>';
+              }
+            }
+          );
+        }
+
+        function exportCollectedData() {
+          if (collectedSpans.length === 0 && collectedMetrics.length === 0) {
+            log("No data to export", "warning");
+            return;
+          }
+
+          log(
+            "Exporting " +
+              collectedSpans.length +
+              " spans and " +
+              collectedMetrics.length +
+              " metrics..."
+          );
+
+          var payload = createOTLPExportPayload(
+            collectedSpans,
+            collectedMetrics
+          );
+
+          // Export spans
+          if (collectedSpans.length > 0) {
+            sendHTTPRequest(
+              collectorUrl + "/v1/traces",
+              "POST",
+              { resourceSpans: payload.resourceSpans },
+              {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              function (success, status, response) {
+                if (success) {
+                  log("Spans exported successfully (Status: " + status + ")");
+                  document.getElementById("last-export").textContent =
+                    new Date().toLocaleTimeString();
+                } else {
+                  log(
+                    "Span export failed (Status: " + status + "): " + response,
+                    "error"
+                  );
+                }
+              }
+            );
+          }
+
+          // Export metrics
+          if (collectedMetrics.length > 0) {
+            sendHTTPRequest(
+              collectorUrl + "/v1/metrics",
+              "POST",
+              { resourceMetrics: payload.resourceMetrics },
+              {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              function (success, status, response) {
+                if (success) {
+                  log("Metrics exported successfully (Status: " + status + ")");
+                } else {
+                  log(
+                    "Metrics export failed (Status: " +
+                      status +
+                      "): " +
+                      response,
+                    "error"
+                  );
+                }
+              }
+            );
+          }
+        }
+
+        // Data collection functions
+        function startDataCollection() {
+          if (isCollecting) {
+            log("Data collection already started", "warning");
+            return;
+          }
+
+          isCollecting = true;
+          log("Starting data collection...");
+
+          // Initialize performance analyzer
+          if (
+            typeof OpenTelemetryIE11 !== "undefined" &&
+            OpenTelemetryIE11["ie11-performance"]
+          ) {
+            try {
+              var performanceModule = OpenTelemetryIE11["ie11-performance"];
+              performanceAnalyzer = performanceModule.createBottleneckAnalyzer({
+                enableProfiling: true,
+                sampleInterval: 2000,
+              });
+              performanceAnalyzer.startMonitoring();
+              log("Performance monitoring started");
+            } catch (error) {
+              log(
+                "Failed to start performance monitoring: " + error.message,
+                "error"
+              );
+            }
+          }
+
+          // Initialize DOM instrumentation
+          if (
+            typeof OpenTelemetryIE11 !== "undefined" &&
+            OpenTelemetryIE11["ie11-dom-events"]
+          ) {
+            try {
+              var domModule = OpenTelemetryIE11["ie11-dom-events"];
+              domInstrumentation = domModule.createDOMEventInstrumentation({
+                enableEventHistory: true,
+                maxEventHistory: 100,
+                throttleHighFrequency: true,
+              });
+              domInstrumentation.instrumentDocument();
+              domInstrumentation.startTracking();
+              log("DOM event tracking started");
+            } catch (error) {
+              log("Failed to start DOM tracking: " + error.message, "error");
+            }
+          }
+
+          document.getElementById("collection-status").innerHTML =
+            '<span class="status-display status-success">Running</span>';
+
+          // Start periodic metric collection
+          window.collectionInterval = setInterval(function () {
+            collectPerformanceMetrics();
+          }, 5000);
+
+          log("Data collection started successfully");
+        }
+
+        function stopDataCollection() {
+          if (!isCollecting) {
+            log("Data collection not running", "warning");
+            return;
+          }
+
+          isCollecting = false;
+          log("Stopping data collection...");
+
+          if (performanceAnalyzer) {
+            performanceAnalyzer.stopMonitoring();
+          }
+
+          if (domInstrumentation) {
+            domInstrumentation.stopTracking();
+          }
+
+          if (window.collectionInterval) {
+            clearInterval(window.collectionInterval);
+            window.collectionInterval = null;
+          }
+
+          document.getElementById("collection-status").innerHTML =
+            '<span class="status-display status-warning">Stopped</span>';
+
+          log("Data collection stopped");
+        }
+
+        function collectPerformanceMetrics() {
+          if (!isCollecting || !performanceAnalyzer) return;
+
+          try {
+            var report = performanceAnalyzer.generateReport();
+
+            // Create performance metrics
+            var timestamp = getCurrentTimestamp();
+
+            collectedMetrics.push(
+              createOTLPMetric(
+                "performance.render_time",
+                report.metrics.renderTime,
+                "ms",
+                timestamp,
+                {
+                  "browser.name": report.isIE11
+                    ? "Internet Explorer"
+                    : "Unknown",
+                  "browser.version": report.isIE11 ? "11" : "Unknown",
+                }
+              )
+            );
+
+            collectedMetrics.push(
+              createOTLPMetric(
+                "performance.script_execution_time",
+                report.metrics.scriptExecutionTime,
+                "ms",
+                timestamp
+              )
+            );
+
+            collectedMetrics.push(
+              createOTLPMetric(
+                "performance.memory_usage",
+                report.metrics.memoryUsage,
+                "bytes",
+                timestamp
+              )
+            );
+
+            updateUI();
+          } catch (error) {
+            log(
+              "Error collecting performance metrics: " + error.message,
+              "error"
+            );
+          }
+        }
+
+        function generateTestData() {
+          log("Generating test data...");
+
+          var traceId = generateTraceId();
+          var startTime = getCurrentTimestamp();
+
+          // Create test spans
+          var rootSpan = createOTLPSpan(
+            "test-operation",
+            startTime,
+            startTime,
+            traceId,
+            generateSpanId(),
+            null,
+            {
+              "test.type": "manual",
+              "user.action": "generate_test_data",
+            }
+          );
+
+          var childSpan = createOTLPSpan(
+            "test-child-operation",
+            startTime,
+            startTime,
+            traceId,
+            generateSpanId(),
+            rootSpan.spanId,
+            {
+              "child.process": "data_processing",
+            }
+          );
+
+          collectedSpans.push(rootSpan);
+          collectedSpans.push(childSpan);
+
+          // Create test metrics
+          collectedMetrics.push(
+            createOTLPMetric(
+              "test.counter",
+              Math.floor(Math.random() * 100),
+              "count",
+              startTime,
+              {
+                "test.source": "manual",
+              }
+            )
+          );
+
+          collectedMetrics.push(
+            createOTLPMetric(
+              "test.latency",
+              Math.random() * 1000,
+              "ms",
+              startTime
+            )
+          );
+
+          updateUI();
+          log("Test data generated: 2 spans, 2 metrics");
+        }
+
+        // Test action functions
+        function simulateUserInteraction() {
+          log("Simulating user interaction...");
+
+          var traceId = generateTraceId();
+          var startTime = getCurrentTimestamp();
+          var endTime = (Date.now() + 150) * 1000000;
+
+          var span = createOTLPSpan(
+            "user.interaction",
+            startTime,
+            endTime.toString(),
+            traceId,
+            generateSpanId(),
+            null,
+            {
+              "interaction.type": "click",
+              "interaction.target": "button",
+              "user.id": "demo-user",
+            }
+          );
+
+          collectedSpans.push(span);
+          updateUI();
+          log("User interaction span created");
+        }
+
+        function simulatePageLoad() {
+          log("Simulating page load...");
+
+          var traceId = generateTraceId();
+          var startTime = getCurrentTimestamp();
+          var endTime = (Date.now() + 2000) * 1000000;
+
+          var span = createOTLPSpan(
+            "page.load",
+            startTime,
+            endTime.toString(),
+            traceId,
+            generateSpanId(),
+            null,
+            {
+              "page.url": window.location.href,
+              "page.title": document.title,
+              "load.duration": "2000",
+            }
+          );
+
+          collectedSpans.push(span);
+          updateUI();
+          log("Page load span created");
+        }
+
+        function simulateApiCall() {
+          log("Simulating API call...");
+
+          var traceId = generateTraceId();
+          var startTime = getCurrentTimestamp();
+          var endTime = (Date.now() + 300) * 1000000;
+
+          var span = createOTLPSpan(
+            "http.request",
+            startTime,
+            endTime.toString(),
+            traceId,
+            generateSpanId(),
+            null,
+            {
+              "http.method": "GET",
+              "http.url": "https://api.example.com/data",
+              "http.status_code": "200",
+              "http.response_size": "1024",
+            }
+          );
+
+          collectedSpans.push(span);
+          updateUI();
+          log("API call span created");
+        }
+
+        function simulateError() {
+          log("Simulating error...");
+
+          var traceId = generateTraceId();
+          var startTime = getCurrentTimestamp();
+          var endTime = getCurrentTimestamp();
+
+          var span = createOTLPSpan(
+            "error.operation",
+            startTime,
+            endTime,
+            traceId,
+            generateSpanId(),
+            null,
+            {
+              "error.type": "ValidationError",
+              "error.message": "Simulated error for testing",
+              "error.stack": "at simulateError (main.html:1:1)",
+            }
+          );
+
+          span.status = { code: 2, message: "Simulated error for testing" }; // STATUS_CODE_ERROR
+
+          collectedSpans.push(span);
+          updateUI();
+          log("Error span created");
+        }
+
+        function updateUI() {
+          document.getElementById("spans-count").textContent =
+            collectedSpans.length;
+          document.getElementById("metrics-count").textContent =
+            collectedMetrics.length;
+        }
+
+        // Utility functions for UI
+        window.testCollectorConnection = testCollectorConnection;
+        window.startDataCollection = startDataCollection;
+        window.stopDataCollection = stopDataCollection;
+        window.generateTestData = generateTestData;
+        window.exportCollectedData = exportCollectedData;
+        window.simulateUserInteraction = simulateUserInteraction;
+        window.simulatePageLoad = simulatePageLoad;
+        window.simulateApiCall = simulateApiCall;
+        window.simulateError = simulateError;
+
+        window.clearLog = function () {
+          document.getElementById("log-output").textContent = "Log cleared.\n";
+        };
+
+        window.exportLog = function () {
+          var logContent = document.getElementById("log-output").textContent;
+          var blob = new Blob([logContent], { type: "text/plain" });
+          var url = window.URL.createObjectURL(blob);
+
+          var a = document.createElement("a");
+          a.href = url;
+          a.download =
+            "otel-ie11-log-" +
+            new Date().toISOString().slice(0, 19).replace(/:/g, "-") +
+            ".txt";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+
+          log("Log exported to file");
+        };
+
+        // Initialize
+        function initialize() {
+          log("Initializing OpenTelemetry IE11 Data Collection Demo...");
+
+          // Check if modules are loaded
+          if (typeof OpenTelemetryIE11 !== "undefined") {
+            log("OpenTelemetry IE11 modules loaded successfully");
+
+            if (OpenTelemetryIE11["ie11-performance"]) {
+              log("Performance module available");
+            }
+            if (OpenTelemetryIE11["ie11-browser"]) {
+              log("Browser detection module available");
+            }
+            if (OpenTelemetryIE11["ie11-dom-events"]) {
+              log("DOM events module available");
+            }
+          } else {
+            log("Warning: OpenTelemetry IE11 modules not found", "warning");
+          }
+
+          log(
+            "Demo ready! Use the buttons above to collect and export telemetry data."
+          );
+          log("Collector URL: " + collectorUrl);
+        }
+
+        // Start when DOM is ready
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", initialize);
+        } else {
+          initialize();
+        }
+      })();
+    </script>
+  </body>
+</html>

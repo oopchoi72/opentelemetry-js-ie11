@@ -1,0 +1,60 @@
+# Task ID: 16
+# Title: Fix Critical TypeScript Compilation Errors and Optimize Bundle Size
+# Status: done
+# Dependencies: 2
+# Priority: high
+# Description: Resolve urgent TypeScript compilation errors in core modules and optimize the bundle size from 878KB to 174KB.
+# Details:
+This task requires addressing several critical TypeScript compilation issues:
+
+1. Fix the `importScripts` type error in core/index.ts:
+   - Identify why TypeScript is flagging importScripts (likely due to missing type definitions)
+   - Add proper type declarations or use appropriate type assertions
+   - Ensure compatibility with the polyfills implemented in Task 2
+
+2. Improve type safety for hasOwnProperty usage:
+   - Replace direct calls to obj.hasOwnProperty() with Object.prototype.hasOwnProperty.call(obj, prop)
+   - Add proper type guards where necessary
+   - Consider creating a type-safe utility function for hasOwnProperty checks
+
+3. Resolve interface conflicts in metrics/index.ts:
+   - Identify and fix overlapping or contradictory interface definitions
+   - Ensure proper extension of interfaces where needed
+   - Consolidate duplicate interfaces
+
+4. Optimize bundle size (878KB → 174KB):
+   - Implement tree-shaking optimizations
+   - Remove unused imports and dead code
+   - Configure TypeScript compiler options for optimal output
+   - Consider code splitting and lazy loading where appropriate
+   - Review and optimize third-party dependencies
+
+This task builds upon the polyfills implemented in Task 2, ensuring that all TypeScript code properly interacts with those polyfills while maintaining type safety.
+
+# Test Strategy:
+To verify successful completion of this task:
+
+1. TypeScript Compilation Testing:
+   - Run `tsc --noEmit` to verify all TypeScript errors are resolved
+   - Ensure zero TypeScript errors in CI/CD pipeline
+   - Verify compilation works with strict type checking enabled
+
+2. Runtime Testing:
+   - Create unit tests for the fixed components in core/index.ts
+   - Test edge cases for hasOwnProperty usage
+   - Verify metrics functionality works as expected
+
+3. Bundle Size Verification:
+   - Use webpack-bundle-analyzer or similar tool to measure bundle size
+   - Confirm reduction from 878KB to approximately 174KB
+   - Document the optimization techniques that yielded the most significant reductions
+
+4. Cross-browser Testing:
+   - Test in IE11 to ensure polyfill compatibility
+   - Verify functionality in Chrome, Firefox, Safari, and Edge
+   - Ensure no regression in browser compatibility
+
+5. Performance Testing:
+   - Measure and document load time improvements
+   - Verify that the optimizations don't negatively impact runtime performance
+   - Create performance benchmarks for future reference

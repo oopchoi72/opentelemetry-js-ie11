@@ -1,0 +1,355 @@
+# Task ID: 5
+# Title: Transform @opentelemetry/sdk-trace-base for IE11
+# Status: done
+# Dependencies: 4
+# Priority: high
+# Description: Adapt the base tracing SDK to work in IE11 environment
+# Details:
+1. Fork or create a modified version of @opentelemetry/sdk-trace-base
+2. Convert all ES6+ syntax to ES5 compatible code
+3. Replace modern JavaScript features with polyfilled alternatives:
+   - Replace Map/Set with polyfilled versions
+   - Convert async/await to Promise chains
+   - Replace array spread/rest with apply/concat
+4. Optimize the sampling and context propagation for IE11 performance
+5. Ensure span creation and management works efficiently in IE11
+6. Adapt batch processing to handle IE11 performance constraints
+
+Example async code transformation:
+```javascript
+// Original async/await code
+async function exportSpans(spans) {
+  try {
+    await exporter.export(spans);
+    return { code: ExportResultCode.SUCCESS };
+  } catch (error) {
+    return { code: ExportResultCode.FAILED, error };
+  }
+}
+
+// Transformed Promise-based code
+function exportSpans(spans) {
+  return exporter.export(spans).then(function() {
+    return { code: ExportResultCode.SUCCESS };
+  }).catch(function(error) {
+    return { code: ExportResultCode.FAILED, error: error };
+  });
+}
+```
+
+# Test Strategy:
+1. Create comprehensive tests for span creation, modification, and ending
+2. Test context propagation across different execution contexts
+3. Verify sampling behavior works correctly
+4. Test batch span processing under load
+5. Benchmark performance against modern browsers to ensure it meets the 20% threshold
+6. Test memory usage patterns to prevent leaks in IE11
+
+# Subtasks:
+## 1. ES6+ Syntax Conversion [done]
+### Dependencies: None
+### Description: Convert the SDK to use modern ES6+ syntax for better compatibility and readability.
+### Details:
+Replace CommonJS with ES modules, update syntax for arrow functions, and use async/await for promises.
+<info added on 2025-05-23T02:32:34.193Z>
+ISSUE IDENTIFIED: The current subtask description is incorrect - it mentions "modern ES6+ syntax" when we need IE11 compatibility (ES5).
+
+CORRECTED APPROACH:
+1. Convert ES6+ syntax TO ES5 syntax (not the other way around)
+2. Replace ES modules WITH CommonJS or simple variable exports
+3. Convert arrow functions TO function expressions
+4. Replace async/await WITH Promise chains
+5. Convert const/let TO var declarations
+6. Replace template literals WITH string concatenation
+
+PLAN:
+1. Create sdk-trace-base directory structure
+2. Start with basic Span class implementation
+3. Convert all ES6+ features to IE11-compatible ES5
+4. Focus on core span lifecycle: creation, attributes, events, ending
+5. Implement context propagation mechanism
+6. Add sampling logic
+</info added on 2025-05-23T02:32:34.193Z>
+<info added on 2025-05-23T02:39:32.788Z>
+IMPLEMENTATION PROGRESS UPDATE:
+
+Successfully created SDK Trace Base foundation with IE11 compatibility:
+
+1. ✅ Created types.ts with complete type definitions:
+   - SpanKind, SpanAttributes, Link, Exception interfaces
+   - Sampling decision and export result enums as const objects
+   - All interfaces adapted for IE11 compatibility
+
+2. ✅ Implemented IE11-compatible Span class:
+   - Function constructor pattern for IE11 compatibility
+   - All APISpan interface methods implemented
+   - Span limits enforcement for attributes, events, links
+   - Exception recording functionality
+   - ReadableSpan properties with getter/setter patterns
+   - Private property encapsulation using closures
+
+3. ✅ Implemented IE11-compatible Tracer class:
+   - Function constructor pattern
+   - startSpan and startActiveSpan methods
+   - Automatic span context generation
+   - Promise handling for async operations
+   - Exception handling and span lifecycle management
+   - SDK-specific methods for configuration access
+
+4. ✅ ES6+ to ES5 conversions completed:
+   - var instead of const/let
+   - function expressions instead of arrow functions
+   - Object.defineProperty for getters instead of ES6 getters
+   - Manual parameter handling instead of destructuring
+   - Closure-based private properties
+
+NEXT STEPS:
+- Complete remaining modules (TracerProvider, SpanProcessor, Sampler)
+- Move to subtask 5.2 for modern JavaScript replacement
+- Address TypeScript warnings (intentional for IE11 compatibility)
+</info added on 2025-05-23T02:39:32.788Z>
+
+## 2. Modern JavaScript Feature Replacement [done]
+### Dependencies: 5.1
+### Description: Replace outdated JavaScript features with modern equivalents to improve performance and maintainability.
+### Details:
+Update deprecated methods and use modern JavaScript features like `for...of` loops and `Object.assign()`.
+<info added on 2025-05-23T02:40:16.883Z>
+Identify and replace modern JavaScript features with IE11-compatible alternatives:
+
+1. Replace Array methods:
+   - Convert Array.find() to traditional loops with conditional checks
+   - Replace Array.includes() with indexOf() > -1 checks
+   - Convert Array.entries() to manual index/value tracking
+
+2. Replace Object.assign() with manual property copying:
+   ```
+   // Instead of Object.assign(target, source)
+   for (var key in source) {
+     if (source.hasOwnProperty(key)) {
+       target[key] = source[key];
+     }
+   }
+   ```
+
+3. Convert for...of loops to traditional for loops or forEach
+
+4. Replace destructuring with explicit variable assignments:
+   ```
+   // Instead of const { a, b } = obj;
+   var a = obj.a;
+   var b = obj.b;
+   ```
+
+5. Ensure Promise usage is compatible with polyfills
+
+6. Replace modern string methods:
+   - startsWith/endsWith with indexOf checks
+   - padStart/padEnd with custom implementations
+
+Create utility functions for these replacements to maintain code readability while ensuring IE11 compatibility.
+</info added on 2025-05-23T02:40:16.883Z>
+<info added on 2025-05-23T02:42:06.144Z>
+Successfully implemented IE11-compatible replacements for modern JavaScript features:
+
+1. Created utility function library:
+   - Object methods: objectAssign, objectEntries, objectValues, objectKeys
+   - Array methods: arrayFind, arrayFindIndex, arrayIncludes, arrayFrom
+   - String methods: stringStartsWith, stringEndsWith, stringIncludes, stringPadStart, stringPadEnd
+   - Collection alternatives: createSimpleSet, createSimpleMap
+
+2. Implemented IE11-compatible TracerProvider:
+   - Used function constructor pattern instead of ES6 classes
+   - Implemented key-based tracer caching with createSimpleMap
+   - Created composite span processor pattern
+   - Ensured proper shutdown and flush lifecycle management
+   - Added no-op tracer/span implementations for graceful degradation
+
+3. Established IE11-friendly architecture patterns:
+   - Function constructors with prototypes
+   - Closure-based private properties
+   - Manual property copying instead of destructuring
+   - Traditional for loops for all iterations
+
+All modern JavaScript features have been successfully replaced with IE11-compatible alternatives while maintaining code readability and functionality.
+</info added on 2025-05-23T02:42:06.144Z>
+
+## 3. Sampling Optimization [done]
+### Dependencies: 5.2
+### Description: Optimize the sampling strategy to reduce overhead while maintaining sufficient trace data.
+### Details:
+Implement adaptive sampling based on trace ID ratios and parent-based sampling to optimize trace data collection.
+<info added on 2025-05-23T02:44:02.860Z>
+Implemented optimized IE11-compatible sampling strategies including AlwaysOnSampler (100% sampling rate), AlwaysOffSampler (0% sampling rate), and TraceIdRatioBasedSampler with pre-calculated thresholds, fast paths for common ratios, and optimized trace ID parsing.
+
+Developed IE11-compatible span processors: SimpleSpanProcessor for immediate export with error handling, and BatchSpanProcessor with configurable batch sizes, optimized queue management, timer-based scheduling using setTimeout/clearTimeout, timeout handling, graceful shutdown, and memory-efficient batch extraction.
+
+Applied performance optimizations specifically for IE11 including pre-calculated sampling thresholds, fast path execution, efficient queue management, minimal memory allocation, and IE11-compatible timer handling.
+
+All implementations follow IE11-compatible patterns using function constructors instead of classes, var declarations instead of const/let, traditional for loops, manual property access, and closure-based private properties.
+</info added on 2025-05-23T02:44:02.860Z>
+
+## 4. Context Propagation Adaptation [done]
+### Dependencies: 5.3
+### Description: Adapt context propagation to ensure seamless tracing across different components and services.
+### Details:
+Implement context propagation using OpenTelemetry's Baggage API to maintain trace context across service boundaries.
+<info added on 2025-05-23T02:45:43.172Z>
+Implemented comprehensive IE11-compatible context propagation system:
+
+1. **ContextManager**: Core context management with IE11 compatibility
+   - setValue/getValue for immutable context operations
+   - active() for current context retrieval
+   - with() for scoped context execution
+   - bind() for function context binding
+   - Uses createSimpleMap for IE11-compatible storage
+
+2. **SpanContextUtils**: Span-specific context utilities
+   - setSpanContext/getSpanContext for span context management
+   - setActiveSpan/getActiveSpan for active span tracking
+   - setSpan/getSpan for unified span operations
+   - Non-recording span creation for context propagation
+
+3. **TraceContextPropagation**: W3C Trace Context support
+   - extract() for parsing traceparent headers
+   - inject() for creating traceparent headers
+   - Full W3C Trace Context specification compliance
+   - Graceful handling of malformed headers
+
+4. **Export Infrastructure**: 
+   - ReadableSpan interface export
+   - BaseSpanExporter and ConsoleSpanExporter implementations
+   - IE11-compatible error handling
+
+Key IE11 optimizations implemented:
+- Immutable context operations using map copying
+- Function constructor patterns throughout
+- Traditional for loops for iteration
+- Manual property access instead of destructuring
+- IE11-compatible string operations (padStart fallback)
+- Safe console access with feature detection
+
+W3C Trace Context compliance:
+- Proper traceparent header parsing (version-traceId-spanId-flags)
+- Validation of trace ID (32 chars) and span ID (16 chars)
+- Trace flags handling with hex conversion
+- Tracestate header support for vendor-specific data
+
+Context propagation features:
+- Seamless trace context across service boundaries
+- Active span management with fallback to non-recording spans
+- Function binding for async operation context preservation
+- Scoped execution with automatic context restoration
+</info added on 2025-05-23T02:45:43.172Z>
+
+## 5. Span Management Implementation [done]
+### Dependencies: 5.4
+### Description: Implement efficient span management to handle span creation, attributes, and lifecycle.
+### Details:
+Use OpenTelemetry's Tracer API to manage spans, including starting, setting attributes, and ending spans.
+<info added on 2025-05-23T02:47:54.561Z>
+# Span Management Implementation
+
+## Enhanced Span Implementation with Advanced Management
+- Upgraded span.ts with comprehensive management features
+- Dropped count tracking for attributes, events, and links
+- Enhanced exception recording with structured attributes
+- ReadableSpan interface with proper getters using Object.defineProperty
+- Span validation and debugging methods (isValid, toString)
+- Duration calculation using hrTimeToNanoseconds
+- Enhanced span limits enforcement with drop counting
+
+## SpanBuilder Pattern
+- Implemented fluent span creation interface
+- Fluent API for span configuration (setSpanKind, setParent, setAttribute)
+- Link management with addLink method
+- Start time configuration
+- Automatic parent span ID resolution
+- Integration with span processors for lifecycle management
+
+## SpanManager Utilities
+- createSpanBuilder for fluent span creation
+- createChildSpan for hierarchical span relationships
+- validateSpanHierarchy for trace integrity validation
+- getSpanStatistics for performance monitoring and analytics
+
+## Advanced Features
+- Lifecycle Management: Proper span start/end with processor notifications
+- Hierarchy Validation: Parent-child relationship validation across traces
+- Statistics Collection: Comprehensive span analytics (duration, status, kind)
+- Resource Limits: Intelligent dropping with count tracking
+- Error Handling: Graceful degradation with detailed error reporting
+
+## IE11 Compatibility
+- Function constructor patterns throughout
+- Object.defineProperty for getter/setter implementation
+- Traditional for loops for all iterations
+- Manual property copying with objectAssign
+- Closure-based private properties
+- No ES6+ features used
+
+## Performance Optimizations
+- Efficient span creation with builder pattern
+- Minimal memory allocation during span operations
+- Fast hierarchy validation with trace mapping
+- Optimized statistics calculation
+- Proper resource cleanup on span end
+</info added on 2025-05-23T02:47:54.561Z>
+
+## 6. Batch Processing Optimization [done]
+### Dependencies: 5.5
+### Description: Optimize batch processing for exporting trace data to improve performance and reduce latency.
+### Details:
+Implement batch processing using OpenTelemetry's SimpleSpanProcessor to efficiently export spans in batches.
+<info added on 2025-05-23T02:50:56.818Z>
+# Batch Processing Optimization Implementation
+
+## Advanced Batch Processing Optimization
+
+- Implemented BatchOptimizer utility with comprehensive optimization strategies:
+  - Dynamic batch sizing based on span complexity (attributes/events count)
+  - Trace ID + start time sorting for optimal processing
+  - Trace-based grouping for efficient export
+  - Optimized batch creation with size optimization
+
+- Developed OptimizedBatchSpanProcessor with IE11 compatibility:
+  - Smart batch size adjustment (0.7x for complex spans, 1.3x for simple spans)
+  - Multi-batch parallel export with timeout handling
+  - Export statistics tracking (totalExports, totalSpans, avgBatchSize, avgExportTime)
+  - Configurable optimization settings
+  - Advanced queue management with FIFO overflow
+
+## Performance Optimizations for IE11
+
+- Implemented complexity-based batching that adjusts sizes based on span attribute/event density
+- Added trace-aware sorting to group related spans for better export efficiency
+- Enabled parallel export with multiple batches exported simultaneously with timeout protection
+- Integrated statistics collection for real-time performance metrics
+- Enhanced memory management with efficient queue handling and configurable limits
+
+## Export Optimization Features
+
+- Optimized base size of 512 spans for IE11
+- Implemented dynamic sizing:
+  - Complex spans (>10 attrs or >5 events): Reduced to 70% batch size
+  - Simple spans (<3 attrs and <2 events): Increased to 130% batch size
+  - Enforced reasonable bounds of 50-1000 spans per batch
+- Added export timeout of 30 seconds with graceful fallback
+
+## IE11 Compatibility
+
+- Used setTimeout/clearTimeout for timer management
+- Implemented function constructors throughout
+- Utilized traditional for loops for all iterations
+- Applied manual property copying with objectAssign
+- Employed closure-based private properties
+- Avoided modern JavaScript features
+
+## SDK Integration
+
+- Ensured seamless integration with existing BatchSpanProcessor
+- Created drop-in replacement with enhanced optimization
+- Maintained compatibility with all existing span exporters
+- Added configurable optimization levels
+</info added on 2025-05-23T02:50:56.818Z>
+

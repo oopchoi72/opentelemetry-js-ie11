@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>OpenTelemetry IE11 - Basic Setup Example</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+        margin: -30px -30px 30px -30px;
+        padding: 30px;
+        border-radius: 8px 8px 0 0;
+      }
+
+      .section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+      }
+
+      .section h3 {
+        margin-top: 0;
+        color: #333;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .info-grid {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .info-row {
+        display: table-row;
+      }
+
+      .info-label,
+      .info-value {
+        display: table-cell;
+        padding: 8px 12px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .info-label {
+        font-weight: bold;
+        background-color: #f8f9fa;
+        width: 200px;
+      }
+
+      .status-indicator {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .status-success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .status-warning {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      .status-error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+
+      .button {
+        background-color: #667eea;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+        font-size: 14px;
+      }
+
+      .button:hover {
+        background-color: #5a6fd8;
+      }
+
+      .button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .log-output {
+        background-color: #2d3748;
+        color: #68d391;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+      }
+
+      .controls {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .ie11-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        border-left: 4px solid #ffc107;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>OpenTelemetry IE11 Basic Setup</h1>
+        <p>Demonstrating IE11-compatible OpenTelemetry functionality</p>
+      </div>
+
+      <!-- IE11 Warning for modern browsers -->
+      <div
+        class="ie11-warning"
+        id="modern-browser-warning"
+        style="display: none"
+      >
+        <strong>Note:</strong> You're viewing this on a modern browser. This
+        example is specifically designed for IE11 compatibility. The polyfills
+        and performance optimizations will still work but may not be necessary.
+      </div>
+
+      <!-- Browser Information Section -->
+      <div class="section">
+        <h3>🌐 Browser Information</h3>
+        <div class="info-grid" id="browser-info">
+          <div class="info-row">
+            <div class="info-label">Detecting browser...</div>
+            <div class="info-value">Please wait...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Monitoring Section -->
+      <div class="section">
+        <h3>⚡ Performance Monitoring</h3>
+        <div class="controls">
+          <button class="button" onclick="startPerformanceMonitoring()">
+            Start Monitoring
+          </button>
+          <button class="button" onclick="stopPerformanceMonitoring()">
+            Stop Monitoring
+          </button>
+          <button class="button" onclick="generatePerformanceReport()">
+            Generate Report
+          </button>
+          <button class="button" onclick="simulateLoad()">Simulate Load</button>
+        </div>
+        <div class="info-grid" id="performance-info">
+          <div class="info-row">
+            <div class="info-label">Status</div>
+            <div class="info-value" id="perf-status">
+              <span class="status-indicator status-warning">Not Started</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Monitoring Time</div>
+            <div class="info-value" id="perf-time">0 seconds</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Bottlenecks Detected</div>
+            <div class="info-value" id="perf-bottlenecks">0</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Memory Usage</div>
+            <div class="info-value" id="perf-memory">N/A</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOM Event Tracking Section -->
+      <div class="section">
+        <h3>📊 DOM Event Tracking</h3>
+        <div class="controls">
+          <button class="button" onclick="startEventTracking()">
+            Start Event Tracking
+          </button>
+          <button class="button" onclick="stopEventTracking()">
+            Stop Event Tracking
+          </button>
+          <button class="button" onclick="showEventStatistics()">
+            Show Statistics
+          </button>
+          <button class="button" onclick="clearEventHistory()">
+            Clear History
+          </button>
+        </div>
+        <div class="info-grid" id="event-info">
+          <div class="info-row">
+            <div class="info-label">Status</div>
+            <div class="info-value" id="event-status">
+              <span class="status-indicator status-warning">Not Started</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Total Events</div>
+            <div class="info-value" id="event-total">0</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Most Frequent Event</div>
+            <div class="info-value" id="event-frequent">None</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Events/Second</div>
+            <div class="info-value" id="event-rate">0</div>
+          </div>
+        </div>
+
+        <!-- Test area for generating events -->
+        <div
+          style="
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed #ddd;
+            text-align: center;
+          "
+        >
+          <p><strong>Test Event Generation Area</strong></p>
+          <button class="button" onclick="generateTestEvents()">
+            Generate Test Events
+          </button>
+          <button
+            class="button"
+            onmouseover="logEvent('mouseover')"
+            onmouseout="logEvent('mouseout')"
+          >
+            Hover Test
+          </button>
+          <input
+            type="text"
+            placeholder="Type here to generate events..."
+            onkeyup="logEvent('keyup')"
+            style="margin: 5px; padding: 5px"
+          />
+        </div>
+      </div>
+
+      <!-- Log Output Section -->
+      <div class="section">
+        <h3>📝 Activity Log</h3>
+        <div class="controls">
+          <button class="button" onclick="clearLog()">Clear Log</button>
+          <button class="button" onclick="exportLog()">Export Log</button>
+        </div>
+        <div class="log-output" id="log-output">
+          Welcome to OpenTelemetry IE11 Basic Setup Example
+          ================================================= Initializing...
+        </div>
+      </div>
+    </div>
+
+    <!-- Load OpenTelemetry IE11 modules -->
+    <script>
+      // IE11 compatibility check and polyfill loading
+      (function () {
+        "use strict";
+
+        // Global variables for tracking
+        var performanceAnalyzer = null;
+        var domInstrumentation = null;
+        var monitoringStartTime = 0;
+        var monitoringTimer = null;
+
+        // Log function
+        function log(message, type) {
+          type = type || "info";
+          var timestamp = new Date().toLocaleTimeString();
+          var logOutput = document.getElementById("log-output");
+          var logMessage = "[" + timestamp + "] " + message + "\n";
+          logOutput.textContent += logMessage;
+          logOutput.scrollTop = logOutput.scrollHeight;
+
+          // Also log to console
+          console.log(message);
+        }
+
+        // Polyfill loading for IE11
+        function loadPolyfills() {
+          log("Checking for required polyfills...");
+
+          var polyfillsNeeded = [];
+
+          if (!window.Promise) {
+            polyfillsNeeded.push("Promise");
+          }
+          if (!Array.prototype.includes) {
+            polyfillsNeeded.push("Array.prototype.includes");
+          }
+          if (!String.prototype.includes) {
+            polyfillsNeeded.push("String.prototype.includes");
+          }
+          if (!Object.assign) {
+            polyfillsNeeded.push("Object.assign");
+          }
+
+          if (polyfillsNeeded.length > 0) {
+            log("Loading polyfills: " + polyfillsNeeded.join(", "), "warning");
+
+            // Load polyfills (in a real scenario, these would be loaded from CDN or bundled)
+            if (!window.Promise) {
+              // Simple Promise polyfill for demo
+              window.Promise =
+                window.Promise ||
+                function (executor) {
+                  var self = this;
+                  self.state = "pending";
+                  self.value = undefined;
+                  self.handlers = [];
+
+                  function resolve(value) {
+                    if (self.state === "pending") {
+                      self.state = "fulfilled";
+                      self.value = value;
+                      self.handlers.forEach(function (handler) {
+                        handler.onFulfilled(value);
+                      });
+                    }
+                  }
+
+                  function reject(error) {
+                    if (self.state === "pending") {
+                      self.state = "rejected";
+                      self.value = error;
+                      self.handlers.forEach(function (handler) {
+                        handler.onRejected(error);
+                      });
+                    }
+                  }
+
+                  self.then = function (onFulfilled, onRejected) {
+                    return new Promise(function (resolve, reject) {
+                      function handle() {
+                        if (self.state === "fulfilled") {
+                          if (onFulfilled) {
+                            try {
+                              resolve(onFulfilled(self.value));
+                            } catch (e) {
+                              reject(e);
+                            }
+                          } else {
+                            resolve(self.value);
+                          }
+                        } else if (self.state === "rejected") {
+                          if (onRejected) {
+                            try {
+                              resolve(onRejected(self.value));
+                            } catch (e) {
+                              reject(e);
+                            }
+                          } else {
+                            reject(self.value);
+                          }
+                        } else {
+                          self.handlers.push({
+                            onFulfilled: function (value) {
+                              if (onFulfilled) {
+                                try {
+                                  resolve(onFulfilled(value));
+                                } catch (e) {
+                                  reject(e);
+                                }
+                              } else {
+                                resolve(value);
+                              }
+                            },
+                            onRejected: function (error) {
+                              if (onRejected) {
+                                try {
+                                  resolve(onRejected(error));
+                                } catch (e) {
+                                  reject(e);
+                                }
+                              } else {
+                                reject(error);
+                              }
+                            },
+                          });
+                        }
+                      }
+
+                      if (self.state !== "pending") {
+                        setTimeout(handle, 0);
+                      } else {
+                        handle();
+                      }
+                    });
+                  };
+
+                  self.catch = function (onRejected) {
+                    return self.then(null, onRejected);
+                  };
+
+                  try {
+                    executor(resolve, reject);
+                  } catch (e) {
+                    reject(e);
+                  }
+                };
+            }
+
+            // Array.prototype.includes polyfill
+            if (!Array.prototype.includes) {
+              Array.prototype.includes = function (searchElement, fromIndex) {
+                "use strict";
+                var O = Object(this);
+                var len = parseInt(O.length) || 0;
+                if (len === 0) return false;
+                var n = parseInt(fromIndex) || 0;
+                var k;
+                if (n >= 0) {
+                  k = n;
+                } else {
+                  k = len + n;
+                  if (k < 0) k = 0;
+                }
+                for (; k < len; k++) {
+                  if (searchElement === O[k]) return true;
+                }
+                return false;
+              };
+            }
+
+            // Object.assign polyfill
+            if (!Object.assign) {
+              Object.assign = function (target) {
+                "use strict";
+                if (target == null) {
+                  throw new TypeError(
+                    "Cannot convert undefined or null to object"
+                  );
+                }
+                var to = Object(target);
+                for (var index = 1; index < arguments.length; index++) {
+                  var nextSource = arguments[index];
+                  if (nextSource != null) {
+                    for (var nextKey in nextSource) {
+                      if (
+                        Object.prototype.hasOwnProperty.call(
+                          nextSource,
+                          nextKey
+                        )
+                      ) {
+                        to[nextKey] = nextSource[nextKey];
+                      }
+                    }
+                  }
+                }
+                return to;
+              };
+            }
+
+            log("Polyfills loaded successfully", "success");
+          } else {
+            log(
+              "No polyfills needed - all features are natively supported",
+              "success"
+            );
+          }
+        }
+
+        // Browser detection (simplified version)
+        function detectBrowser() {
+          var ua = navigator.userAgent.toLowerCase();
+          var isIE11 = ua.indexOf("trident/") > -1 && ua.indexOf("rv:11") > -1;
+          var isModern =
+            !isIE11 &&
+            (ua.indexOf("chrome") > -1 ||
+              ua.indexOf("firefox") > -1 ||
+              ua.indexOf("safari") > -1 ||
+              ua.indexOf("edge") > -1);
+
+          var browserInfo = {
+            name: isIE11
+              ? "Internet Explorer"
+              : ua.indexOf("chrome") > -1
+              ? "Chrome"
+              : ua.indexOf("firefox") > -1
+              ? "Firefox"
+              : ua.indexOf("safari") > -1
+              ? "Safari"
+              : ua.indexOf("edge") > -1
+              ? "Edge"
+              : "Unknown",
+            version: isIE11 ? "11" : "Unknown",
+            isIE11: isIE11,
+            isModern: isModern,
+            userAgent: navigator.userAgent,
+            supports: {
+              promisesNative: !!window.Promise,
+              fetch: !!window.fetch,
+              objectAssign: !!Object.assign,
+              arrayIncludes: !!Array.prototype.includes,
+              stringIncludes: !!String.prototype.includes,
+            },
+          };
+
+          return browserInfo;
+        }
+
+        // Update browser information display
+        function updateBrowserInfo() {
+          var browserInfo = detectBrowser();
+          var browserInfoElement = document.getElementById("browser-info");
+
+          var html = "";
+          html +=
+            '<div class="info-row"><div class="info-label">Browser</div><div class="info-value">' +
+            browserInfo.name +
+            " " +
+            browserInfo.version +
+            "</div></div>";
+          html +=
+            '<div class="info-row"><div class="info-label">IE11 Compatibility Mode</div><div class="info-value">';
+          if (browserInfo.isIE11) {
+            html +=
+              '<span class="status-indicator status-success">Active</span>';
+          } else {
+            html +=
+              '<span class="status-indicator status-warning">Not Required</span>';
+          }
+          html += "</div></div>";
+          html +=
+            '<div class="info-row"><div class="info-label">Native Promise Support</div><div class="info-value">';
+          html += browserInfo.supports.promisesNative
+            ? '<span class="status-indicator status-success">Yes</span>'
+            : '<span class="status-indicator status-error">No (Polyfilled)</span>';
+          html += "</div></div>";
+          html +=
+            '<div class="info-row"><div class="info-label">Native Fetch Support</div><div class="info-value">';
+          html += browserInfo.supports.fetch
+            ? '<span class="status-indicator status-success">Yes</span>'
+            : '<span class="status-indicator status-error">No</span>';
+          html += "</div></div>";
+          html +=
+            '<div class="info-row"><div class="info-label">Object.assign Support</div><div class="info-value">';
+          html += browserInfo.supports.objectAssign
+            ? '<span class="status-indicator status-success">Yes</span>'
+            : '<span class="status-indicator status-error">No (Polyfilled)</span>';
+          html += "</div></div>";
+
+          browserInfoElement.innerHTML = html;
+
+          // Show warning for modern browsers
+          if (!browserInfo.isIE11) {
+            document.getElementById("modern-browser-warning").style.display =
+              "block";
+          }
+
+          log(
+            "Browser detected: " + browserInfo.name + " " + browserInfo.version
+          );
+          if (browserInfo.isIE11) {
+            log("IE11 mode: Optimizations and polyfills are active", "warning");
+          }
+        }
+
+        // Mock Performance Analyzer (simplified version of the real implementation)
+        function createMockPerformanceAnalyzer() {
+          var analyzer = {
+            isMonitoring: false,
+            startTime: 0,
+            bottlenecks: [],
+            metrics: {
+              renderTime: 0,
+              scriptExecution: 0,
+              memoryUsage: 0,
+            },
+
+            startMonitoring: function () {
+              if (this.isMonitoring) return;
+
+              this.isMonitoring = true;
+              this.startTime = Date.now();
+              this.bottlenecks = [];
+
+              log("Performance monitoring started");
+
+              // Simulate metrics collection
+              var self = this;
+              this.metricsInterval = setInterval(function () {
+                self.collectMetrics();
+              }, 1000);
+            },
+
+            stopMonitoring: function () {
+              if (!this.isMonitoring) return;
+
+              this.isMonitoring = false;
+              clearInterval(this.metricsInterval);
+
+              log("Performance monitoring stopped");
+            },
+
+            collectMetrics: function () {
+              // Simulate performance metrics
+              this.metrics.renderTime = Math.random() * 20 + 5;
+              this.metrics.scriptExecution = Math.random() * 50 + 10;
+              this.metrics.memoryUsage = Math.random() * 10 + 5;
+
+              // Detect bottlenecks
+              if (this.metrics.renderTime > 16) {
+                this.bottlenecks.push({
+                  type: "render",
+                  severity: "high",
+                  message: "Render time exceeds 16ms threshold",
+                });
+              }
+
+              if (this.metrics.scriptExecution > 50) {
+                this.bottlenecks.push({
+                  type: "script",
+                  severity: "medium",
+                  message: "Script execution time is high",
+                });
+              }
+            },
+
+            generateReport: function () {
+              var report = {
+                bottlenecks: this.bottlenecks.slice(),
+                recommendations: [],
+                metrics: Object.assign({}, this.metrics),
+                timestamp: Date.now(),
+              };
+
+              // Generate recommendations
+              if (report.bottlenecks.length > 0) {
+                report.recommendations.push({
+                  message: "Consider optimizing DOM manipulation operations",
+                  priority: "high",
+                });
+                report.recommendations.push({
+                  message: "Enable object pooling for better memory management",
+                  priority: "medium",
+                });
+              } else {
+                report.recommendations.push({
+                  message: "Performance is within acceptable limits",
+                  priority: "low",
+                });
+              }
+
+              return report;
+            },
+          };
+
+          return analyzer;
+        }
+
+        // Mock DOM Event Instrumentation
+        function createMockDOMInstrumentation() {
+          var instrumentation = {
+            isTracking: false,
+            eventCounts: {},
+            totalEvents: 0,
+            startTime: 0,
+
+            startTracking: function () {
+              if (this.isTracking) return;
+
+              this.isTracking = true;
+              this.startTime = Date.now();
+              this.eventCounts = {};
+              this.totalEvents = 0;
+
+              log("DOM event tracking started");
+
+              // Attach event listeners
+              var self = this;
+              document.addEventListener("click", function (e) {
+                self.recordEvent("click", e);
+              });
+              document.addEventListener("keyup", function (e) {
+                self.recordEvent("keyup", e);
+              });
+              document.addEventListener("mouseover", function (e) {
+                self.recordEvent("mouseover", e);
+              });
+              document.addEventListener("mouseout", function (e) {
+                self.recordEvent("mouseout", e);
+              });
+            },
+
+            stopTracking: function () {
+              if (!this.isTracking) return;
+
+              this.isTracking = false;
+              log("DOM event tracking stopped");
+            },
+
+            recordEvent: function (type, event) {
+              if (!this.isTracking) return;
+
+              this.eventCounts[type] = (this.eventCounts[type] || 0) + 1;
+              this.totalEvents++;
+
+              // Update display
+              this.updateEventDisplay();
+            },
+
+            updateEventDisplay: function () {
+              var totalElement = document.getElementById("event-total");
+              var frequentElement = document.getElementById("event-frequent");
+              var rateElement = document.getElementById("event-rate");
+
+              if (totalElement) totalElement.textContent = this.totalEvents;
+
+              // Find most frequent event
+              var mostFrequent = "None";
+              var maxCount = 0;
+              for (var type in this.eventCounts) {
+                if (this.eventCounts[type] > maxCount) {
+                  maxCount = this.eventCounts[type];
+                  mostFrequent = type + " (" + maxCount + ")";
+                }
+              }
+              if (frequentElement) frequentElement.textContent = mostFrequent;
+
+              // Calculate rate
+              var elapsed = (Date.now() - this.startTime) / 1000;
+              var rate =
+                elapsed > 0 ? (this.totalEvents / elapsed).toFixed(1) : "0";
+              if (rateElement) rateElement.textContent = rate;
+            },
+
+            getStatistics: function () {
+              return {
+                totalEvents: this.totalEvents,
+                eventTypeDistribution: Object.assign({}, this.eventCounts),
+                mostFrequentEvent: this.getMostFrequentEvent(),
+                averageEventsPerSecond: this.getEventRate(),
+              };
+            },
+
+            getMostFrequentEvent: function () {
+              var mostFrequent = "None";
+              var maxCount = 0;
+              for (var type in this.eventCounts) {
+                if (this.eventCounts[type] > maxCount) {
+                  maxCount = this.eventCounts[type];
+                  mostFrequent = type;
+                }
+              }
+              return mostFrequent;
+            },
+
+            getEventRate: function () {
+              var elapsed = (Date.now() - this.startTime) / 1000;
+              return elapsed > 0 ? this.totalEvents / elapsed : 0;
+            },
+
+            clearHistory: function () {
+              this.eventCounts = {};
+              this.totalEvents = 0;
+              this.startTime = Date.now();
+              this.updateEventDisplay();
+              log("Event history cleared");
+            },
+          };
+
+          return instrumentation;
+        }
+
+        // Global functions for buttons
+        window.startPerformanceMonitoring = function () {
+          if (!performanceAnalyzer) {
+            performanceAnalyzer = createMockPerformanceAnalyzer();
+          }
+
+          performanceAnalyzer.startMonitoring();
+          document.getElementById("perf-status").innerHTML =
+            '<span class="status-indicator status-success">Active</span>';
+
+          // Start timer display
+          monitoringStartTime = Date.now();
+          monitoringTimer = setInterval(function () {
+            var elapsed = Math.floor((Date.now() - monitoringStartTime) / 1000);
+            document.getElementById("perf-time").textContent =
+              elapsed + " seconds";
+          }, 1000);
+        };
+
+        window.stopPerformanceMonitoring = function () {
+          if (performanceAnalyzer) {
+            performanceAnalyzer.stopMonitoring();
+            document.getElementById("perf-status").innerHTML =
+              '<span class="status-indicator status-warning">Stopped</span>';
+
+            if (monitoringTimer) {
+              clearInterval(monitoringTimer);
+              monitoringTimer = null;
+            }
+          }
+        };
+
+        window.generatePerformanceReport = function () {
+          if (!performanceAnalyzer) {
+            log("Performance analyzer not initialized", "error");
+            return;
+          }
+
+          var report = performanceAnalyzer.generateReport();
+          document.getElementById("perf-bottlenecks").textContent =
+            report.bottlenecks.length;
+          document.getElementById("perf-memory").textContent =
+            report.metrics.memoryUsage.toFixed(1) + " MB";
+
+          log("Performance report generated:");
+          log("- Bottlenecks detected: " + report.bottlenecks.length);
+          log(
+            "- Memory usage: " + report.metrics.memoryUsage.toFixed(1) + " MB"
+          );
+          log("- Render time: " + report.metrics.renderTime.toFixed(1) + " ms");
+
+          report.recommendations.forEach(function (rec) {
+            log("- Recommendation: " + rec.message);
+          });
+        };
+
+        window.simulateLoad = function () {
+          log("Simulating CPU load...");
+
+          // Simulate some CPU intensive work
+          var start = Date.now();
+          var iterations = 1000000;
+          for (var i = 0; i < iterations; i++) {
+            Math.random() * Math.PI;
+          }
+          var elapsed = Date.now() - start;
+
+          log("CPU simulation completed in " + elapsed + "ms");
+
+          // Create some DOM elements to simulate DOM manipulation
+          var testContainer = document.createElement("div");
+          for (var j = 0; j < 100; j++) {
+            var elem = document.createElement("span");
+            elem.textContent = "Test element " + j;
+            testContainer.appendChild(elem);
+          }
+
+          log("Created 100 DOM elements for testing");
+
+          // Clean up
+          setTimeout(function () {
+            testContainer = null;
+            log("Test elements cleaned up");
+          }, 1000);
+        };
+
+        window.startEventTracking = function () {
+          if (!domInstrumentation) {
+            domInstrumentation = createMockDOMInstrumentation();
+          }
+
+          domInstrumentation.startTracking();
+          document.getElementById("event-status").innerHTML =
+            '<span class="status-indicator status-success">Active</span>';
+        };
+
+        window.stopEventTracking = function () {
+          if (domInstrumentation) {
+            domInstrumentation.stopTracking();
+            document.getElementById("event-status").innerHTML =
+              '<span class="status-indicator status-warning">Stopped</span>';
+          }
+        };
+
+        window.showEventStatistics = function () {
+          if (!domInstrumentation) {
+            log("Event tracking not initialized", "error");
+            return;
+          }
+
+          var stats = domInstrumentation.getStatistics();
+          log("Event tracking statistics:");
+          log("- Total events: " + stats.totalEvents);
+          log("- Most frequent: " + stats.mostFrequentEvent);
+          log(
+            "- Events per second: " + stats.averageEventsPerSecond.toFixed(1)
+          );
+          log(
+            "- Event distribution: " +
+              JSON.stringify(stats.eventTypeDistribution)
+          );
+        };
+
+        window.clearEventHistory = function () {
+          if (domInstrumentation) {
+            domInstrumentation.clearHistory();
+          }
+        };
+
+        window.generateTestEvents = function () {
+          log("Generating test events...");
+
+          // Generate various test events
+          var events = ["click", "mouseover", "mouseout", "keyup"];
+          var count = 20;
+
+          for (var i = 0; i < count; i++) {
+            setTimeout(
+              (function (eventType) {
+                return function () {
+                  if (domInstrumentation && domInstrumentation.isTracking) {
+                    domInstrumentation.recordEvent(eventType, {
+                      target: document.body,
+                    });
+                  }
+                };
+              })(events[i % events.length]),
+              i * 50
+            );
+          }
+
+          log("Generated " + count + " test events");
+        };
+
+        window.logEvent = function (eventType) {
+          if (domInstrumentation && domInstrumentation.isTracking) {
+            domInstrumentation.recordEvent(eventType, {
+              target: document.body,
+            });
+          }
+        };
+
+        window.clearLog = function () {
+          document.getElementById("log-output").textContent = "Log cleared.\n";
+        };
+
+        window.exportLog = function () {
+          var logContent = document.getElementById("log-output").textContent;
+          var blob = new Blob([logContent], { type: "text/plain" });
+          var url = window.URL.createObjectURL(blob);
+
+          var a = document.createElement("a");
+          a.href = url;
+          a.download =
+            "opentelemetry-ie11-log-" +
+            new Date().toISOString().slice(0, 19).replace(/:/g, "-") +
+            ".txt";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+
+          log("Log exported to file");
+        };
+
+        // Initialize on load
+        function initialize() {
+          log("Initializing OpenTelemetry IE11 Basic Setup Example...");
+          loadPolyfills();
+          updateBrowserInfo();
+          log("Initialization complete. Ready to use!", "success");
+          log("Try the buttons above to test different features.");
+        }
+
+        // Wait for DOM to be ready
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", initialize);
+        } else {
+          initialize();
+        }
+      })();
+    </script>
+  </body>
+</html>
