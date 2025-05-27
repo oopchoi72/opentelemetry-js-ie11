@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IE11 OpenTelemetry Agent Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        .test-area {
+            border: 2px solid #007cba;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            text-align: center;
+        }
+        .test-area:hover {
+            background-color: #e9ecef;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        button {
+            background-color: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #005a87;
+        }
+        .debug-info {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 IE11 OpenTelemetry Agent 테스트</h1>
+        
+        <div id="browser-info" class="status info">브라우저 정보 확인 중...</div>
+        <div id="agent-status" class="status info">Agent 로딩 중...</div>
+        
+        <div class="debug-info">
+            <h4>디버그 정보:</h4>
+            <div id="debug-info">초기화 중...</div>
+        </div>
+        
+        <div class="test-area" onclick="testClick()" ondblclick="testDoubleClick()">
+            <h3>클릭 테스트 영역</h3>
+            <p>여기를 클릭하거나 더블클릭하여 이벤트 추적을 테스트하세요</p>
+        </div>
+        
+        <button onclick="clearLog()">로그 지우기</button>
+        <button onclick="testAgent()">Agent 기능 테스트</button>
+        <button onclick="checkPolyfills()">폴리필 확인</button>
+        <button onclick="debugAgent()">Agent 디버그</button>
+        
+        <h3>이벤트 로그</h3>
+        <div id="log" class="log">이벤트 대기 중...</div>
+    </div>
+
+    <script>
+        // IE11 호환 전역 변수
+        var eventCount = 0;
+        var agentLoaded = false;
+        var debugMode = true;
+        
+        // IE11 호환 로그 함수
+        function log(message, type) {
+            type = type || 'info';
+            var timestamp = new Date().toLocaleTimeString();
+            var logDiv = document.getElementById('log');
+            var entry = document.createElement('div');
+            entry.innerHTML = '<strong>' + timestamp + '</strong> [' + type.toUpperCase() + '] ' + message;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            // IE11에서도 console 사용 가능
+            if (window.console && window.console.log) {
+                window.console.log('[' + type.toUpperCase() + ']', message);
+            }
+        }
+        
+        // 상태 업데이트 함수
+        function updateStatus(elementId, message, type) {
+            var statusDiv = document.getElementById(elementId);
+            if (statusDiv) {
+                statusDiv.innerHTML = message;
+                statusDiv.className = 'status ' + type;
+            }
+        }
+        
+        // 디버그 정보 업데이트
+        function updateDebugInfo(info) {
+            var debugDiv = document.getElementById('debug-info');
+            if (debugDiv) {
+                debugDiv.innerHTML = info;
+            }
+        }
+        
+        // 브라우저 정보 확인
+        function checkBrowserInfo() {
+            var userAgent = navigator.userAgent;
+            var isIE11 = userAgent.indexOf('Trident/7.0') !== -1;
+            var isEdgeIE = userAgent.indexOf('Edge') !== -1;
+            
+            var browserInfo = 'User Agent: ' + userAgent + '<br>';
+            browserInfo += 'IE11 감지: ' + (isIE11 ? '예' : '아니오') + '<br>';
+            browserInfo += 'Edge IE 모드: ' + (isEdgeIE ? '예' : '아니오');
+            
+            updateStatus('browser-info', browserInfo, isIE11 ? 'success' : 'warning');
+            return isIE11;
+        }
+        
+        // 폴리필 확인
+        function checkPolyfills() {
+            var polyfills = [];
+            
+            // Object.assign 확인
+            if (typeof Object.assign === 'function') {
+                polyfills.push('✅ Object.assign');
+            } else {
+                polyfills.push('❌ Object.assign');
+            }
+            
+            // Promise 확인
+            if (typeof Promise === 'function') {
+                polyfills.push('✅ Promise');
+            } else {
+                polyfills.push('❌ Promise');
+            }
+            
+            // Array.from 확인
+            if (typeof Array.from === 'function') {
+                polyfills.push('✅ Array.from');
+            } else {
+                polyfills.push('❌ Array.from');
+            }
+            
+            // Map 확인
+            if (typeof Map === 'function') {
+                polyfills.push('✅ Map');
+            } else {
+                polyfills.push('❌ Map');
+            }
+            
+            log('폴리필 상태: ' + polyfills.join(', '), 'info');
+        }
+        
+        // Agent 디버그
+        function debugAgent() {
+            var debugInfo = [];
+            
+            // 전역 객체 확인
+            var globalNames = ['OpenTelemetryIE11Agent', 'OpenTelemetryIE11', 'opentelemetry', 'OTelAgent'];
+            for (var i = 0; i < globalNames.length; i++) {
+                var name = globalNames[i];
+                if (typeof window[name] !== 'undefined') {
+                    debugInfo.push('✅ window.' + name + ' 존재');
+                } else {
+                    debugInfo.push('❌ window.' + name + ' 없음');
+                }
+            }
+            
+            // script 태그 확인
+            var scripts = document.getElementsByTagName('script');
+            var agentScriptFound = false;
+            for (var j = 0; j < scripts.length; j++) {
+                if (scripts[j].src && scripts[j].src.indexOf('agent.js') !== -1) {
+                    agentScriptFound = true;
+                    debugInfo.push('✅ agent.js 스크립트 태그 발견: ' + scripts[j].src);
+                }
+            }
+            if (!agentScriptFound) {
+                debugInfo.push('❌ agent.js 스크립트 태그 없음');
+            }
+            
+            updateDebugInfo(debugInfo.join('<br>'));
+            log('Agent 디버그 완료', 'info');
+        }
+        
+        // 클릭 테스트
+        function testClick() {
+            eventCount++;
+            log('클릭 이벤트 #' + eventCount + ' 감지됨', 'event');
+            
+            if (window.OpenTelemetryIE11Agent) {
+                try {
+                    if (window.OpenTelemetryIE11Agent.core && window.OpenTelemetryIE11Agent.core.hrTime) {
+                        var time = window.OpenTelemetryIE11Agent.core.hrTime();
+                        log('hrTime: [' + time[0] + ', ' + time[1] + ']', 'agent');
+                    }
+                } catch (error) {
+                    log('Agent 함수 오류: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        // 더블클릭 테스트
+        function testDoubleClick() {
+            log('더블클릭 이벤트 감지됨', 'event');
+        }
+        
+        // 로그 지우기
+        function clearLog() {
+            document.getElementById('log').innerHTML = '로그가 지워졌습니다...';
+            eventCount = 0;
+        }
+        
+        // Agent 기능 테스트
+        function testAgent() {
+            if (!window.OpenTelemetryIE11Agent) {
+                log('Agent를 사용할 수 없습니다', 'error');
+                return;
+            }
+            
+            var agent = window.OpenTelemetryIE11Agent;
+            log('Agent 기능 테스트 시작...', 'info');
+            
+            // 기본 속성 테스트
+            if (agent.agentVersion) {
+                log('Agent 버전: ' + agent.agentVersion, 'success');
+            }
+            
+            if (agent.buildType) {
+                log('빌드 타입: ' + agent.buildType, 'success');
+            }
+            
+            if (typeof agent.isIE11 === 'function') {
+                try {
+                    var isIE11 = agent.isIE11();
+                    log('IE11 여부: ' + isIE11, 'success');
+                } catch (error) {
+                    log('isIE11() 오류: ' + error.message, 'error');
+                }
+            }
+            
+            // 코어 유틸리티 테스트
+            if (agent.core) {
+                log('코어 유틸리티 사용 가능', 'success');
+                
+                if (typeof agent.core.hrTime === 'function') {
+                    try {
+                        var time = agent.core.hrTime();
+                        log('hrTime 테스트: [' + time[0] + ', ' + time[1] + ']', 'success');
+                    } catch (error) {
+                        log('hrTime 오류: ' + error.message, 'error');
+                    }
+                }
+                
+                if (typeof agent.core.getTimeOrigin === 'function') {
+                    try {
+                        var timeOrigin = agent.core.getTimeOrigin();
+                        log('timeOrigin 테스트: ' + timeOrigin, 'success');
+                    } catch (error) {
+                        log('getTimeOrigin 오류: ' + error.message, 'error');
+                    }
+                }
+            }
+            
+            // Trace API 테스트
+            if (agent.trace) {
+                log('Trace API 사용 가능', 'success');
+            }
+            
+            // Metrics API 테스트
+            if (agent.metrics) {
+                log('Metrics API 사용 가능', 'success');
+            }
+        }
+        
+        // 페이지 로드 시 초기화
+        function initializePage() {
+            log('페이지 로드됨, Agent 확인 중...', 'info');
+            
+            // 브라우저 정보 확인
+            var isIE11 = checkBrowserInfo();
+            
+            // 폴리필 확인
+            checkPolyfills();
+            
+            // Agent 확인
+            if (typeof window.OpenTelemetryIE11Agent !== 'undefined') {
+                agentLoaded = true;
+                updateStatus('agent-status', '✅ Agent가 성공적으로 로드됨', 'success');
+                log('OpenTelemetry IE11 Agent 감지됨', 'success');
+                
+                // 초기 테스트 실행
+                setTimeout(function() {
+                    testAgent();
+                    debugAgent();
+                }, 500);
+            } else {
+                updateStatus('agent-status', '❌ Agent가 로드되지 않음', 'error');
+                log('OpenTelemetry IE11 Agent를 찾을 수 없음', 'error');
+                
+                // 대안 확인
+                var alternatives = ['OpenTelemetryIE11', 'opentelemetry', 'OTelAgent'];
+                for (var i = 0; i < alternatives.length; i++) {
+                    if (typeof window[alternatives[i]] !== 'undefined') {
+                        log('대안 발견: ' + alternatives[i], 'info');
+                    }
+                }
+                
+                // 디버그 정보 표시
+                setTimeout(debugAgent, 100);
+            }
+        }
+        
+        // 전역 오류 핸들러
+        function handleGlobalError(message, source, lineno, colno, error) {
+            var errorMsg = '전역 오류: ' + message;
+            if (source) {
+                errorMsg += ' at ' + source + ':' + lineno;
+            }
+            log(errorMsg, 'error');
+            return false; // 기본 오류 처리 방지하지 않음
+        }
+        
+        // IE11 호환 이벤트 리스너
+        if (window.addEventListener) {
+            window.addEventListener('load', initializePage);
+            window.addEventListener('error', handleGlobalError);
+        } else if (window.attachEvent) {
+            // IE8 이하 호환성 (필요시)
+            window.attachEvent('onload', initializePage);
+            window.attachEvent('onerror', handleGlobalError);
+        }
+        
+        // window.onerror도 설정 (IE11 호환성)
+        window.onerror = handleGlobalError;
+    </script>
+    
+    <!-- Agent 로드 -->
+    <script src="agent.js"></script>
+</body>
+</html> 

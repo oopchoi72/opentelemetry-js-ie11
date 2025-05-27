@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Agent Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .test-area {
+            border: 2px solid #007cba;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            text-align: center;
+        }
+        .test-area:hover {
+            background-color: #e9ecef;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        button {
+            background-color: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #005a87;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Minimal OpenTelemetry IE11 Agent Test</h1>
+        
+        <div id="agent-status" class="status info">Loading agent...</div>
+        
+        <div class="test-area" onclick="testClick()" ondblclick="testDoubleClick()">
+            <h3>Click Test Area</h3>
+            <p>Click or double-click here to test event tracking</p>
+        </div>
+        
+        <button onclick="clearLog()">Clear Log</button>
+        <button onclick="testAgent()">Test Agent Functions</button>
+        
+        <h3>Event Log</h3>
+        <div id="log" class="log">Waiting for events...</div>
+    </div>
+
+    <!-- Load agent without React dependencies -->
+    <script>
+        // Global variables
+        var eventCount = 0;
+        var agentLoaded = false;
+        
+        // Log function
+        function log(message, type) {
+            type = type || 'info';
+            var timestamp = new Date().toLocaleTimeString();
+            var logDiv = document.getElementById('log');
+            var entry = document.createElement('div');
+            entry.innerHTML = '<strong>' + timestamp + '</strong> [' + type.toUpperCase() + '] ' + message;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log('[' + type.toUpperCase() + ']', message);
+        }
+        
+        // Update status
+        function updateStatus(message, type) {
+            var statusDiv = document.getElementById('agent-status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+        }
+        
+        // Test click event
+        function testClick() {
+            eventCount++;
+            log('Click event #' + eventCount + ' detected', 'event');
+            
+            if (window.OpenTelemetryIE11Agent) {
+                try {
+                    // Test core functions
+                    if (window.OpenTelemetryIE11Agent.core && window.OpenTelemetryIE11Agent.core.hrTime) {
+                        var time = window.OpenTelemetryIE11Agent.core.hrTime();
+                        log('hrTime: [' + time[0] + ', ' + time[1] + ']', 'agent');
+                    }
+                } catch (error) {
+                    log('Agent function error: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        // Test double click event
+        function testDoubleClick() {
+            log('Double-click event detected', 'event');
+        }
+        
+        // Clear log
+        function clearLog() {
+            document.getElementById('log').innerHTML = 'Log cleared...';
+            eventCount = 0;
+        }
+        
+        // Test agent functions
+        function testAgent() {
+            if (!window.OpenTelemetryIE11Agent) {
+                log('Agent not available', 'error');
+                return;
+            }
+            
+            var agent = window.OpenTelemetryIE11Agent;
+            log('Testing agent functions...', 'info');
+            
+            // Test basic properties
+            if (agent.agentVersion) {
+                log('Agent Version: ' + agent.agentVersion, 'success');
+            }
+            
+            if (agent.buildType) {
+                log('Build Type: ' + agent.buildType, 'success');
+            }
+            
+            if (typeof agent.isIE11 === 'function') {
+                try {
+                    var isIE11 = agent.isIE11();
+                    log('Is IE11: ' + isIE11, 'success');
+                } catch (error) {
+                    log('isIE11() error: ' + error.message, 'error');
+                }
+            }
+            
+            // Test core utilities
+            if (agent.core) {
+                log('Core utilities available', 'success');
+                
+                if (typeof agent.core.hrTime === 'function') {
+                    try {
+                        var time = agent.core.hrTime();
+                        log('hrTime test: [' + time[0] + ', ' + time[1] + ']', 'success');
+                    } catch (error) {
+                        log('hrTime error: ' + error.message, 'error');
+                    }
+                }
+                
+                if (typeof agent.core.getTimeOrigin === 'function') {
+                    try {
+                        var timeOrigin = agent.core.getTimeOrigin();
+                        log('timeOrigin test: ' + timeOrigin, 'success');
+                    } catch (error) {
+                        log('getTimeOrigin error: ' + error.message, 'error');
+                    }
+                }
+            }
+            
+            // Test trace API
+            if (agent.trace) {
+                log('Trace API available', 'success');
+            }
+            
+            // Test metrics API
+            if (agent.metrics) {
+                log('Metrics API available', 'success');
+            }
+        }
+        
+        // Initialize when page loads
+        window.onload = function() {
+            log('Page loaded, checking for agent...', 'info');
+            
+            // Check if agent is available
+            if (typeof window.OpenTelemetryIE11Agent !== 'undefined') {
+                agentLoaded = true;
+                updateStatus('✅ Agent loaded successfully', 'success');
+                log('OpenTelemetry IE11 Agent detected', 'success');
+                
+                // Run initial test
+                setTimeout(testAgent, 500);
+            } else {
+                updateStatus('❌ Agent not loaded', 'error');
+                log('OpenTelemetry IE11 Agent not found', 'error');
+                
+                // Check for alternative global names
+                var alternatives = ['OpenTelemetryIE11', 'opentelemetry', 'OTelAgent'];
+                for (var i = 0; i < alternatives.length; i++) {
+                    if (typeof window[alternatives[i]] !== 'undefined') {
+                        log('Found alternative: ' + alternatives[i], 'info');
+                    }
+                }
+            }
+        };
+        
+        // Handle any global errors
+        window.onerror = function(message, source, lineno, colno, error) {
+            log('Global error: ' + message + ' at ' + source + ':' + lineno, 'error');
+            return false; // Don't prevent default error handling
+        };
+    </script>
+    
+    <!-- Load agent after our script is ready -->
+    <script src="agent.js"></script>
+</body>
+</html> 
