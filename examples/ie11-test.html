@@ -143,11 +143,50 @@
         function checkBrowserInfo() {
             var userAgent = navigator.userAgent;
             var isIE11 = userAgent.indexOf('Trident/7.0') !== -1;
-            var isEdgeIE = userAgent.indexOf('Edge') !== -1;
             
-            var browserInfo = 'User Agent: ' + userAgent + '<br>';
+            // 다양한 브라우저 감지
+            var hasEdgeChromium = userAgent.indexOf('Edg/') !== -1; // 새로운 Edge (Chromium 기반)
+            var hasOldEdge = userAgent.indexOf('Edge/') !== -1; // 구 Edge (EdgeHTML 기반)
+            var hasMSIE = userAgent.indexOf('MSIE') !== -1; // 구 IE
+            var hasChrome = userAgent.indexOf('Chrome') !== -1; // Chrome
+            
+            // Edge IE 모드 감지 방법들
+            var method1 = isIE11 && hasEdgeChromium && !hasMSIE; // 기존 방법
+            var method2 = isIE11 && !hasMSIE && !hasOldEdge; // IE11이지만 구 IE나 구 Edge가 아닌 경우
+            var method3 = isIE11 && hasChrome; // IE11이면서 Chrome이 포함된 경우
+            
+            // window.chrome 객체 확인 (Edge에서만 존재)
+            var hasWindowChrome = typeof window.chrome !== 'undefined';
+            
+            // document.documentMode 확인 (IE에서만 존재)
+            var hasDocumentMode = typeof document.documentMode !== 'undefined';
+            var documentModeValue = document.documentMode || 'undefined';
+            
+            // MSInputMethodContext 확인 (IE11에서만 존재)
+            var hasMSInputMethodContext = typeof window.MSInputMethodContext !== 'undefined';
+            
+            // 최종 Edge IE 모드 판단 - 더 간단한 방법
+            // Edge IE 모드: IE11이면서 window.chrome이 있는 경우 (가장 확실한 방법)
+            var isEdgeIEMode = isIE11 && hasWindowChrome;
+            
+            var browserInfo = 'User Agent: ' + userAgent + '<br><br>';
+            browserInfo += '<strong>기본 감지:</strong><br>';
             browserInfo += 'IE11 감지: ' + (isIE11 ? '예' : '아니오') + '<br>';
-            browserInfo += 'Edge IE 모드: ' + (isEdgeIE ? '예' : '아니오');
+            browserInfo += 'Chromium Edge: ' + (hasEdgeChromium ? '예' : '아니오') + '<br>';
+            browserInfo += '구 Edge: ' + (hasOldEdge ? '예' : '아니오') + '<br>';
+            browserInfo += 'Chrome: ' + (hasChrome ? '예' : '아니오') + '<br>';
+            browserInfo += 'MSIE: ' + (hasMSIE ? '예' : '아니오') + '<br><br>';
+            
+            browserInfo += '<strong>고급 감지:</strong><br>';
+            browserInfo += 'window.chrome: ' + (hasWindowChrome ? '예' : '아니오') + '<br>';
+            browserInfo += 'document.documentMode: ' + documentModeValue + '<br>';
+            browserInfo += 'MSInputMethodContext: ' + (hasMSInputMethodContext ? '예' : '아니오') + '<br><br>';
+            
+            browserInfo += '<strong>Edge IE 모드 판단:</strong><br>';
+            browserInfo += '방법1 (기존): ' + (method1 ? '예' : '아니오') + '<br>';
+            browserInfo += '방법2 (단순): ' + (method2 ? '예' : '아니오') + '<br>';
+            browserInfo += '방법3 (Chrome): ' + (method3 ? '예' : '아니오') + '<br>';
+            browserInfo += '<strong>최종 결과: ' + (isEdgeIEMode ? '예' : '아니오') + '</strong>';
             
             updateStatus('browser-info', browserInfo, isIE11 ? 'success' : 'warning');
             return isIE11;
