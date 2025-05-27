@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DOM Event Instrumentation Test with Agent.js - IE11 Compatible</title>
+    <title>
+      DOM Event Instrumentation Test with Agent.js - IE11 Compatible
+    </title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -102,19 +104,109 @@
         border-radius: 5px;
         margin-bottom: 20px;
       }
+
+      .collector-config {
+        background-color: #fff3cd;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        border: 1px solid #ffeaa7;
+      }
+
+      .collector-urls {
+        margin-bottom: 15px;
+      }
+
+      .collector-urls > div {
+        margin-bottom: 10px;
+      }
+
+      .collector-urls label {
+        display: inline-block;
+        width: 150px;
+        font-weight: bold;
+      }
+
+      .collector-buttons {
+        margin-bottom: 10px;
+      }
+
+      .collector-buttons .button {
+        margin-right: 10px;
+        margin-bottom: 5px;
+      }
+
+      .trace-status {
+        background-color: #e2e3e5;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 12px;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>DOM Event Instrumentation Test with Agent.js</h1>
       <p>
-        이 예제는 OpenTelemetry IE11 Agent의 DOM 이벤트 계측 기능을 테스트합니다.
+        이 예제는 OpenTelemetry IE11 Agent의 DOM 이벤트 계측 기능을 테스트하고
+        trace collector로 데이터를 전송합니다.
       </p>
 
       <!-- Agent 정보 -->
       <div class="agent-info">
         <h3>Agent 정보</h3>
         <div id="agent-info">Loading...</div>
+      </div>
+
+      <!-- Collector 설정 -->
+      <div class="collector-config">
+        <h3>Collector 설정</h3>
+        <div class="collector-urls">
+          <div>
+            <label>Trace Collector URL: </label>
+            <input
+              type="text"
+              id="traceCollectorUrl"
+              value="http://localhost:4318/v1/traces"
+              style="width: 300px"
+            />
+          </div>
+          <div>
+            <label>Log Collector URL: </label>
+            <input
+              type="text"
+              id="logCollectorUrl"
+              value="http://localhost:4318/v1/logs"
+              style="width: 300px"
+            />
+          </div>
+          <div>
+            <label>Metric Collector URL: </label>
+            <input
+              type="text"
+              id="metricCollectorUrl"
+              value="http://localhost:4318/v1/metrics"
+              style="width: 300px"
+            />
+          </div>
+        </div>
+        <div class="collector-buttons">
+          <button class="button" onclick="testAllCollectorConnections()">
+            Test All Connections
+          </button>
+          <button class="button" onclick="sendTestTrace()">
+            Send Test Trace
+          </button>
+          <button class="button" onclick="sendTestLog()">Send Test Log</button>
+          <button class="button" onclick="sendTestMetric()">
+            Send Test Metric
+          </button>
+        </div>
+        <div class="trace-status" id="collectorStatus">
+          Ready to send telemetry data
+        </div>
       </div>
 
       <div class="status" id="status">Status: Initializing...</div>
@@ -129,6 +221,7 @@
         <button class="button" onclick="clearLogs()">Clear Logs</button>
         <button class="button" onclick="exportLogs()">Export Logs</button>
         <button class="button" onclick="testTracing()">Test Tracing</button>
+        <button class="button" onclick="flushTraces()">Flush Traces</button>
       </div>
 
       <div class="controls">
@@ -156,7 +249,9 @@
             onmouseout="handleAreaMouseOut(event)"
           >
             <h3>Click Test Area</h3>
-            <p>Click, double-click, or hover over this area to generate events.</p>
+            <p>
+              Click, double-click, or hover over this area to generate events.
+            </p>
           </div>
 
           <div class="controls">
@@ -180,6 +275,8 @@
             <p>Unique Event Types: <span id="uniqueTypes">0</span></p>
             <p>Most Frequent Event: <span id="mostFrequent">-</span></p>
             <p>Average Event Duration: <span id="avgDuration">-</span></p>
+            <p>Traces Sent: <span id="tracesSent">0</span></p>
+            <p>Traces Failed: <span id="tracesFailed">0</span></p>
           </div>
         </div>
 
@@ -192,7 +289,7 @@
 
     <!-- Load the agent -->
     <script src="../dist/agent.js"></script>
-    
+
     <script>
       // Global variables
       var instrumentation = null;
@@ -200,94 +297,638 @@
       var eventHistory = [];
       var tracer = null;
       var meter = null;
+      var tracesSent = 0;
+      var tracesFailed = 0;
+      var pendingSpans = [];
+      var traceId = null;
+      var spanIdCounter = 1;
+
+      // Generate trace and span IDs
+      function generateTraceId() {
+        var hex = "";
+        for (var i = 0; i < 32; i++) {
+          hex += Math.floor(Math.random() * 16).toString(16);
+        }
+        return hex;
+      }
+
+      function generateSpanId() {
+        var hex = "";
+        for (var i = 0; i < 16; i++) {
+          hex += Math.floor(Math.random() * 16).toString(16);
+        }
+        return hex;
+      }
+
+      // Get current time in nanoseconds
+      function getTimeNanos() {
+        var now = Date.now();
+        return now * 1000000; // Convert milliseconds to nanoseconds
+      }
+
+      // Create OpenTelemetry span data
+      function createSpan(eventData, parentSpanId) {
+        var spanId = generateSpanId();
+        var startTime = getTimeNanos();
+        var endTime =
+          startTime +
+          (eventData.duration ? eventData.duration * 1000000 : 1000000);
+
+        var span = {
+          traceId: traceId,
+          spanId: spanId,
+          parentSpanId: parentSpanId || "",
+          name: "dom." + eventData.type,
+          kind: 1, // SPAN_KIND_INTERNAL
+          startTimeUnixNano: startTime.toString(),
+          endTimeUnixNano: endTime.toString(),
+          attributes: [
+            {
+              key: "event.type",
+              value: { stringValue: eventData.type },
+            },
+            {
+              key: "event.target",
+              value: { stringValue: eventData.target },
+            },
+            {
+              key: "event.phase",
+              value: { stringValue: eventData.phase },
+            },
+            {
+              key: "event.bubbled",
+              value: { boolValue: eventData.bubbled },
+            },
+            {
+              key: "event.cancelled",
+              value: { boolValue: eventData.cancelled },
+            },
+            {
+              key: "browser.userAgent",
+              value: { stringValue: navigator.userAgent },
+            },
+          ],
+          status: {
+            code: 1, // STATUS_CODE_OK
+          },
+        };
+
+        if (eventData.duration) {
+          span.attributes.push({
+            key: "event.duration_ms",
+            value: { doubleValue: eventData.duration },
+          });
+        }
+
+        return span;
+      }
+
+      // Send traces to collector
+      function sendTracesToCollector(spans) {
+        var collectorUrl = document.getElementById("traceCollectorUrl").value;
+
+        if (!spans || spans.length === 0) {
+          updateCollectorStatus("No spans to send");
+          return;
+        }
+
+        var payload = {
+          resourceSpans: [
+            {
+              resource: {
+                attributes: [
+                  {
+                    key: "service.name",
+                    value: { stringValue: "dom-event-instrumentation" },
+                  },
+                  {
+                    key: "service.version",
+                    value: { stringValue: "1.0.0" },
+                  },
+                  {
+                    key: "telemetry.sdk.name",
+                    value: { stringValue: "opentelemetry-js-ie11" },
+                  },
+                  {
+                    key: "telemetry.sdk.version",
+                    value: { stringValue: "1.0.0" },
+                  },
+                ],
+              },
+              scopeSpans: [
+                {
+                  scope: {
+                    name: "dom-event-instrumentation",
+                    version: "1.0.0",
+                  },
+                  spans: spans,
+                },
+              ],
+            },
+          ],
+        };
+
+        updateCollectorStatus(
+          "Sending " + spans.length + " spans to trace collector..."
+        );
+
+        // Use XMLHttpRequest for IE11 compatibility
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", collectorUrl, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              tracesSent += spans.length;
+              updateCollectorStatus(
+                "✅ Successfully sent " + spans.length + " spans"
+              );
+              updateStatistics();
+            } else {
+              tracesFailed += spans.length;
+              updateCollectorStatus(
+                "❌ Failed to send traces: " + xhr.status + " " + xhr.statusText
+              );
+              updateStatistics();
+            }
+          }
+        };
+
+        xhr.onerror = function () {
+          tracesFailed += spans.length;
+          updateCollectorStatus("❌ Network error sending traces");
+          updateStatistics();
+        };
+
+        try {
+          xhr.send(JSON.stringify(payload));
+        } catch (error) {
+          tracesFailed += spans.length;
+          updateCollectorStatus("❌ Error sending traces: " + error.message);
+          updateStatistics();
+        }
+      }
+
+      // Test all collector connections
+      function testAllCollectorConnections() {
+        updateCollectorStatus("Testing all collector connections...");
+
+        var traceUrl = document.getElementById("traceCollectorUrl").value;
+        var logUrl = document.getElementById("logCollectorUrl").value;
+        var metricUrl = document.getElementById("metricCollectorUrl").value;
+
+        var results = [];
+        var completed = 0;
+        var total = 3;
+
+        function checkComplete() {
+          completed++;
+          if (completed === total) {
+            var successCount = results.filter(function (r) {
+              return r.success;
+            }).length;
+            updateCollectorStatus(
+              "✅ " +
+                successCount +
+                "/" +
+                total +
+                " collector connections successful"
+            );
+          }
+        }
+
+        // Test trace collector
+        testCollectorConnection(traceUrl, "Trace", function (success) {
+          results.push({ type: "trace", success: success });
+          checkComplete();
+        });
+
+        // Test log collector
+        testCollectorConnection(logUrl, "Log", function (success) {
+          results.push({ type: "log", success: success });
+          checkComplete();
+        });
+
+        // Test metric collector
+        testCollectorConnection(metricUrl, "Metric", function (success) {
+          results.push({ type: "metric", success: success });
+          checkComplete();
+        });
+      }
+
+      // Test individual collector connection
+      function testCollectorConnection(collectorUrl, type, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", collectorUrl, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              updateCollectorStatus(
+                "✅ " + type + " collector connection successful"
+              );
+              callback(true);
+            } else {
+              updateCollectorStatus(
+                "❌ " +
+                  type +
+                  " collector connection failed: " +
+                  xhr.status +
+                  " " +
+                  xhr.statusText
+              );
+              callback(false);
+            }
+          }
+        };
+
+        xhr.onerror = function () {
+          updateCollectorStatus(
+            "❌ Network error connecting to " + type + " collector"
+          );
+          callback(false);
+        };
+
+        var testPayload = getTestPayload(type);
+        try {
+          xhr.send(JSON.stringify(testPayload));
+        } catch (error) {
+          updateCollectorStatus(
+            "❌ Error testing " + type + " connection: " + error.message
+          );
+          callback(false);
+        }
+      }
+
+      function getTestPayload(type) {
+        switch (type.toLowerCase()) {
+          case "trace":
+            return { resourceSpans: [] };
+          case "log":
+            return { resourceLogs: [] };
+          case "metric":
+            return { resourceMetrics: [] };
+          default:
+            return {};
+        }
+      }
+
+      // Send a test trace
+      function sendTestTrace() {
+        if (!traceId) {
+          traceId = generateTraceId();
+        }
+
+        var testSpan = {
+          traceId: traceId,
+          spanId: generateSpanId(),
+          parentSpanId: "",
+          name: "test.trace.span",
+          kind: 1,
+          startTimeUnixNano: getTimeNanos().toString(),
+          endTimeUnixNano: (getTimeNanos() + 1000000).toString(),
+          attributes: [
+            {
+              key: "test.type",
+              value: { stringValue: "trace_test" },
+            },
+            {
+              key: "test.timestamp",
+              value: { stringValue: new Date().toISOString() },
+            },
+          ],
+          status: {
+            code: 1,
+          },
+        };
+
+        sendTracesToCollector([testSpan]);
+      }
+
+      // Send a test log
+      function sendTestLog() {
+        var logCollectorUrl = document.getElementById("logCollectorUrl").value;
+        updateCollectorStatus("Sending test log to log collector...");
+
+        var logPayload = {
+          resourceLogs: [
+            {
+              resource: {
+                attributes: [
+                  {
+                    key: "service.name",
+                    value: { stringValue: "dom-event-instrumentation" },
+                  },
+                  { key: "service.version", value: { stringValue: "1.0.0" } },
+                ],
+              },
+              scopeLogs: [
+                {
+                  scope: {
+                    name: "test-logger",
+                    version: "1.0.0",
+                  },
+                  logRecords: [
+                    {
+                      timeUnixNano: getTimeNanos().toString(),
+                      severityNumber: 9, // INFO
+                      severityText: "INFO",
+                      body: {
+                        stringValue:
+                          "Test log message from OpenTelemetry IE11 DOM Event Test",
+                      },
+                      attributes: [
+                        {
+                          key: "test.type",
+                          value: { stringValue: "log_test" },
+                        },
+                        {
+                          key: "test.timestamp",
+                          value: { stringValue: new Date().toISOString() },
+                        },
+                        {
+                          key: "browser.userAgent",
+                          value: { stringValue: navigator.userAgent },
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
+
+        sendToCollector(logCollectorUrl, logPayload, "Log");
+      }
+
+      // Send a test metric
+      function sendTestMetric() {
+        var metricCollectorUrl =
+          document.getElementById("metricCollectorUrl").value;
+        updateCollectorStatus("Sending test metric to metric collector...");
+
+        var metricPayload = {
+          resourceMetrics: [
+            {
+              resource: {
+                attributes: [
+                  {
+                    key: "service.name",
+                    value: { stringValue: "dom-event-instrumentation" },
+                  },
+                  { key: "service.version", value: { stringValue: "1.0.0" } },
+                ],
+              },
+              scopeMetrics: [
+                {
+                  scope: {
+                    name: "test-meter",
+                    version: "1.0.0",
+                  },
+                  metrics: [
+                    {
+                      name: "dom_events_total",
+                      description: "Total number of DOM events processed",
+                      unit: "1",
+                      sum: {
+                        dataPoints: [
+                          {
+                            attributes: [
+                              {
+                                key: "test.type",
+                                value: { stringValue: "metric_test" },
+                              },
+                              {
+                                key: "event.type",
+                                value: { stringValue: "test" },
+                              },
+                            ],
+                            startTimeUnixNano: (
+                              getTimeNanos() - 60000000000
+                            ).toString(),
+                            timeUnixNano: getTimeNanos().toString(),
+                            asInt: eventHistory.length.toString(),
+                          },
+                        ],
+                        aggregationTemporality: 2, // CUMULATIVE
+                        isMonotonic: true,
+                      },
+                    },
+                    {
+                      name: "dom_event_duration",
+                      description: "DOM event processing duration",
+                      unit: "ms",
+                      histogram: {
+                        dataPoints: [
+                          {
+                            attributes: [
+                              {
+                                key: "test.type",
+                                value: { stringValue: "metric_test" },
+                              },
+                            ],
+                            startTimeUnixNano: (
+                              getTimeNanos() - 60000000000
+                            ).toString(),
+                            timeUnixNano: getTimeNanos().toString(),
+                            count: "10",
+                            sum: 150.5,
+                            bucketCounts: ["2", "3", "4", "1"],
+                            explicitBounds: [1.0, 5.0, 10.0],
+                          },
+                        ],
+                        aggregationTemporality: 2, // CUMULATIVE
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
+
+        sendToCollector(metricCollectorUrl, metricPayload, "Metric");
+      }
+
+      // Generic function to send data to collector
+      function sendToCollector(url, payload, type) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              updateCollectorStatus("✅ " + type + " sent successfully");
+            } else {
+              updateCollectorStatus(
+                "❌ " +
+                  type +
+                  " send failed: " +
+                  xhr.status +
+                  " " +
+                  xhr.statusText
+              );
+            }
+          }
+        };
+
+        xhr.onerror = function () {
+          updateCollectorStatus("❌ Network error sending " + type);
+        };
+
+        try {
+          xhr.send(JSON.stringify(payload));
+        } catch (error) {
+          updateCollectorStatus(
+            "❌ Error sending " + type + ": " + error.message
+          );
+        }
+      }
+
+      // Flush pending traces
+      function flushTraces() {
+        if (pendingSpans.length > 0) {
+          sendTracesToCollector(pendingSpans.slice());
+          pendingSpans = [];
+        } else {
+          updateCollectorStatus("No pending spans to flush");
+        }
+      }
+
+      // Update collector status display
+      function updateCollectorStatus(message) {
+        document.getElementById("collectorStatus").textContent =
+          new Date().toLocaleTimeString() + ": " + message;
+      }
 
       // Initialize OpenTelemetry components
       function initializeOpenTelemetry() {
         try {
-          if (typeof OpenTelemetryIE11Agent !== 'undefined') {
-            console.log('OpenTelemetry Agent available:', OpenTelemetryIE11Agent);
-            
+          if (typeof OpenTelemetryIE11Agent !== "undefined") {
+            console.log(
+              "OpenTelemetry Agent available:",
+              OpenTelemetryIE11Agent
+            );
+
+            // Initialize trace ID for this session
+            traceId = generateTraceId();
+            updateTraceStatus(
+              "Initialized with trace ID: " + traceId.substring(0, 8) + "..."
+            );
+
             // Check available components
             if (OpenTelemetryIE11Agent.trace) {
-              console.log('Trace API available');
+              console.log("Trace API available");
             }
-            
+
             if (OpenTelemetryIE11Agent.metrics) {
-              console.log('Metrics API available');
+              console.log("Metrics API available");
             }
-            
+
             if (OpenTelemetryIE11Agent.core) {
-              console.log('Core utilities available');
+              console.log("Core utilities available");
             }
 
             return true;
           }
         } catch (error) {
-          console.error('Failed to initialize OpenTelemetry:', error);
+          console.error("Failed to initialize OpenTelemetry:", error);
         }
         return false;
       }
 
       // Display agent information
       function displayAgentInfo() {
-        var info = '';
+        var info = "";
         try {
-          if (typeof OpenTelemetryIE11Agent !== 'undefined') {
+          if (typeof OpenTelemetryIE11Agent !== "undefined") {
             info = `
-              <strong>Agent Version:</strong> ${OpenTelemetryIE11Agent.agentVersion}<br>
-              <strong>Build Type:</strong> ${OpenTelemetryIE11Agent.buildType}<br>
-              <strong>IE11 Compatible:</strong> ${OpenTelemetryIE11Agent.ie11Compatible}<br>
+              <strong>Agent Version:</strong> ${
+                OpenTelemetryIE11Agent.agentVersion
+              }<br>
+              <strong>Build Type:</strong> ${
+                OpenTelemetryIE11Agent.buildType
+              }<br>
+              <strong>IE11 Compatible:</strong> ${
+                OpenTelemetryIE11Agent.ie11Compatible
+              }<br>
               <strong>Is IE11:</strong> ${OpenTelemetryIE11Agent.isIE11()}<br>
-              <strong>Browser:</strong> ${navigator.userAgent.substring(0, 50)}...
+              <strong>Browser:</strong> ${navigator.userAgent.substring(
+                0,
+                50
+              )}...
             `;
           } else {
             info = '<span style="color: red;">❌ Agent not loaded</span>';
           }
         } catch (error) {
-          info = '<span style="color: red;">❌ Error: ' + error.message + '</span>';
+          info =
+            '<span style="color: red;">❌ Error: ' + error.message + "</span>";
         }
-        document.getElementById('agent-info').innerHTML = info;
+        document.getElementById("agent-info").innerHTML = info;
       }
 
       function updateStatus(message, isActive) {
         var statusElement = document.getElementById("status");
         statusElement.textContent = "Status: " + message;
-        statusElement.className = "status " + (isActive ? "active" : "inactive");
+        statusElement.className =
+          "status " + (isActive ? "active" : "inactive");
       }
 
       function logEvent(eventData) {
         // Add to our history
         eventHistory.push(eventData);
 
-        // Create OpenTelemetry span if tracer is available
-        if (OpenTelemetryIE11Agent && OpenTelemetryIE11Agent.trace) {
+        // Create OpenTelemetry span
+        if (traceId) {
           try {
-            // For now, just log the event data since we don't have a full tracer implementation
-            console.log('DOM Event tracked:', {
-              type: eventData.type,
-              target: eventData.target,
-              phase: eventData.phase,
-              timestamp: eventData.timestamp,
-              duration: eventData.duration
+            var span = createSpan(eventData);
+            pendingSpans.push(span);
+
+            // Auto-flush every 10 spans or after 5 seconds
+            if (pendingSpans.length >= 10) {
+              sendTracesToCollector(pendingSpans.slice());
+              pendingSpans = [];
+            }
+
+            console.log("DOM Event span created:", {
+              traceId: span.traceId.substring(0, 8) + "...",
+              spanId: span.spanId.substring(0, 8) + "...",
+              name: span.name,
+              attributes: span.attributes,
             });
           } catch (error) {
-            console.warn('Failed to track event:', error);
+            console.warn("Failed to create span:", error);
           }
         }
 
         // Log to display
         var logArea = document.getElementById("logArea");
         var logEntry = document.createElement("div");
-        
+
         var timestamp = new Date(eventData.timestamp).toLocaleTimeString();
-        var duration = eventData.duration ? ' (' + eventData.duration.toFixed(2) + 'ms)' : '';
-        
-        logEntry.innerHTML = 
-          '<strong>' + timestamp + '</strong> ' +
-          '[' + eventData.type + '] ' +
-          eventData.target + ' ' +
-          '(' + eventData.phase + ')' + duration;
-        
+        var duration = eventData.duration
+          ? " (" + eventData.duration.toFixed(2) + "ms)"
+          : "";
+
+        logEntry.innerHTML =
+          "<strong>" +
+          timestamp +
+          "</strong> " +
+          "[" +
+          eventData.type +
+          "] " +
+          eventData.target +
+          " " +
+          "(" +
+          eventData.phase +
+          ")" +
+          duration;
+
         logArea.appendChild(logEntry);
         logArea.scrollTop = logArea.scrollHeight;
 
@@ -303,7 +944,7 @@
           var event = eventHistory[i];
           var type = event.type;
           eventTypes[type] = (eventTypes[type] || 0) + 1;
-          
+
           if (event.duration) {
             totalDuration += event.duration;
             durationCount++;
@@ -319,12 +960,20 @@
           }
         }
 
-        var avgDuration = durationCount > 0 ? (totalDuration / durationCount).toFixed(2) + 'ms' : '-';
+        var avgDuration =
+          durationCount > 0
+            ? (totalDuration / durationCount).toFixed(2) + "ms"
+            : "-";
 
-        document.getElementById("totalEvents").textContent = eventHistory.length;
-        document.getElementById("uniqueTypes").textContent = Object.keys(eventTypes).length;
-        document.getElementById("mostFrequent").textContent = mostFrequent || "-";
+        document.getElementById("totalEvents").textContent =
+          eventHistory.length;
+        document.getElementById("uniqueTypes").textContent =
+          Object.keys(eventTypes).length;
+        document.getElementById("mostFrequent").textContent =
+          mostFrequent || "-";
         document.getElementById("avgDuration").textContent = avgDuration;
+        document.getElementById("tracesSent").textContent = tracesSent;
+        document.getElementById("tracesFailed").textContent = tracesFailed;
       }
 
       function startInstrumentation() {
@@ -334,13 +983,13 @@
 
         try {
           // Use the agent's DOM event instrumentation
-          if (typeof OpenTelemetryIE11Agent !== 'undefined') {
+          if (typeof OpenTelemetryIE11Agent !== "undefined") {
             // Create instrumentation using agent's functionality
             instrumentation = createDOMEventInstrumentation({
               trackedEvents: getFilteredEvents(),
               enableTiming: true,
               maxEventHistory: 1000,
-              throttleInterval: 16
+              throttleInterval: 16,
             });
 
             instrumentation.addHandler(logEvent);
@@ -351,10 +1000,10 @@
             isInstrumentationActive = true;
             updateStatus("Active - Tracking events with Agent", true);
           } else {
-            throw new Error('OpenTelemetry Agent not available');
+            throw new Error("OpenTelemetry Agent not available");
           }
         } catch (error) {
-          console.error('Failed to start instrumentation:', error);
+          console.error("Failed to start instrumentation:", error);
           updateStatus("Error: " + error.message, false);
         }
       }
@@ -365,6 +1014,9 @@
         }
 
         try {
+          // Flush any pending spans before stopping
+          flushTraces();
+
           if (instrumentation) {
             instrumentation.destroy();
             instrumentation = null;
@@ -373,7 +1025,7 @@
           isInstrumentationActive = false;
           updateStatus("Inactive", false);
         } catch (error) {
-          console.error('Failed to stop instrumentation:', error);
+          console.error("Failed to stop instrumentation:", error);
         }
       }
 
@@ -382,7 +1034,14 @@
         var filterValue = filterInput.value.trim();
 
         if (!filterValue) {
-          return ["click", "dblclick", "keydown", "submit", "mouseover", "mouseout"];
+          return [
+            "click",
+            "dblclick",
+            "keydown",
+            "submit",
+            "mouseover",
+            "mouseout",
+          ];
         }
 
         return filterValue.split(",").map(function (event) {
@@ -398,7 +1057,7 @@
             });
             updateStatus("Active - Updated event filter", true);
           } catch (error) {
-            console.warn('Failed to update filter:', error);
+            console.warn("Failed to update filter:", error);
           }
         }
       }
@@ -406,6 +1065,7 @@
       function clearLogs() {
         document.getElementById("logArea").innerHTML = "";
         eventHistory = [];
+        pendingSpans = [];
         if (instrumentation && instrumentation.clearHistory) {
           instrumentation.clearHistory();
         }
@@ -439,7 +1099,8 @@
         var url = URL.createObjectURL(blob);
         var a = document.createElement("a");
         a.href = url;
-        a.download = "dom-events-" + new Date().toISOString().slice(0, 10) + ".csv";
+        a.download =
+          "dom-events-" + new Date().toISOString().slice(0, 10) + ".csv";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -451,15 +1112,25 @@
           if (OpenTelemetryIE11Agent && OpenTelemetryIE11Agent.core) {
             var time = OpenTelemetryIE11Agent.core.hrTime();
             var timeOrigin = OpenTelemetryIE11Agent.core.getTimeOrigin();
-            
-            alert('Tracing Test:\n' +
-                  'hrTime: [' + time[0] + ', ' + time[1] + ']\n' +
-                  'timeOrigin: ' + timeOrigin);
+
+            alert(
+              "Tracing Test:\n" +
+                "hrTime: [" +
+                time[0] +
+                ", " +
+                time[1] +
+                "]\n" +
+                "timeOrigin: " +
+                timeOrigin +
+                "\n" +
+                "Current Trace ID: " +
+                (traceId ? traceId.substring(0, 16) + "..." : "None")
+            );
           } else {
-            alert('Tracing functionality not available');
+            alert("Tracing functionality not available");
           }
         } catch (error) {
-          alert('Tracing test failed: ' + error.message);
+          alert("Tracing test failed: " + error.message);
         }
       }
 
@@ -505,26 +1176,32 @@
             phase: phase,
             bubbled: event.bubbles,
             cancelled: event.defaultPrevented,
-            synthetic: !event.isTrusted
+            synthetic: !event.isTrusted,
           };
         }
 
         function processEvent(event, phase) {
-          if (config.trackedEvents && config.trackedEvents.indexOf(event.type) === -1) {
+          if (
+            config.trackedEvents &&
+            config.trackedEvents.indexOf(event.type) === -1
+          ) {
             return;
           }
 
           var eventData = createEventData(event, phase);
-          
+
           if (config.enableTiming) {
             eventData.duration = getHighResolutionTime() - eventData.timestamp;
           }
 
           eventHistory.push(eventData);
-          
+
           // Limit history size
           if (eventHistory.length > (config.maxEventHistory || 1000)) {
-            eventHistory.splice(0, eventHistory.length - (config.maxEventHistory || 1000));
+            eventHistory.splice(
+              0,
+              eventHistory.length - (config.maxEventHistory || 1000)
+            );
           }
 
           // Notify handlers
@@ -538,55 +1215,60 @@
         }
 
         return {
-          addHandler: function(handler) {
+          addHandler: function (handler) {
             if (handlers.indexOf(handler) === -1) {
               handlers.push(handler);
             }
           },
-          removeHandler: function(handler) {
+          removeHandler: function (handler) {
             var index = handlers.indexOf(handler);
             if (index !== -1) {
               handlers.splice(index, 1);
             }
           },
-          instrument: function(element) {
+          instrument: function (element) {
             if (instrumentedElements.indexOf(element) !== -1) {
               return;
             }
 
             var originalAddEventListener = element.addEventListener;
             if (originalAddEventListener) {
-              element.addEventListener = function(type, listener, options) {
-                var wrappedListener = function(event) {
-                  processEvent(event, 'bubbling');
-                  if (typeof listener === 'function') {
+              element.addEventListener = function (type, listener, options) {
+                var wrappedListener = function (event) {
+                  processEvent(event, "bubbling");
+                  if (typeof listener === "function") {
                     return listener.call(this, event);
                   }
                 };
-                return originalAddEventListener.call(this, type, wrappedListener, options);
+                return originalAddEventListener.call(
+                  this,
+                  type,
+                  wrappedListener,
+                  options
+                );
               };
             }
 
             instrumentedElements.push(element);
           },
-          getEventHistory: function() {
+          getEventHistory: function () {
             return eventHistory.slice();
           },
-          clearHistory: function() {
+          clearHistory: function () {
             eventHistory = [];
           },
-          updateConfig: function(newConfig) {
+          updateConfig: function (newConfig) {
             for (var key in newConfig) {
               if (newConfig.hasOwnProperty(key)) {
                 config[key] = newConfig[key];
               }
             }
           },
-          destroy: function() {
+          destroy: function () {
             handlers = [];
             eventHistory = [];
             instrumentedElements = [];
-          }
+          },
         };
       }
 
@@ -620,23 +1302,31 @@
         alert("Form submitted via form element!");
       }
 
+      // Auto-flush traces periodically
+      setInterval(function () {
+        if (pendingSpans.length > 0 && isInstrumentationActive) {
+          sendTracesToCollector(pendingSpans.slice());
+          pendingSpans = [];
+        }
+      }, 5000); // Flush every 5 seconds
+
       // Initialize
       window.onload = function () {
         displayAgentInfo();
-        
+
         var agentInitialized = initializeOpenTelemetry();
-        
+
         if (agentInitialized) {
-          updateStatus('Ready - Agent loaded successfully', false);
-          
+          updateStatus("Ready - Agent loaded successfully", false);
+
           // Auto-start for demo
           setTimeout(function () {
             startInstrumentation();
           }, 1000);
         } else {
-          updateStatus('Error - Agent not available', false);
+          updateStatus("Error - Agent not available", false);
         }
       };
     </script>
   </body>
-</html> 
+</html>

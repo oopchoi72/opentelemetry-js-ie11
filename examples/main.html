@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>OpenTelemetry IE11 Complete Test Suite</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+        line-height: 1.6;
+      }
+
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+        margin: -30px -30px 30px -30px;
+        padding: 30px;
+        border-radius: 8px 8px 0 0;
+      }
+
+      .section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background-color: #fafafa;
+      }
+
+      .section h3 {
+        margin-top: 0;
+        color: #333;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .button {
+        background-color: #667eea;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+        font-size: 14px;
+        transition: background-color 0.3s;
+      }
+
+      .button:hover {
+        background-color: #5a6fd8;
+      }
+
+      .button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .button.success {
+        background-color: #28a745;
+      }
+
+      .button.error {
+        background-color: #dc3545;
+      }
+
+      .button.warning {
+        background-color: #ffc107;
+        color: #212529;
+      }
+
+      .log-output {
+        background-color: #2d3748;
+        color: #68d391;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        border: 1px solid #4a5568;
+      }
+
+      .status-display {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .status-success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .status-error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+
+      .status-warning {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      .status-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+      }
+
+      .controls {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .info-grid {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .info-row {
+        display: table-row;
+      }
+
+      .info-label,
+      .info-value {
+        display: table-cell;
+        padding: 8px 12px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .info-label {
+        font-weight: bold;
+        background-color: #f8f9fa;
+        width: 200px;
+      }
+
+      .two-column {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .column {
+        flex: 1;
+        min-width: 300px;
+      }
+
+      .event-area {
+        border: 2px solid #ccc;
+        padding: 20px;
+        margin: 20px 0;
+        background-color: #f9f9f9;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: background-color 0.3s;
+      }
+
+      .event-area:hover {
+        background-color: #e9e9e9;
+      }
+
+      input[type="text"],
+      input[type="url"] {
+        padding: 8px;
+        margin: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 300px;
+      }
+
+      .result {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+
+      .result.success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .result.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .result.info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+
+      pre {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+        font-size: 11px;
+      }
+
+      .tabs {
+        display: flex;
+        border-bottom: 2px solid #667eea;
+        margin-bottom: 20px;
+      }
+
+      .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-bottom: none;
+        margin-right: 5px;
+        border-radius: 6px 6px 0 0;
+      }
+
+      .tab.active {
+        background-color: #667eea;
+        color: white;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .collector-config {
+        background-color: #fff3cd;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        border: 1px solid #ffeaa7;
+      }
+
+      .trace-status {
+        background-color: #e2e3e5;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 12px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🚀 OpenTelemetry IE11 Complete Test Suite</h1>
+        <p>Agent 테스트, DOM 이벤트 계측, 트레이스 수집 및 내보내기</p>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="tabs">
+        <div class="tab active" data-tab="agent-test">🔍 Agent 테스트</div>
+        <div class="tab" data-tab="dom-events">🎯 DOM 이벤트</div>
+        <div class="tab" data-tab="data-collection">📊 데이터 수집</div>
+        <div class="tab" data-tab="trace-export">📤 트레이스 내보내기</div>
+      </div>
+
+      <!-- Agent Test Tab -->
+      <div id="agent-test" class="tab-content active">
+        <div class="section">
+          <h3>🔍 Agent 로딩 및 기능 테스트</h3>
+          <div class="controls">
+            <button
+              class="button"
+              onclick="console.log('Button clicked!'); runAgentTests();"
+            >
+              전체 테스트 실행
+            </button>
+            <button
+              class="button"
+              onclick="console.log('Clear clicked!'); clearAgentResults();"
+            >
+              결과 지우기
+            </button>
+          </div>
+          <div id="agent-results"></div>
+        </div>
+
+        <div class="section">
+          <h3>📋 Agent 정보</h3>
+          <div class="info-grid" id="agent-info">
+            <div class="info-row">
+              <div class="info-label">로딩 상태</div>
+              <div class="info-value" id="agent-loading-status">확인 중...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOM Events Tab -->
+      <div id="dom-events" class="tab-content">
+        <div class="section">
+          <h3>🎯 DOM 이벤트 계측</h3>
+
+          <!-- Collector Configuration -->
+          <div class="collector-config">
+            <h4>Collector 설정</h4>
+            <div class="info-grid">
+              <div class="info-row">
+                <div class="info-label">Trace Collector URL</div>
+                <div class="info-value">
+                  <input
+                    type="url"
+                    id="traceCollectorUrl"
+                    value="http://localhost:4318/v1/traces"
+                    style="width: 300px"
+                  />
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Log Collector URL</div>
+                <div class="info-value">
+                  <input
+                    type="url"
+                    id="logCollectorUrl"
+                    value="http://localhost:4318/v1/logs"
+                    style="width: 300px"
+                  />
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Metric Collector URL</div>
+                <div class="info-value">
+                  <input
+                    type="url"
+                    id="metricCollectorUrl"
+                    value="http://localhost:4318/v1/metrics"
+                    style="width: 300px"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="controls">
+              <button class="button" onclick="testAllCollectorConnections()">
+                모든 Collector 연결 테스트
+              </button>
+              <button class="button" onclick="sendTestTrace()">
+                테스트 트레이스 전송
+              </button>
+              <button class="button" onclick="sendTestLog()">
+                테스트 로그 전송
+              </button>
+              <button class="button" onclick="sendTestMetric()">
+                테스트 메트릭 전송
+              </button>
+            </div>
+
+            <div class="trace-status" id="collectorStatus">
+              Ready to send telemetry data
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="button" onclick="startInstrumentation()">
+              계측 시작
+            </button>
+            <button class="button" onclick="stopInstrumentation()">
+              계측 중지
+            </button>
+            <button class="button" onclick="clearEventLogs()">
+              로그 지우기
+            </button>
+            <button class="button" onclick="exportEventLogs()">
+              로그 내보내기
+            </button>
+            <button class="button" onclick="flushTraces()">
+              트레이스 Flush
+            </button>
+          </div>
+
+          <div class="controls">
+            <label>이벤트 필터: </label>
+            <input
+              type="text"
+              id="eventFilter"
+              placeholder="예: click,keydown,submit"
+              value="click,dblclick,keydown,submit,mouseover,mouseout"
+            />
+            <button class="button" onclick="updateEventFilter()">
+              필터 적용
+            </button>
+          </div>
+
+          <div class="two-column">
+            <div class="column">
+              <!-- Event Test Areas -->
+              <div
+                class="event-area"
+                onclick="handleAreaClick(event)"
+                ondblclick="handleAreaDblClick(event)"
+                onmouseover="handleAreaMouseOver(event)"
+                onmouseout="handleAreaMouseOut(event)"
+              >
+                <h4>클릭 테스트 영역</h4>
+                <p>
+                  이 영역을 클릭, 더블클릭, 마우스 오버하여 이벤트를 생성하세요.
+                </p>
+              </div>
+
+              <div class="controls">
+                <input
+                  type="text"
+                  id="textInput"
+                  placeholder="키보드 이벤트 생성용"
+                  onkeydown="handleKeyDown(event)"
+                />
+                <button class="button" onclick="submitForm()">폼 제출</button>
+              </div>
+
+              <form onsubmit="handleFormSubmit(event)">
+                <input type="text" placeholder="폼 입력" name="formInput" />
+                <input type="submit" value="폼으로 제출" class="button" />
+              </form>
+
+              <!-- Event Statistics -->
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-value" id="totalEvents">0</div>
+                  <div class="stat-label">총 이벤트</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="uniqueTypes">0</div>
+                  <div class="stat-label">고유 타입</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="tracesSent">0</div>
+                  <div class="stat-label">전송된 트레이스</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="tracesFailed">0</div>
+                  <div class="stat-label">실패한 트레이스</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="column">
+              <h4>이벤트 로그</h4>
+              <div class="log-output" id="eventLogArea"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Collection Tab -->
+      <div id="data-collection" class="tab-content">
+        <div class="section">
+          <h3>📊 데이터 수집 및 관리</h3>
+
+          <div class="controls">
+            <button class="button" onclick="startDataCollection()">
+              데이터 수집 시작
+            </button>
+            <button class="button" onclick="stopDataCollection()">
+              데이터 수집 중지
+            </button>
+            <button class="button" onclick="generateTestData()">
+              테스트 데이터 생성
+            </button>
+            <button class="button" onclick="clearCollectedData()">
+              수집 데이터 지우기
+            </button>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-row">
+              <div class="info-label">수집 상태</div>
+              <div class="info-value" id="collection-status">
+                <span class="status-display status-warning">중지됨</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">수집된 Span 수</div>
+              <div class="info-value" id="spans-collected">0</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">수집된 메트릭 수</div>
+              <div class="info-value" id="metrics-collected">0</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">마지막 수집 시간</div>
+              <div class="info-value" id="last-collection-time">-</div>
+            </div>
+          </div>
+
+          <h4>수집된 데이터</h4>
+          <div class="log-output" id="collected-data-log"></div>
+        </div>
+      </div>
+
+      <!-- Trace Export Tab -->
+      <div id="trace-export" class="tab-content">
+        <div class="section">
+          <h3>📤 트레이스 내보내기</h3>
+
+          <div class="collector-config">
+            <h4>Collector 설정</h4>
+            <div class="info-grid">
+              <div class="info-row">
+                <div class="info-label">Collector URL</div>
+                <div class="info-value" id="export-collector-url">
+                  http://localhost:4318
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">내보내기 형식</div>
+                <div class="info-value">OTLP/HTTP (JSON)</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">연결 상태</div>
+                <div class="info-value" id="export-connection-status">
+                  <span class="status-display status-warning">테스트 안됨</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="controls">
+              <button class="button" onclick="testExportConnection()">
+                연결 테스트
+              </button>
+              <button class="button" onclick="exportAllData()">
+                모든 데이터 내보내기
+              </button>
+              <button class="button" onclick="exportSelectedData()">
+                선택 데이터 내보내기
+              </button>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="export-total-spans">0</div>
+              <div class="stat-label">내보낼 Span 수</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="export-success-count">0</div>
+              <div class="stat-label">성공한 내보내기</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="export-failed-count">0</div>
+              <div class="stat-label">실패한 내보내기</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="export-last-time">-</div>
+              <div class="stat-label">마지막 내보내기</div>
+            </div>
+          </div>
+
+          <h4>내보내기 로그</h4>
+          <div class="log-output" id="export-log"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load the agent -->
+    <script src="/agent.js?v=1"></script>
+
+    <script>
+      // Define all functions first to avoid reference errors
+
+      // Global variables
+      var currentTab = "agent-test";
+      var instrumentation = null;
+      var isInstrumentationActive = false;
+      var eventHistory = [];
+      var collectedData = [];
+      var isDataCollectionActive = false;
+      var tracesSent = 0;
+      var tracesFailed = 0;
+      var pendingSpans = [];
+      var traceId = null;
+      var exportSuccessCount = 0;
+      var exportFailedCount = 0;
+
+      // Tab Management
+      function showTab(tabName) {
+        console.log("showTab called with:", tabName);
+
+        // Hide all tab contents
+        var contents = document.querySelectorAll(".tab-content");
+        console.log("Found tab contents:", contents.length);
+        for (var i = 0; i < contents.length; i++) {
+          contents[i].classList.remove("active");
+        }
+
+        // Remove active class from all tabs
+        var tabs = document.querySelectorAll(".tab");
+        for (var i = 0; i < tabs.length; i++) {
+          tabs[i].classList.remove("active");
+        }
+
+        // Show selected tab content
+        var targetTab = document.getElementById(tabName);
+        console.log("Target tab element:", targetTab);
+        if (targetTab) {
+          targetTab.classList.add("active");
+        }
+
+        // Find and activate the corresponding tab
+        var tabElements = document.querySelectorAll(".tab");
+        for (var i = 0; i < tabElements.length; i++) {
+          var dataTab = tabElements[i].getAttribute("data-tab");
+          if (dataTab === tabName) {
+            tabElements[i].classList.add("active");
+            console.log("Activated tab:", dataTab);
+            break;
+          }
+        }
+
+        currentTab = tabName;
+      }
+
+      // Agent Test Functions
+      function runAgentTests() {
+        var resultsContainer = document.getElementById("agent-results");
+        resultsContainer.innerHTML = "";
+
+        addResult("agent-results", "🔍 Agent 테스트 시작...", "info");
+
+        // Test 1: Check if agent is loaded
+        if (typeof OpenTelemetryIE11Agent !== "undefined") {
+          addResult(
+            "agent-results",
+            "✅ OpenTelemetryIE11Agent 로드됨",
+            "success"
+          );
+
+          try {
+            var agent = OpenTelemetryIE11Agent;
+            var info = {
+              agentVersion: agent.agentVersion,
+              buildType: agent.buildType,
+              ie11Compatible: agent.ie11Compatible,
+              VERSION: agent.VERSION,
+              hasTrace: typeof agent.trace !== "undefined",
+              hasMetrics: typeof agent.metrics !== "undefined",
+              hasContext: typeof agent.context !== "undefined",
+              hasCore: typeof agent.core !== "undefined",
+              isIE11Function: typeof agent.isIE11 === "function",
+            };
+
+            addResult(
+              "agent-results",
+              "✅ Agent 속성: <pre>" + JSON.stringify(info, null, 2) + "</pre>",
+              "success"
+            );
+
+            // Update agent info display
+            updateAgentInfo(agent);
+
+            // Test isIE11 function
+            if (typeof agent.isIE11 === "function") {
+              var isIE11Result = agent.isIE11();
+              addResult(
+                "agent-results",
+                "✅ isIE11() 결과: " + isIE11Result,
+                "info"
+              );
+            }
+
+            // Test core utilities
+            if (agent.core) {
+              testCoreUtilities(agent.core);
+            }
+
+            // Test global aliases
+            testGlobalAliases();
+          } catch (error) {
+            addResult(
+              "agent-results",
+              "❌ Agent 속성 테스트 오류: " + error.message,
+              "error"
+            );
+          }
+        } else {
+          addResult(
+            "agent-results",
+            "❌ OpenTelemetryIE11Agent 로드되지 않음",
+            "error"
+          );
+          testGlobalAliases();
+        }
+      }
+
+      function clearAgentResults() {
+        document.getElementById("agent-results").innerHTML = "";
+      }
+
+      // Utility Functions
+      function addResult(containerId, message, type) {
+        var container = document.getElementById(containerId);
+        var div = document.createElement("div");
+        div.className = "result " + type;
+        div.innerHTML = message;
+        container.appendChild(div);
+      }
+
+      function addLogEntry(containerId, message, type) {
+        var container = document.getElementById(containerId);
+        var timestamp = new Date().toLocaleTimeString();
+        var entry = "[" + timestamp + "] " + message + "\n";
+        container.textContent += entry;
+        container.scrollTop = container.scrollHeight;
+      }
+
+      // Placeholder functions for other buttons (will be implemented)
+      function testAllCollectorConnections() {
+        console.log("testAllCollectorConnections called");
+      }
+      function sendTestTrace() {
+        console.log("sendTestTrace called");
+      }
+      function sendTestLog() {
+        console.log("sendTestLog called");
+      }
+      function sendTestMetric() {
+        console.log("sendTestMetric called");
+      }
+      function startInstrumentation() {
+        console.log("startInstrumentation called");
+      }
+      function stopInstrumentation() {
+        console.log("stopInstrumentation called");
+      }
+      function clearEventLogs() {
+        console.log("clearEventLogs called");
+      }
+      function exportEventLogs() {
+        console.log("exportEventLogs called");
+      }
+      function flushTraces() {
+        console.log("flushTraces called");
+      }
+      function updateEventFilter() {
+        console.log("updateEventFilter called");
+      }
+      function handleAreaClick(event) {
+        console.log("handleAreaClick called");
+      }
+      function submitForm() {
+        console.log("submitForm called");
+      }
+      function startDataCollection() {
+        console.log("startDataCollection called");
+      }
+      function stopDataCollection() {
+        console.log("stopDataCollection called");
+      }
+      function generateTestData() {
+        console.log("generateTestData called");
+      }
+      function clearCollectedData() {
+        console.log("clearCollectedData called");
+      }
+      function testExportConnection() {
+        console.log("testExportConnection called");
+      }
+      function exportAllData() {
+        console.log("exportAllData called");
+      }
+      function exportSelectedData() {
+        console.log("exportSelectedData called");
+      }
+      function updateAgentInfo(agent) {
+        console.log("updateAgentInfo called");
+      }
+      function testCoreUtilities(core) {
+        console.log("testCoreUtilities called");
+      }
+      function testGlobalAliases() {
+        console.log("testGlobalAliases called");
+      }
+    </script>
+
+    <script>
+      // Initialize when DOM is ready
+
+      // Utility Functions
+      function generateTraceId() {
+        var hex = "";
+        for (var i = 0; i < 32; i++) {
+          hex += Math.floor(Math.random() * 16).toString(16);
+        }
+        return hex;
+      }
+
+      function generateSpanId() {
+        var hex = "";
+        for (var i = 0; i < 16; i++) {
+          hex += Math.floor(Math.random() * 16).toString(16);
+        }
+        return hex;
+      }
+
+      function getTimeNanos() {
+        var now = Date.now();
+        return now * 1000000;
+      }
+
+      function addLogEntry(containerId, message, type) {
+        var container = document.getElementById(containerId);
+        var timestamp = new Date().toLocaleTimeString();
+        var entry = "[" + timestamp + "] " + message + "\n";
+        container.textContent += entry;
+        container.scrollTop = container.scrollHeight;
+      }
+
+      function addResult(containerId, message, type) {
+        var container = document.getElementById(containerId);
+        var div = document.createElement("div");
+        div.className = "result " + type;
+        div.innerHTML = message;
+        container.appendChild(div);
+      }
+
+      // Agent Test Functions
+      function runAgentTests() {
+        var resultsContainer = document.getElementById("agent-results");
+        resultsContainer.innerHTML = "";
+
+        addResult("agent-results", "🔍 Agent 테스트 시작...", "info");
+
+        // Test 1: Check if agent is loaded
+        if (typeof OpenTelemetryIE11Agent !== "undefined") {
+          addResult(
+            "agent-results",
+            "✅ OpenTelemetryIE11Agent 로드됨",
+            "success"
+          );
+
+          try {
+            var agent = OpenTelemetryIE11Agent;
+            var info = {
+              agentVersion: agent.agentVersion,
+              buildType: agent.buildType,
+              ie11Compatible: agent.ie11Compatible,
+              VERSION: agent.VERSION,
+              hasTrace: typeof agent.trace !== "undefined",
+              hasMetrics: typeof agent.metrics !== "undefined",
+              hasContext: typeof agent.context !== "undefined",
+              hasCore: typeof agent.core !== "undefined",
+              isIE11Function: typeof agent.isIE11 === "function",
+            };
+
+            addResult(
+              "agent-results",
+              "✅ Agent 속성: <pre>" + JSON.stringify(info, null, 2) + "</pre>",
+              "success"
+            );
+
+            // Update agent info display
+            updateAgentInfo(agent);
+
+            // Test isIE11 function
+            if (typeof agent.isIE11 === "function") {
+              var isIE11Result = agent.isIE11();
+              addResult(
+                "agent-results",
+                "✅ isIE11() 결과: " + isIE11Result,
+                "info"
+              );
+            }
+
+            // Test core utilities
+            if (agent.core) {
+              testCoreUtilities(agent.core);
+            }
+
+            // Test global aliases
+            testGlobalAliases();
+          } catch (error) {
+            addResult(
+              "agent-results",
+              "❌ Agent 속성 테스트 오류: " + error.message,
+              "error"
+            );
+          }
+        } else {
+          addResult(
+            "agent-results",
+            "❌ OpenTelemetryIE11Agent 로드되지 않음",
+            "error"
+          );
+          testGlobalAliases();
+        }
+      }
+
+      function updateAgentInfo(agent) {
+        var infoContainer = document.getElementById("agent-info");
+        infoContainer.innerHTML = `
+          <div class="info-row">
+            <div class="info-label">로딩 상태</div>
+            <div class="info-value"><span class="status-display status-success">로드됨</span></div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Agent 버전</div>
+            <div class="info-value">${agent.agentVersion || "N/A"}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">빌드 타입</div>
+            <div class="info-value">${agent.buildType || "N/A"}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">IE11 호환</div>
+            <div class="info-value">${agent.ie11Compatible || "N/A"}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">현재 브라우저</div>
+            <div class="info-value">${
+              agent.isIE11 ? agent.isIE11() : "Unknown"
+            }</div>
+          </div>
+        `;
+      }
+
+      function testCoreUtilities(core) {
+        var coreInfo = {
+          hasObjectAssign: typeof core.objectAssign !== "undefined",
+          hasHrTime: typeof core.hrTime !== "undefined",
+          hasGetTimeOrigin: typeof core.getTimeOrigin !== "undefined",
+        };
+        addResult(
+          "agent-results",
+          "✅ Core 유틸리티: <pre>" +
+            JSON.stringify(coreInfo, null, 2) +
+            "</pre>",
+          "info"
+        );
+
+        // Test hrTime function
+        if (typeof core.hrTime === "function") {
+          try {
+            var hrTimeResult = core.hrTime();
+            addResult(
+              "agent-results",
+              "✅ hrTime() 결과: [" +
+                hrTimeResult[0] +
+                ", " +
+                hrTimeResult[1] +
+                "]",
+              "info"
+            );
+          } catch (error) {
+            addResult(
+              "agent-results",
+              "❌ hrTime() 오류: " + error.message,
+              "error"
+            );
+          }
+        }
+
+        // Test getTimeOrigin function
+        if (typeof core.getTimeOrigin === "function") {
+          try {
+            var timeOriginResult = core.getTimeOrigin();
+            addResult(
+              "agent-results",
+              "✅ getTimeOrigin() 결과: " + timeOriginResult,
+              "info"
+            );
+          } catch (error) {
+            addResult(
+              "agent-results",
+              "❌ getTimeOrigin() 오류: " + error.message,
+              "error"
+            );
+          }
+        }
+      }
+
+      function testGlobalAliases() {
+        var aliases = [];
+        if (typeof window.OpenTelemetryIE11 !== "undefined")
+          aliases.push("OpenTelemetryIE11");
+        if (typeof window.opentelemetry !== "undefined")
+          aliases.push("opentelemetry");
+        if (typeof window.OTelAgent !== "undefined") aliases.push("OTelAgent");
+
+        if (aliases.length > 0) {
+          addResult(
+            "agent-results",
+            "✅ 사용 가능한 전역 별칭: " + aliases.join(", "),
+            "info"
+          );
+        } else {
+          addResult(
+            "agent-results",
+            "❌ OpenTelemetry 전역 객체를 찾을 수 없음",
+            "error"
+          );
+        }
+      }
+
+      function clearAgentResults() {
+        document.getElementById("agent-results").innerHTML = "";
+      }
+
+      // DOM Event Functions
+      function startInstrumentation() {
+        if (isInstrumentationActive) return;
+
+        try {
+          if (typeof OpenTelemetryIE11Agent !== "undefined") {
+            instrumentation = createDOMEventInstrumentation({
+              trackedEvents: getFilteredEvents(),
+              enableTiming: true,
+              maxEventHistory: 1000,
+              throttleInterval: 16,
+            });
+
+            instrumentation.addHandler(logEvent);
+            instrumentation.instrument(document);
+
+            isInstrumentationActive = true;
+            addLogEntry("eventLogArea", "✅ DOM 이벤트 계측 시작됨", "success");
+
+            // Initialize trace ID
+            if (!traceId) {
+              traceId = generateTraceId();
+              updateTraceStatus(
+                "새 트레이스 세션 시작: " + traceId.substring(0, 8) + "..."
+              );
+            }
+          } else {
+            throw new Error("OpenTelemetry Agent를 사용할 수 없음");
+          }
+        } catch (error) {
+          addLogEntry(
+            "eventLogArea",
+            "❌ 계측 시작 실패: " + error.message,
+            "error"
+          );
+        }
+      }
+
+      function stopInstrumentation() {
+        if (!isInstrumentationActive) return;
+
+        try {
+          flushTraces();
+
+          if (instrumentation) {
+            instrumentation.destroy();
+            instrumentation = null;
+          }
+
+          isInstrumentationActive = false;
+          addLogEntry("eventLogArea", "⏹️ DOM 이벤트 계측 중지됨", "info");
+        } catch (error) {
+          addLogEntry(
+            "eventLogArea",
+            "❌ 계측 중지 실패: " + error.message,
+            "error"
+          );
+        }
+      }
+
+      function getFilteredEvents() {
+        var filterInput = document.getElementById("eventFilter");
+        var filterValue = filterInput.value.trim();
+
+        if (!filterValue) {
+          return [
+            "click",
+            "dblclick",
+            "keydown",
+            "submit",
+            "mouseover",
+            "mouseout",
+          ];
+        }
+
+        return filterValue.split(",").map(function (event) {
+          return event.trim();
+        });
+      }
+
+      function updateEventFilter() {
+        if (instrumentation && instrumentation.updateConfig) {
+          try {
+            instrumentation.updateConfig({
+              trackedEvents: getFilteredEvents(),
+            });
+            addLogEntry("eventLogArea", "✅ 이벤트 필터 업데이트됨", "info");
+          } catch (error) {
+            addLogEntry(
+              "eventLogArea",
+              "❌ 필터 업데이트 실패: " + error.message,
+              "error"
+            );
+          }
+        }
+      }
+
+      function logEvent(eventData) {
+        eventHistory.push(eventData);
+
+        // Create OpenTelemetry span
+        if (traceId) {
+          try {
+            var span = createSpan(eventData);
+            pendingSpans.push(span);
+
+            // Auto-flush every 10 spans
+            if (pendingSpans.length >= 10) {
+              sendTracesToCollector(pendingSpans.slice());
+              pendingSpans = [];
+            }
+          } catch (error) {
+            console.warn("Span 생성 실패:", error);
+          }
+        }
+
+        // Log to display
+        var timestamp = new Date(eventData.timestamp).toLocaleTimeString();
+        var duration = eventData.duration
+          ? " (" + eventData.duration.toFixed(2) + "ms)"
+          : "";
+        var logMessage =
+          "[" +
+          eventData.type +
+          "] " +
+          eventData.target +
+          " (" +
+          eventData.phase +
+          ")" +
+          duration;
+
+        addLogEntry("eventLogArea", logMessage, "info");
+        updateEventStatistics();
+      }
+
+      function updateEventStatistics() {
+        var eventTypes = {};
+        var totalDuration = 0;
+        var durationCount = 0;
+
+        for (var i = 0; i < eventHistory.length; i++) {
+          var event = eventHistory[i];
+          var type = event.type;
+          eventTypes[type] = (eventTypes[type] || 0) + 1;
+
+          if (event.duration) {
+            totalDuration += event.duration;
+            durationCount++;
+          }
+        }
+
+        var mostFrequent = "";
+        var maxCount = 0;
+        for (var type in eventTypes) {
+          if (eventTypes.hasOwnProperty(type) && eventTypes[type] > maxCount) {
+            mostFrequent = type;
+            maxCount = eventTypes[type];
+          }
+        }
+
+        document.getElementById("totalEvents").textContent =
+          eventHistory.length;
+        document.getElementById("uniqueTypes").textContent =
+          Object.keys(eventTypes).length;
+        document.getElementById("tracesSent").textContent = tracesSent;
+        document.getElementById("tracesFailed").textContent = tracesFailed;
+      }
+
+      function clearEventLogs() {
+        document.getElementById("eventLogArea").textContent = "";
+        eventHistory = [];
+        pendingSpans = [];
+        updateEventStatistics();
+      }
+
+      function exportEventLogs() {
+        if (eventHistory.length === 0) {
+          alert("내보낼 이벤트 데이터가 없습니다");
+          return;
+        }
+
+        var csvContent = "Timestamp,Type,Target,Phase,Duration\n";
+        for (var i = 0; i < eventHistory.length; i++) {
+          var event = eventHistory[i];
+          csvContent +=
+            event.timestamp +
+            "," +
+            event.type +
+            "," +
+            event.target +
+            "," +
+            event.phase +
+            "," +
+            (event.duration || "") +
+            "\n";
+        }
+
+        var blob = new Blob([csvContent], { type: "text/csv" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download =
+          "dom-events-" + new Date().toISOString().slice(0, 10) + ".csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      // Trace Functions
+      function createSpan(eventData, parentSpanId) {
+        var spanId = generateSpanId();
+        var startTime = getTimeNanos();
+        var endTime =
+          startTime +
+          (eventData.duration ? eventData.duration * 1000000 : 1000000);
+
+        return {
+          traceId: traceId,
+          spanId: spanId,
+          parentSpanId: parentSpanId || "",
+          name: "dom." + eventData.type,
+          kind: 1,
+          startTimeUnixNano: startTime.toString(),
+          endTimeUnixNano: endTime.toString(),
+          attributes: [
+            { key: "event.type", value: { stringValue: eventData.type } },
+            { key: "event.target", value: { stringValue: eventData.target } },
+            { key: "event.phase", value: { stringValue: eventData.phase } },
+            { key: "event.bubbled", value: { boolValue: eventData.bubbled } },
+            {
+              key: "event.cancelled",
+              value: { boolValue: eventData.cancelled },
+            },
+            {
+              key: "browser.userAgent",
+              value: { stringValue: navigator.userAgent },
+            },
+          ],
+          status: { code: 1 },
+        };
+      }
+
+      function sendTracesToCollector(spans) {
+        var collectorUrl = document.getElementById("traceCollectorUrl").value;
+
+        if (!spans || spans.length === 0) {
+          updateTraceStatus("전송할 span이 없음");
+          return;
+        }
+
+        var payload = {
+          resourceSpans: [
+            {
+              resource: {
+                attributes: [
+                  {
+                    key: "service.name",
+                    value: { stringValue: "dom-event-instrumentation" },
+                  },
+                  { key: "service.version", value: { stringValue: "1.0.0" } },
+                  {
+                    key: "telemetry.sdk.name",
+                    value: { stringValue: "opentelemetry-js-ie11" },
+                  },
+                  {
+                    key: "telemetry.sdk.version",
+                    value: { stringValue: "1.0.0" },
+                  },
+                ],
+              },
+              scopeSpans: [
+                {
+                  scope: {
+                    name: "dom-event-instrumentation",
+                    version: "1.0.0",
+                  },
+                  spans: spans,
+                },
+              ],
+            },
+          ],
+        };
+
+        var collectorUrl = document.getElementById("traceCollectorUrl").value;
+        updateCollectorStatus(
+          spans.length + "개 span을 trace collector로 전송 중..."
+        );
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", collectorUrl, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              tracesSent += spans.length;
+              updateCollectorStatus(
+                "✅ " + spans.length + "개 trace 전송 성공"
+              );
+              updateEventStatistics();
+            } else {
+              tracesFailed += spans.length;
+              updateCollectorStatus(
+                "❌ 트레이스 전송 실패: " + xhr.status + " " + xhr.statusText
+              );
+              updateEventStatistics();
+            }
+          }
+        };
+
+        xhr.onerror = function () {
+          tracesFailed += spans.length;
+          updateCollectorStatus("❌ 네트워크 오류로 트레이스 전송 실패");
+          updateEventStatistics();
+        };
+
+        try {
+          xhr.send(JSON.stringify(payload));
+        } catch (error) {
+          tracesFailed += spans.length;
+          updateCollectorStatus("❌ 트레이스 전송 오류: " + error.message);
+          updateEventStatistics();
+        }
+      }
+
+      // Collector Connection Functions
+      function testAllCollectorConnections() {
+        updateCollectorStatus("모든 collector 연결 테스트 중...");
+
+        var traceUrl = document.getElementById("traceCollectorUrl").value;
+        var logUrl = document.getElementById("logCollectorUrl").value;
+        var metricUrl = document.getElementById("metricCollectorUrl").value;
+
+        var results = [];
+        var completed = 0;
+        var total = 3;
+
+        function checkComplete() {
+          completed++;
+          if (completed === total) {
+            var successCount = results.filter(function (r) {
+              return r.success;
+            }).length;
+            updateCollectorStatus(
+              "✅ " + successCount + "/" + total + " collector 연결 성공"
+            );
+          }
+        }
+
+        // Test trace collector
+        testCollectorConnection(traceUrl, "Trace", function (success) {
+          results.push({ type: "trace", success: success });
+          checkComplete();
+        });
+
+        // Test log collector
+        testCollectorConnection(logUrl, "Log", function (success) {
+          results.push({ type: "log", success: success });
+          checkComplete();
+        });
+
+        // Test metric collector
+        testCollectorConnection(metricUrl, "Metric", function (success) {
+          results.push({ type: "metric", success: success });
+          checkComplete();
+        });
+      }
+
+      function testCollectorConnection(collectorUrl, type, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", collectorUrl, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              updateCollectorStatus("✅ " + type + " Collector 연결 성공");
+              callback(true);
+            } else {
+              updateCollectorStatus(
+                "❌ " +
+                  type +
+                  " Collector 연결 실패: " +
+                  xhr.status +
+                  " " +
+                  xhr.statusText
+              );
+              callback(false);
+            }
+          }
+        };
+
+        xhr.onerror = function () {
+          updateCollectorStatus("❌ " + type + " Collector 네트워크 연결 오류");
+          callback(false);
+        };
+
+        var testPayload = getTestPayload(type);
+        try {
+          xhr.send(JSON.stringify(testPayload));
+        } catch (error) {
+          updateCollectorStatus(
+            "❌ " + type + " 연결 테스트 오류: " + error.message
+          );
+          callback(false);
+        }
+      }
+
+      function getTestPayload(type) {
+        switch (type.toLowerCase()) {
+          case "trace":
+            return { resourceSpans: [] };
+          case "log":
+            return { resourceLogs: [] };
+          case "metric":
+            return { resourceMetrics: [] };
+          default:
+            return {};
+        }
+      }
+
+      // Test Data Sending Functions
+      function sendTestTrace() {
+        if (!traceId) {
+          traceId = generateTraceId();
+        }
+
+        var testSpan = {
+          traceId: traceId,
+          spanId: generateSpanId(),
+          parentSpanId: "",
+          name: "test.trace.span",
+          kind: 1,
+          startTimeUnixNano: getTimeNanos().toString(),
+          endTimeUnixNano: (getTimeNanos() + 1000000).toString(),
+          attributes: [
+            { key: "test.type", value: { stringValue: "trace_test" } },
+            {
+              key: "test.timestamp",
+              value: { stringValue: new Date().toISOString() },
+            },
+          ],
+          status: { code: 1 },
+        };
+
+        sendTracesToCollector([testSpan]);
+      }
+
+      function sendTestLog() {
+        var logCollectorUrl = document.getElementById("logCollectorUrl").value;
+        updateCollectorStatus("테스트 로그를 log collector로 전송 중...");
+
+        var logPayload = {
+          resourceLogs: [
+            {
+              resource: {
+                attributes: [
+                  {
+                    key: "service.name",
+                    value: { stringValue: "dom-event-instrumentation" },
+                  },
+                  { key: "service.version", value: { stringValue: "1.0.0" } },
+                ],
+              },
+              scopeLogs: [
+                {
+                  scope: {
+                    name: "test-logger",
+                    version: "1.0.0",
+                  },
+                  logRecords: [
+                    {
+                      timeUnixNano: getTimeNanos().toString(),
+                      severityNumber: 9, // INFO
+                      severityText: "INFO",
+                      body: {
+                        stringValue: "Test log message from OpenTelemetry IE11",
+                      },
+                      attributes: [
+                        {
+                          key: "test.type",
+                          value: { stringValue: "log_test" },
+                        },
+                        {
+                          key: "test.timestamp",
+                          value: { stringValue: new Date().toISOString() },
+                        },
+                        {
+                          key: "browser.userAgent",
+                          value: { stringValue: navigator.userAgent },
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
+
+        sendToCollector(logCollectorUrl, logPayload, "Log");
+      }
+
+      function sendTestMetric() {
+        var metricCollectorUrl =
+          document.getElementById("metricCollectorUrl").value;
+        updateCollectorStatus("테스트 메트릭을 metric collector로 전송 중...");
+
+        var metricPayload = {
+          resourceMetrics: [
+            {
+              resource: {
+                attributes: [
+                  {
+                    key: "service.name",
+                    value: { stringValue: "dom-event-instrumentation" },
+                  },
+                  { key: "service.version", value: { stringValue: "1.0.0" } },
+                ],
+              },
+              scopeMetrics: [
+                {
+                  scope: {
+                    name: "test-meter",
+                    version: "1.0.0",
+                  },
+                  metrics: [
+                    {
+                      name: "test_counter",
+                      description: "Test counter metric",
+                      unit: "1",
+                      sum: {
+                        dataPoints: [
+                          {
+                            attributes: [
+                              {
+                                key: "test.type",
+                                value: { stringValue: "metric_test" },
+                              },
+                            ],
+                            startTimeUnixNano: (
+                              getTimeNanos() - 60000000000
+                            ).toString(),
+                            timeUnixNano: getTimeNanos().toString(),
+                            asInt: "42",
+                          },
+                        ],
+                        aggregationTemporality: 2, // CUMULATIVE
+                        isMonotonic: true,
+                      },
+                    },
+                    {
+                      name: "test_histogram",
+                      description: "Test histogram metric",
+                      unit: "ms",
+                      histogram: {
+                        dataPoints: [
+                          {
+                            attributes: [
+                              {
+                                key: "test.type",
+                                value: { stringValue: "metric_test" },
+                              },
+                            ],
+                            startTimeUnixNano: (
+                              getTimeNanos() - 60000000000
+                            ).toString(),
+                            timeUnixNano: getTimeNanos().toString(),
+                            count: "10",
+                            sum: 1500.0,
+                            bucketCounts: ["2", "3", "4", "1"],
+                            explicitBounds: [10.0, 50.0, 100.0],
+                          },
+                        ],
+                        aggregationTemporality: 2, // CUMULATIVE
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
+
+        sendToCollector(metricCollectorUrl, metricPayload, "Metric");
+      }
+
+      function sendToCollector(url, payload, type) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              updateCollectorStatus("✅ " + type + " 전송 성공");
+            } else {
+              updateCollectorStatus(
+                "❌ " +
+                  type +
+                  " 전송 실패: " +
+                  xhr.status +
+                  " " +
+                  xhr.statusText
+              );
+            }
+          }
+        };
+
+        xhr.onerror = function () {
+          updateCollectorStatus("❌ " + type + " 네트워크 오류로 전송 실패");
+        };
+
+        try {
+          xhr.send(JSON.stringify(payload));
+        } catch (error) {
+          updateCollectorStatus("❌ " + type + " 전송 오류: " + error.message);
+        }
+      }
+
+      function flushTraces() {
+        if (pendingSpans.length > 0) {
+          sendTracesToCollector(pendingSpans.slice());
+          pendingSpans = [];
+        } else {
+          updateCollectorStatus("Flush할 대기 중인 span이 없음");
+        }
+      }
+
+      function updateCollectorStatus(message) {
+        document.getElementById("collectorStatus").textContent =
+          new Date().toLocaleTimeString() + ": " + message;
+      }
+
+      function updateTraceStatus(message) {
+        var statusElement = document.getElementById("collectorStatus");
+        if (statusElement) {
+          statusElement.textContent =
+            new Date().toLocaleTimeString() + ": " + message;
+        }
+      }
+
+      // Data Collection Functions
+      function startDataCollection() {
+        if (isDataCollectionActive) return;
+
+        isDataCollectionActive = true;
+        document.getElementById("collection-status").innerHTML =
+          '<span class="status-display status-success">수집 중</span>';
+        document.getElementById("last-collection-time").textContent =
+          new Date().toLocaleTimeString();
+
+        addLogEntry("collected-data-log", "📊 데이터 수집 시작됨", "info");
+      }
+
+      function stopDataCollection() {
+        if (!isDataCollectionActive) return;
+
+        isDataCollectionActive = false;
+        document.getElementById("collection-status").innerHTML =
+          '<span class="status-display status-warning">중지됨</span>';
+
+        addLogEntry("collected-data-log", "⏹️ 데이터 수집 중지됨", "info");
+      }
+
+      function generateTestData() {
+        var testSpan = {
+          traceId: generateTraceId(),
+          spanId: generateSpanId(),
+          name: "test.operation",
+          startTime: getTimeNanos(),
+          endTime: getTimeNanos() + 1000000,
+          attributes: {
+            "test.type": "generated",
+            "test.timestamp": new Date().toISOString(),
+          },
+        };
+
+        collectedData.push(testSpan);
+        document.getElementById("spans-collected").textContent =
+          collectedData.length;
+
+        addLogEntry(
+          "collected-data-log",
+          "✅ 테스트 데이터 생성됨: " + testSpan.name,
+          "info"
+        );
+      }
+
+      function clearCollectedData() {
+        collectedData = [];
+        document.getElementById("spans-collected").textContent = "0";
+        document.getElementById("collected-data-log").textContent = "";
+        addLogEntry("collected-data-log", "🗑️ 수집된 데이터 지워짐", "info");
+      }
+
+      // Export Functions
+      function testExportConnection() {
+        var status = document.getElementById("export-connection-status");
+        status.innerHTML =
+          '<span class="status-display status-warning">테스트 중...</span>';
+
+        // Simulate connection test
+        setTimeout(function () {
+          status.innerHTML =
+            '<span class="status-display status-success">연결됨</span>';
+          addLogEntry(
+            "export-log",
+            "✅ Export collector 연결 테스트 성공",
+            "success"
+          );
+        }, 1000);
+      }
+
+      function exportAllData() {
+        var totalSpans = collectedData.length + eventHistory.length;
+        document.getElementById("export-total-spans").textContent = totalSpans;
+
+        if (totalSpans === 0) {
+          addLogEntry("export-log", "❌ 내보낼 데이터가 없음", "error");
+          return;
+        }
+
+        exportSuccessCount += totalSpans;
+        document.getElementById("export-success-count").textContent =
+          exportSuccessCount;
+        document.getElementById("export-last-time").textContent =
+          new Date().toLocaleTimeString();
+
+        addLogEntry(
+          "export-log",
+          "✅ " + totalSpans + "개 항목 내보내기 성공",
+          "success"
+        );
+      }
+
+      function exportSelectedData() {
+        addLogEntry(
+          "export-log",
+          "ℹ️ 선택 데이터 내보내기 기능 구현 예정",
+          "info"
+        );
+      }
+
+      // Event Handlers
+      function handleAreaClick(event) {
+        console.log("영역 클릭:", event);
+      }
+
+      function handleAreaDblClick(event) {
+        console.log("영역 더블클릭:", event);
+      }
+
+      function handleAreaMouseOver(event) {
+        console.log("마우스 오버:", event);
+      }
+
+      function handleAreaMouseOut(event) {
+        console.log("마우스 아웃:", event);
+      }
+
+      function handleKeyDown(event) {
+        console.log("키 입력:", event.key);
+      }
+
+      function submitForm() {
+        alert("버튼으로 폼 제출됨!");
+      }
+
+      function handleFormSubmit(event) {
+        event.preventDefault();
+        alert("폼 요소로 제출됨!");
+      }
+
+      // DOM Event Instrumentation Implementation
+      function createDOMEventInstrumentation(config) {
+        var handlers = [];
+        var eventHistory = [];
+        var instrumentedElements = [];
+
+        function getHighResolutionTime() {
+          if (typeof performance !== "undefined" && performance.now) {
+            return performance.now();
+          }
+          return Date.now();
+        }
+
+        function getElementSelector(element) {
+          if (!element || element.nodeType !== 1) {
+            return "unknown";
+          }
+          var tagName = element.tagName.toLowerCase();
+          var id = element.id;
+          var className = element.className;
+          if (id) {
+            return tagName + "#" + id;
+          }
+          if (className && typeof className === "string") {
+            var classes = className.split(/\s+/).slice(0, 2).join(".");
+            if (classes) {
+              return tagName + "." + classes;
+            }
+          }
+          return tagName;
+        }
+
+        function createEventData(event, phase) {
+          var target = event.target;
+          var timestamp = getHighResolutionTime();
+          return {
+            type: event.type,
+            target: getElementSelector(target),
+            timestamp: timestamp,
+            phase: phase,
+            bubbled: event.bubbles,
+            cancelled: event.defaultPrevented,
+            synthetic: !event.isTrusted,
+          };
+        }
+
+        function processEvent(event, phase) {
+          if (
+            config.trackedEvents &&
+            config.trackedEvents.indexOf(event.type) === -1
+          ) {
+            return;
+          }
+
+          var eventData = createEventData(event, phase);
+
+          if (config.enableTiming) {
+            eventData.duration = getHighResolutionTime() - eventData.timestamp;
+          }
+
+          eventHistory.push(eventData);
+
+          if (eventHistory.length > (config.maxEventHistory || 1000)) {
+            eventHistory.splice(
+              0,
+              eventHistory.length - (config.maxEventHistory || 1000)
+            );
+          }
+
+          for (var i = 0; i < handlers.length; i++) {
+            try {
+              handlers[i](eventData);
+            } catch (error) {
+              console.error("이벤트 핸들러 오류:", error);
+            }
+          }
+        }
+
+        return {
+          addHandler: function (handler) {
+            if (handlers.indexOf(handler) === -1) {
+              handlers.push(handler);
+            }
+          },
+          removeHandler: function (handler) {
+            var index = handlers.indexOf(handler);
+            if (index !== -1) {
+              handlers.splice(index, 1);
+            }
+          },
+          instrument: function (element) {
+            if (instrumentedElements.indexOf(element) !== -1) {
+              return;
+            }
+
+            var originalAddEventListener = element.addEventListener;
+            if (originalAddEventListener) {
+              element.addEventListener = function (type, listener, options) {
+                var wrappedListener = function (event) {
+                  processEvent(event, "bubbling");
+                  if (typeof listener === "function") {
+                    return listener.call(this, event);
+                  }
+                };
+                return originalAddEventListener.call(
+                  this,
+                  type,
+                  wrappedListener,
+                  options
+                );
+              };
+            }
+
+            instrumentedElements.push(element);
+          },
+          getEventHistory: function () {
+            return eventHistory.slice();
+          },
+          clearHistory: function () {
+            eventHistory = [];
+          },
+          updateConfig: function (newConfig) {
+            for (var key in newConfig) {
+              if (newConfig.hasOwnProperty(key)) {
+                config[key] = newConfig[key];
+              }
+            }
+          },
+          destroy: function () {
+            handlers = [];
+            eventHistory = [];
+            instrumentedElements = [];
+          },
+        };
+      }
+
+      // Auto-flush traces periodically
+      setInterval(function () {
+        if (pendingSpans.length > 0 && isInstrumentationActive) {
+          sendTracesToCollector(pendingSpans.slice());
+          pendingSpans = [];
+        }
+      }, 5000);
+
+      // Initialize
+      window.onload = function () {
+        addLogEntry(
+          "eventLogArea",
+          "🚀 OpenTelemetry IE11 Complete Test Suite 초기화됨",
+          "info"
+        );
+
+        // Debug: Check if agent is loaded
+        console.log("Agent check:", typeof OpenTelemetryIE11Agent);
+        console.log("Window object:", window.OpenTelemetryIE11Agent);
+
+        // Setup tab click handlers
+        var tabs = document.querySelectorAll(".tab");
+        console.log("Found tabs:", tabs.length);
+        for (var i = 0; i < tabs.length; i++) {
+          console.log("Setting up tab:", i, tabs[i].getAttribute("data-tab"));
+          tabs[i].addEventListener("click", function () {
+            var tabName = this.getAttribute("data-tab");
+            console.log("Tab clicked:", tabName);
+            showTab(tabName);
+          });
+        }
+
+        // Run initial agent test
+        setTimeout(function () {
+          runAgentTests();
+        }, 1000);
+      };
+    </script>
+  </body>
+</html>
