@@ -1,5 +1,5 @@
 # Task ID: 2
-# Title: Implement Core Polyfills
+# Title: 핵심 폴리필 구현
 # Status: done
 # Dependencies: 1
 # Priority: high
@@ -46,61 +46,61 @@ Create a mechanism to conditionally load polyfills only in IE11 to avoid unneces
 8. Verify OpenTelemetry-specific polyfills (performance API, crypto)
 
 # Subtasks:
-## 2.1. Install core polyfill packages [done]
+## 2.1. 핵심 폴리필 패키지 설치 [done]
 ### Dependencies: None
 ### Description: Install essential polyfill packages including es6-promise, whatwg-fetch, regenerator-runtime, and symbol-es6
 ### Details:
 
 
-## 2.2. Implement core-js polyfill module [done]
+## 2.2. core-js 폴리필 모듈 구현 [done]
 ### Dependencies: None
 ### Description: Complete the core-js polyfill module to support ES6+ features including Promise, Symbol, Map, Set, Object.assign, and Array methods
 ### Details:
 
 
-## 2.3. Implement fetch API polyfill [done]
+## 2.3. fetch API 폴리필 구현 [done]
 ### Dependencies: None
 ### Description: Implement fetch API polyfill using whatwg-fetch and enhance XHR with responseType support
 ### Details:
 
 
-## 2.4. Implement URL API polyfill [done]
+## 2.4. URL API 폴리필 구현 [done]
 ### Dependencies: None
 ### Description: Create polyfill for URL API including URL constructor, createObjectURL and revokeObjectURL methods
 ### Details:
 
 
-## 2.5. Implement WebSocket and ArrayBuffer polyfills [done]
+## 2.5. WebSocket 및 ArrayBuffer 폴리필 구현 [done]
 ### Dependencies: None
 ### Description: Add support for WebSocket with ArrayBuffer and implement Uint8Array polyfill
 ### Details:
 
 
-## 2.6. Implement OpenTelemetry-specific polyfills [done]
+## 2.6. OpenTelemetry 전용 폴리필 구현 [done]
 ### Dependencies: None
 ### Description: Create polyfills for performance API (timeOrigin, mark(), measure()) and crypto (getRandomValues())
 ### Details:
 
 
-## 2.7. Implement IE11-specific modifications [done]
+## 2.7. IE11 전용 수정사항 구현 [done]
 ### Dependencies: None
 ### Description: Add support for Symbol.iterator, console object safety when dev tools are closed, __proto__ alternative property copying, and performance API alternative implementation
 ### Details:
 
 
-## 2.8. Implement conditional loading mechanism [done]
+## 2.8. 조건부 로딩 메커니즘 구현 [done]
 ### Dependencies: None
 ### Description: Create a system to check for feature existence before applying polyfills to minimize overhead in modern browsers
 ### Details:
 
 
-## 2.9. Optimize bundle size [done]
+## 2.9. 번들 크기 최적화 [done]
 ### Dependencies: None
 ### Description: Review the current bundle size (878KB) and identify opportunities for further optimization without losing functionality
 ### Details:
 
 
-## 2.1. Document implemented polyfills [done]
+## 2.1. 구현된 폴리필 문서화 [done]
 ### Dependencies: None
 ### Description: Create comprehensive documentation of all implemented polyfills, their purpose, and how they support IE11 compatibility
 ### Details:

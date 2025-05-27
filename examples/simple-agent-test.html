@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Agent Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Simple Agent Test</h1>
+    <div id="results"></div>
+
+    <script src="../dist/agent.js"></script>
+    <script>
+        function addResult(message, type) {
+            var div = document.createElement('div');
+            div.className = 'result ' + type;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+        }
+
+        function testAgent() {
+            // Test 1: Check if agent is loaded
+            if (typeof OpenTelemetryIE11Agent !== 'undefined') {
+                addResult('✅ OpenTelemetryIE11Agent is loaded', 'success');
+                
+                // Test 2: Check agent properties
+                try {
+                    var agent = OpenTelemetryIE11Agent;
+                    var info = {
+                        agentVersion: agent.agentVersion,
+                        buildType: agent.buildType,
+                        ie11Compatible: agent.ie11Compatible,
+                        VERSION: agent.VERSION,
+                        hasTrace: typeof agent.trace !== 'undefined',
+                        hasMetrics: typeof agent.metrics !== 'undefined',
+                        hasContext: typeof agent.context !== 'undefined',
+                        hasCore: typeof agent.core !== 'undefined',
+                        hasMetricsUtils: typeof agent.metricsUtils !== 'undefined',
+                        isIE11Function: typeof agent.isIE11 === 'function'
+                    };
+                    
+                    addResult('✅ Agent properties: <pre>' + JSON.stringify(info, null, 2) + '</pre>', 'success');
+                    
+                    // Test 3: Test isIE11 function
+                    if (typeof agent.isIE11 === 'function') {
+                        var isIE11Result = agent.isIE11();
+                        addResult('✅ isIE11() result: ' + isIE11Result, 'info');
+                    }
+                    
+                    // Test 4: Test core utilities
+                    if (agent.core) {
+                        var coreInfo = {
+                            hasObjectAssign: typeof agent.core.objectAssign !== 'undefined',
+                            hasHrTime: typeof agent.core.hrTime !== 'undefined',
+                            hasGetTimeOrigin: typeof agent.core.getTimeOrigin !== 'undefined'
+                        };
+                        addResult('✅ Core utilities: <pre>' + JSON.stringify(coreInfo, null, 2) + '</pre>', 'info');
+                        
+                        // Test hrTime function
+                        if (typeof agent.core.hrTime === 'function') {
+                            try {
+                                var hrTimeResult = agent.core.hrTime();
+                                addResult('✅ hrTime() result: [' + hrTimeResult[0] + ', ' + hrTimeResult[1] + ']', 'info');
+                            } catch (error) {
+                                addResult('❌ hrTime() error: ' + error.message, 'error');
+                            }
+                        }
+                        
+                        // Test getTimeOrigin function
+                        if (typeof agent.core.getTimeOrigin === 'function') {
+                            try {
+                                var timeOriginResult = agent.core.getTimeOrigin();
+                                addResult('✅ getTimeOrigin() result: ' + timeOriginResult, 'info');
+                            } catch (error) {
+                                addResult('❌ getTimeOrigin() error: ' + error.message, 'error');
+                            }
+                        }
+                    }
+                    
+                    // Test 5: Check global aliases
+                    var aliases = [];
+                    if (typeof window.OpenTelemetryIE11 !== 'undefined') aliases.push('OpenTelemetryIE11');
+                    if (typeof window.opentelemetry !== 'undefined') aliases.push('opentelemetry');
+                    if (typeof window.OTelAgent !== 'undefined') aliases.push('OTelAgent');
+                    
+                    addResult('✅ Available global aliases: ' + aliases.join(', '), 'info');
+                    
+                } catch (error) {
+                    addResult('❌ Error testing agent properties: ' + error.message, 'error');
+                }
+            } else {
+                addResult('❌ OpenTelemetryIE11Agent is not loaded', 'error');
+                
+                // Check what's available in global scope
+                var globals = [];
+                if (typeof window.OpenTelemetryIE11 !== 'undefined') globals.push('OpenTelemetryIE11');
+                if (typeof window.opentelemetry !== 'undefined') globals.push('opentelemetry');
+                if (typeof window.OTelAgent !== 'undefined') globals.push('OTelAgent');
+                
+                if (globals.length > 0) {
+                    addResult('ℹ️ Available globals: ' + globals.join(', '), 'info');
+                } else {
+                    addResult('❌ No OpenTelemetry globals found', 'error');
+                }
+            }
+        }
+
+        // Run tests when page loads
+        window.onload = function() {
+            addResult('🔍 Testing agent.js loading...', 'info');
+            testAgent();
+        };
+    </script>
+</body>
+</html> 

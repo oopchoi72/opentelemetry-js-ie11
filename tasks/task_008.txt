@@ -1,5 +1,5 @@
 # Task ID: 8
-# Title: Implement XMLHttpRequest Instrumentation
+# Title: XMLHttpRequest 계측 구현
 # Status: done
 # Dependencies: 6
 # Priority: high

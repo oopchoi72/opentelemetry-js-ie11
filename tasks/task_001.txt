@@ -1,5 +1,5 @@
 # Task ID: 1
-# Title: Setup Development Environment
+# Title: 개발 환경 설정
 # Status: done
 # Dependencies: None
 # Priority: high
@@ -52,7 +52,7 @@ module.exports = {
 5. Ensure the test runner can execute tests in IE11 environment
 
 # Subtasks:
-## 1. Repository Initialization [done]
+## 1. 저장소 초기화 [done]
 ### Dependencies: None
 ### Description: Set up the project repository with necessary configuration files and folder structure
 ### Details:
@@ -73,7 +73,7 @@ Initialize git repository, create package.json with appropriate dependencies, se
 다음 단계: TypeScript 설정으로 넘어갈 준비 완료
 </info added on 2025-05-23T00:39:47.686Z>
 
-## 2. TypeScript Configuration [done]
+## 2. TypeScript 설정 [done]
 ### Dependencies: 1.1
 ### Description: Configure TypeScript to ensure IE11 compatibility
 ### Details:
@@ -111,7 +111,7 @@ TypeScript Configuration has been completed:
 Next step: Proceed with Webpack/Rollup bundler setup
 </info added on 2025-05-23T00:42:36.322Z>
 
-## 3. Bundler Setup [done]
+## 3. 번들러 설정 [done]
 ### Dependencies: 1.1, 1.2
 ### Description: Configure Webpack or Rollup for bundling with IE11 support
 ### Details:
@@ -139,7 +139,7 @@ Bundler Setup 완료:
 - ES5 코드로 트랜스파일 완료
 </info added on 2025-05-23T00:44:38.872Z>
 
-## 4. Babel Configuration [done]
+## 4. Babel 설정 [done]
 ### Dependencies: 1.1, 1.3
 ### Description: Set up Babel for transpiling modern JavaScript to IE11-compatible code
 ### Details:
@@ -177,7 +177,7 @@ Install @babel/core, @babel/preset-env, and necessary plugins, create babel.conf
 Next step: Proceed to Test Setup
 </info added on 2025-05-23T00:47:35.566Z>
 
-## 5. Polyfill Installation [done]
+## 5. 폴리필 설치 [done]
 ### Dependencies: 1.4
 ### Description: Add necessary polyfills for IE11 compatibility
 ### Details:
@@ -215,19 +215,19 @@ Test setup completed:
 - Currently completed compatibility testing in Chrome
 </info added on 2025-05-23T00:50:07.572Z>
 
-## 6. Test Runner Setup [done]
+## 6. 테스트 러너 설정 [done]
 ### Dependencies: 1.2, 1.4
 ### Description: Configure testing framework with IE11 compatibility
 ### Details:
 Install Jest/Mocha and necessary adapters, configure test runner for TypeScript support, set up browser testing with Karma or similar for IE11, create test helpers and mocks, write sample tests, and verify tests run successfully in IE11
 
-## 7. Build Configuration [done]
+## 7. 빌드 설정 [done]
 ### Dependencies: 1.3, 1.4, 1.5
 ### Description: Set up production build process with IE11 optimizations
 ### Details:
 Configure production mode in bundler, set up minification with IE11-safe options, implement code splitting if needed, configure asset optimization, create npm scripts for build process, and validate final bundle in IE11
 
-## 8. CI/CD Pipeline Setup [done]
+## 8. CI/CD 파이프라인 설정 [done]
 ### Dependencies: 1.6, 1.7
 ### Description: Configure continuous integration and deployment with IE11 testing
 ### Details:

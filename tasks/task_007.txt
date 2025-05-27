@@ -1,5 +1,5 @@
 # Task ID: 7
-# Title: Implement @opentelemetry/sdk-metrics IE11 Support
+# Title: IE11용 @opentelemetry/sdk-metrics 지원 구현
 # Status: done
 # Dependencies: 4
 # Priority: medium
@@ -99,7 +99,7 @@ ES6+ features replaced with IE11 compatible alternatives:
 - fetch → XMLHttpRequest + image beacon
 </info added on 2025-05-23T12:43:57.742Z>
 
-## 3. Metric Collection Optimization [done]
+## 3. 메트릭 수집 최적화 [done]
 ### Dependencies: 7.2
 ### Description: Optimize the metric collection pipeline for IE11, focusing on minimizing DOM interactions and memory allocations.
 ### Details:
@@ -127,7 +127,7 @@ Webpack build verification:
 - Warnings present but no functional issues
 </info added on 2025-05-23T12:46:22.312Z>
 
-## 4. Histogram Calculation Implementation [done]
+## 4. 히스토그램 계산 구현 [done]
 ### Dependencies: 7.3
 ### Description: Implement efficient histogram calculation logic compatible with IE11, ensuring accurate bucket assignment and aggregation.
 ### Details:
@@ -155,13 +155,13 @@ Memory Management and Performance:
 All features designed with consideration for IE11 memory constraints.
 </info added on 2025-05-23T12:46:46.643Z>
 
-## 5. Aggregation Logic Adaptation [done]
+## 5. 집계 로직 적응 [done]
 ### Dependencies: 7.4
 ### Description: Adapt aggregation engines (sum, average, min/max, percentiles) for IE11, ensuring compatibility and efficiency.
 ### Details:
 Optimization techniques: Use simple loops instead of array methods; minimize object allocations. Validation criteria: Aggregation results are correct and consistent in IE11; integration tests verify all aggregation types.
 
-## 6. Metric Export Implementation [done]
+## 6. 메트릭 내보내기 구현 [done]
 ### Dependencies: 7.5
 ### Description: Implement metric export mechanisms (e.g., XHR, image beacons) that work reliably in IE11, avoiding fetch and other unsupported APIs.
 ### Details:

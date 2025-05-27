@@ -3,8 +3,6 @@ description: Guidelines for creating and maintaining Cursor rules to ensure cons
 globs: .cursor/rules/*.mdc
 alwaysApply: true
 ---
-- ** task-master 도구로 생성하는 모든 태스크들의 title, description, details, testStrategy은 한글로 만들어줘.
-
 - **Required Rule Structure:**
   ```markdown
   ---

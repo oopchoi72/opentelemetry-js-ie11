@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenTelemetry IE11 Agent Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>OpenTelemetry IE11 Agent Test</h1>
+    
+    <div class="test-section info">
+        <h2>Browser Information</h2>
+        <div id="browser-info">Loading...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Agent Loading Test</h2>
+        <div id="agent-status">Testing...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>API Availability Test</h2>
+        <div id="api-status">Testing...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Functionality Test</h2>
+        <button onclick="testTracing()">Test Tracing</button>
+        <button onclick="testMetrics()">Test Metrics</button>
+        <button onclick="testPerformance()">Test Performance</button>
+        <div id="functionality-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Global Objects</h2>
+        <div id="global-objects">Checking...</div>
+    </div>
+
+    <!-- Load the agent -->
+    <script src="dist/agent.js"></script>
+    
+    <script>
+        // Test functions
+        function updateStatus(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = isSuccess ? 'success' : 'error';
+        }
+
+        function addResult(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            const div = document.createElement('div');
+            div.innerHTML = message;
+            div.className = isSuccess ? 'success' : 'error';
+            div.style.margin = '5px 0';
+            element.appendChild(div);
+        }
+
+        // Browser information
+        function displayBrowserInfo() {
+            const userAgent = navigator.userAgent;
+            const isIE11 = !!(window.MSInputMethodContext && document.documentMode);
+            
+            const info = `
+                <strong>User Agent:</strong> ${userAgent}<br>
+                <strong>Is IE11:</strong> ${isIE11}<br>
+                <strong>Document Mode:</strong> ${document.documentMode || 'N/A'}<br>
+                <strong>Window Size:</strong> ${window.innerWidth}x${window.innerHeight}
+            `;
+            
+            document.getElementById('browser-info').innerHTML = info;
+        }
+
+        // Test agent loading
+        function testAgentLoading() {
+            try {
+                if (typeof OpenTelemetryIE11Agent !== 'undefined') {
+                    updateStatus('agent-status', 
+                        `✅ Agent loaded successfully!<br>
+                        Version: ${OpenTelemetryIE11Agent.VERSION}<br>
+                        Agent Version: ${OpenTelemetryIE11Agent.agentVersion}<br>
+                        Build Type: ${OpenTelemetryIE11Agent.buildType}<br>
+                        IE11 Compatible: ${OpenTelemetryIE11Agent.ie11Compatible}`, 
+                        true);
+                } else {
+                    updateStatus('agent-status', '❌ Agent not found in global scope', false);
+                }
+            } catch (error) {
+                updateStatus('agent-status', `❌ Error testing agent: ${error.message}`, false);
+            }
+        }
+
+        // Test API availability
+        function testAPIAvailability() {
+            const tests = [
+                { name: 'trace', obj: 'OpenTelemetryIE11Agent.trace' },
+                { name: 'metrics', obj: 'OpenTelemetryIE11Agent.metrics' },
+                { name: 'context', obj: 'OpenTelemetryIE11Agent.context' },
+                { name: 'core.hrTime', obj: 'OpenTelemetryIE11Agent.core.hrTime' },
+                { name: 'core.getTimeOrigin', obj: 'OpenTelemetryIE11Agent.core.getTimeOrigin' },
+                { name: 'metricsUtils.createCounter', obj: 'OpenTelemetryIE11Agent.metricsUtils.createCounter' }
+            ];
+
+            let results = '';
+            let allPassed = true;
+
+            tests.forEach(test => {
+                try {
+                    const obj = eval(test.obj);
+                    if (typeof obj !== 'undefined') {
+                        results += `✅ ${test.name}: Available<br>`;
+                    } else {
+                        results += `❌ ${test.name}: Undefined<br>`;
+                        allPassed = false;
+                    }
+                } catch (error) {
+                    results += `❌ ${test.name}: Error - ${error.message}<br>`;
+                    allPassed = false;
+                }
+            });
+
+            updateStatus('api-status', results, allPassed);
+        }
+
+        // Test tracing functionality
+        function testTracing() {
+            try {
+                if (OpenTelemetryIE11Agent.core && OpenTelemetryIE11Agent.core.hrTime) {
+                    const time = OpenTelemetryIE11Agent.core.hrTime();
+                    addResult('functionality-results', 
+                        `✅ Tracing Test: hrTime() returned [${time[0]}, ${time[1]}]`, true);
+                } else {
+                    addResult('functionality-results', '❌ Tracing Test: hrTime not available', false);
+                }
+            } catch (error) {
+                addResult('functionality-results', `❌ Tracing Test: ${error.message}`, false);
+            }
+        }
+
+        // Test metrics functionality
+        function testMetrics() {
+            try {
+                if (OpenTelemetryIE11Agent.metricsUtils && OpenTelemetryIE11Agent.metricsUtils.createCounter) {
+                    // Just test that the function exists
+                    const createCounter = OpenTelemetryIE11Agent.metricsUtils.createCounter;
+                    addResult('functionality-results', 
+                        `✅ Metrics Test: createCounter function available (${typeof createCounter})`, true);
+                } else {
+                    addResult('functionality-results', '❌ Metrics Test: createCounter not available', false);
+                }
+            } catch (error) {
+                addResult('functionality-results', `❌ Metrics Test: ${error.message}`, false);
+            }
+        }
+
+        // Test performance functionality
+        function testPerformance() {
+            try {
+                if (OpenTelemetryIE11Agent.core && OpenTelemetryIE11Agent.core.getTimeOrigin) {
+                    const timeOrigin = OpenTelemetryIE11Agent.core.getTimeOrigin();
+                    addResult('functionality-results', 
+                        `✅ Performance Test: getTimeOrigin() returned ${timeOrigin}`, true);
+                } else {
+                    addResult('functionality-results', '❌ Performance Test: getTimeOrigin not available', false);
+                }
+            } catch (error) {
+                addResult('functionality-results', `❌ Performance Test: ${error.message}`, false);
+            }
+        }
+
+        // Check global objects
+        function checkGlobalObjects() {
+            const globals = [
+                'OpenTelemetryIE11Agent',
+                'OpenTelemetryIE11',
+                'opentelemetry',
+                'OTelAgent'
+            ];
+
+            let results = '';
+            globals.forEach(globalName => {
+                if (typeof window[globalName] !== 'undefined') {
+                    results += `✅ ${globalName}: Available<br>`;
+                } else {
+                    results += `❌ ${globalName}: Not found<br>`;
+                }
+            });
+
+            document.getElementById('global-objects').innerHTML = results;
+        }
+
+        // Run tests when page loads
+        window.onload = function() {
+            displayBrowserInfo();
+            testAgentLoading();
+            testAPIAvailability();
+            checkGlobalObjects();
+        };
+    </script>
+</body>
+</html> 

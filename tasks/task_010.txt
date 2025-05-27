@@ -1,5 +1,5 @@
 # Task ID: 10
-# Title: Implement DOM Event Instrumentation
+# Title: DOM 이벤트 계측 구현
 # Status: done
 # Dependencies: 6
 # Priority: medium

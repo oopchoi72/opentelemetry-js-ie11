@@ -1,5 +1,5 @@
 # Task ID: 16
-# Title: Fix Critical TypeScript Compilation Errors and Optimize Bundle Size
+# Title: 중요한 TypeScript 컴파일 오류 수정 및 번들 크기 최적화
 # Status: done
 # Dependencies: 2
 # Priority: high

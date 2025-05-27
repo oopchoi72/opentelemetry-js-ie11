@@ -7,13 +7,9 @@ module.exports = (env, argv) => {
   const isProduction = argv.mode === "production";
   const isAnalyze = process.env.ANALYZE === "true";
 
-  // Test bundle for currently implemented modules only
+  // Single unified entry point for agent.js bundle
   const entries = {
-    // Only performance and browser modules (currently working)
-    "opentelemetry-ie11-performance": "./src/performance/index.ts",
-    "opentelemetry-js-ie11-browser": "./src/browser/index.ts",
-    "opentelemetry-js-ie11-dom-events":
-      "./src/web/dom-event-instrumentation.ts",
+    "agent": "./src/agent.ts",
   };
 
   return {
@@ -21,13 +17,9 @@ module.exports = (env, argv) => {
     entry: entries,
     output: {
       path: path.resolve(__dirname, "dist"),
-      filename: (pathData) => {
-        const chunkName = pathData.chunk.name || "bundle";
-        const isMinified = chunkName.includes(".min");
-        return isMinified ? "[name].js" : "[name].js";
-      },
+      filename: "agent.js",
       library: {
-        name: ["OpenTelemetryIE11", "[name]"],
+        name: "OpenTelemetryIE11Agent",
         type: "umd",
         export: "default",
         umdNamedDefine: true,
@@ -81,10 +73,7 @@ module.exports = (env, argv) => {
                     {
                       targets: {
                         ie: "11",
-                        chrome: "49",
-                        firefox: "52",
-                        safari: "10",
-                        edge: "12",
+                        browsers: ["ie >= 11", "last 2 versions", "> 1%"],
                       },
                       useBuiltIns: "entry",
                       corejs: {
@@ -204,83 +193,9 @@ module.exports = (env, argv) => {
         }),
       ],
       splitChunks: {
-        chunks: "all",
-        minSize: 0,
-        maxAsyncRequests: 5,
-        maxInitialRequests: 5,
-        automaticNameDelimiter: "-",
         cacheGroups: {
-          // Core polyfills - highest priority
-          polyfills: {
-            test: /[\\/]node_modules[\\/]core-js[\\/]/,
-            name: "polyfills",
-            chunks: "all",
-            priority: 100,
-            enforce: true,
-            reuseExistingChunk: true,
-          },
-          // Essential polyfills
-          essentialPolyfills: {
-            test: /[\\/]node_modules[\\/](whatwg-fetch|process|es6-promise)[\\/]/,
-            name: "vendor-polyfills",
-            chunks: "all",
-            priority: 90,
-            enforce: true,
-            reuseExistingChunk: true,
-          },
-          // Babel runtime helpers
-          babelRuntime: {
-            test: /[\\/]node_modules[\\/]@babel[\\/]runtime[\\/]/,
-            name: "babel-runtime",
-            chunks: "all",
-            priority: 80,
-            enforce: true,
-            reuseExistingChunk: true,
-          },
-          // Core utilities that can be shared
-          coreUtils: {
-            test: /src[\\/](core|utils)[\\/].*\.(ts|js)$/,
-            name: "core-utils",
-            chunks: "all",
-            priority: 60,
-            minSize: 5000,
-            reuseExistingChunk: true,
-            minChunks: 2,
-          },
-          // Trace-specific code
-          traceUtils: {
-            test: /src[\\/]sdk-trace-.*[\\/].*\.(ts|js)$/,
-            name: "trace-utils",
-            chunks: "all",
-            priority: 50,
-            minSize: 5000,
-            reuseExistingChunk: true,
-            minChunks: 2,
-          },
-          // Web-specific code
-          webUtils: {
-            test: /src[\\/]sdk-trace-web[\\/].*\.(ts|js)$/,
-            name: "web-utils",
-            chunks: "all",
-            priority: 40,
-            minSize: 5000,
-            reuseExistingChunk: true,
-            minChunks: 2,
-          },
-          // Default vendor chunk
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: "vendor",
-            chunks: "all",
-            priority: 10,
-            reuseExistingChunk: true,
-          },
-          // Default chunk
-          default: {
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true,
-          },
+          default: false,
+          defaultVendors: false,
         },
       },
       usedExports: true,

@@ -1,5 +1,5 @@
 # Task ID: 13
-# Title: Create Automated IE11 Testing Environment
+# Title: 자동화된 IE11 테스트 환경 구축
 # Status: done
 # Dependencies: 1
 # Priority: high

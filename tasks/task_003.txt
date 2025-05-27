@@ -1,5 +1,5 @@
 # Task ID: 3
-# Title: Modify @opentelemetry/api for IE11
+# Title: IE11용 @opentelemetry/api 수정
 # Status: done
 # Dependencies: 2
 # Priority: high
@@ -42,7 +42,7 @@ Ensure all async operations use Promise polyfills correctly.
 6. Validate that the API surface remains unchanged
 
 # Subtasks:
-## 1. ES6+ Syntax Replacement [done]
+## 1. ES6+ 문법 교체 [done]
 ### Dependencies: None
 ### Description: Identify and replace ES6+ syntax features not supported by IE11 with compatible alternatives
 ### Details:
@@ -75,7 +75,7 @@ Replace arrow functions, template literals, destructuring, spread/rest operators
 Code is now fully converted to IE11 compatible ES5 syntax.
 </info added on 2025-05-23T01:03:42.982Z>
 
-## 2. API Compatibility Analysis [done]
+## 2. API 호환성 분석 [done]
 ### Dependencies: 3.1
 ### Description: Analyze OpenTelemetry API version compatibility and identify required changes
 ### Details:
@@ -114,7 +114,7 @@ Earlier versions also compatible with API 1.0.0+
 - Consider implementing parts of W3C Trace Context spec (e.g., tracestate)
 </info added on 2025-05-23T01:05:51.834Z>
 
-## 3. Browser API Replacement [done]
+## 3. 브라우저 API 교체 [done]
 ### Dependencies: 3.1, 3.2
 ### Description: Replace modern browser APIs with polyfills or alternative implementations
 ### Details:
@@ -145,7 +145,7 @@ Identify browser APIs used in OpenTelemetry that aren't supported in IE11 (Promi
 - All functionality works correctly, API implementation is complete
 </info added on 2025-05-23T01:09:25.992Z>
 
-## 4. Module Format Adaptation [done]
+## 4. 모듈 형식 적응 [done]
 ### Dependencies: 3.1, 3.2, 3.3
 ### Description: Adapt module system to be compatible with IE11 while maintaining package structure
 ### Details:
@@ -189,7 +189,7 @@ Convert ES modules to CommonJS or UMD format for IE11 compatibility. Configure b
 - Full TypeScript type definition support
 </info added on 2025-05-23T01:13:43.809Z>
 
-## 5. Comprehensive Testing [done]
+## 5. 종합 테스트 [done]
 ### Dependencies: 3.1, 3.2, 3.3, 3.4
 ### Description: Develop and execute test plan to validate IE11 compatibility while maintaining functionality
 ### Details:

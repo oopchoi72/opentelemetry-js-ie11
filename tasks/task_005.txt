@@ -1,5 +1,5 @@
 # Task ID: 5
-# Title: Transform @opentelemetry/sdk-trace-base for IE11
+# Title: IE11용 @opentelemetry/sdk-trace-base 변환
 # Status: done
 # Dependencies: 4
 # Priority: high

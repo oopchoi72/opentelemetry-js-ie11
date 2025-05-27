@@ -1,5 +1,5 @@
 # Task ID: 6
-# Title: Adapt @opentelemetry/sdk-trace-web for IE11
+# Title: IE11용 @opentelemetry/sdk-trace-web 적응
 # Status: done
 # Dependencies: 5
 # Priority: high

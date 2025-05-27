@@ -7,10 +7,10 @@ module.exports = {
           ie: "11",
           browsers: ["ie >= 11", "last 2 versions", "> 1%"],
         },
-        useBuiltIns: "usage",
+        useBuiltIns: "entry",
         corejs: {
           version: 3,
-          proposals: true,
+          proposals: false,
         },
         modules: false,
         debug: false,

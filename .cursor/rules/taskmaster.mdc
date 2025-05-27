@@ -380,3 +380,5 @@ Environment variables are used **only** for sensitive API keys related to AI pro
 ---
 
 For details on how these commands fit into the development process, see the [Development Workflow Guide](mdc:.cursor/rules/dev_workflow.mdc).
+
+task-master 도구로 생성하는 모든 태스크들의 title, description, details, testStrategy은 한글로 만들어줘.

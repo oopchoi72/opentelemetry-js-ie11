@@ -1,5 +1,5 @@
 # Task ID: 12
-# Title: Implement Browser Detection and Conditional Loading
+# Title: 브라우저 감지 및 조건부 로딩 구현
 # Status: done
 # Dependencies: 3, 4, 5, 6, 7
 # Priority: medium

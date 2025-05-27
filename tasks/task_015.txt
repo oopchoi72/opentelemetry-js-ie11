@@ -1,5 +1,5 @@
 # Task ID: 15
-# Title: Implement Bundle Size Optimization
+# Title: 번들 크기 최적화 구현
 # Status: done
 # Dependencies: 3, 4, 5, 6, 7, 9
 # Priority: medium

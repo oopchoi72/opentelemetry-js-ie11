@@ -1,5 +1,5 @@
 # Task ID: 9
-# Title: Implement Module System Compatibility
+# Title: 모듈 시스템 호환성 구현
 # Status: done
 # Dependencies: 1, 2
 # Priority: high

@@ -1,5 +1,5 @@
 # Task ID: 4
-# Title: Adapt @opentelemetry/core for IE11
+# Title: IE11용 @opentelemetry/core 적응
 # Status: done
 # Dependencies: 3
 # Priority: high
@@ -37,7 +37,7 @@ Ensure all async operations and timers use appropriate IE11 compatible methods.
 6. Compare behavior with original package in modern browsers
 
 # Subtasks:
-## 1. ES6+ Syntax Replacement [done]
+## 1. ES6+ 문법 교체 [done]
 ### Dependencies: None
 ### Description: Replace modern JavaScript syntax with IE11-compatible alternatives throughout the @opentelemetry/core package
 ### Details:
@@ -98,7 +98,7 @@ Next step: Expand the entire core module and ensure ES5 compatibility.
 Task 4.1 successfully completed with all essential OpenTelemetry core package functionalities implemented with IE11 compatibility.
 </info added on 2025-05-23T01:22:43.460Z>
 
-## 2. Browser API Compatibility [done]
+## 2. 브라우저 API 호환성 [done]
 ### Dependencies: 4.1
 ### Description: Adapt or polyfill modern browser APIs used in the core package to ensure IE11 compatibility
 ### Details:
@@ -132,7 +132,7 @@ Identify all modern browser APIs (Promise, fetch, Map/Set, etc.) and implement p
 **Bundle Size:** 162KB (unchanged, well-optimized)
 </info added on 2025-05-23T01:26:05.056Z>
 
-## 3. Platform Detection Logic [done]
+## 3. 플랫폼 감지 로직 [done]
 ### Dependencies: 4.1, 4.2
 ### Description: Enhance platform detection to properly identify IE11 and apply appropriate code paths
 ### Details:
@@ -167,7 +167,7 @@ Update isNode(), isWebWorker(), and other environment detection functions to cor
 - Enabled sophisticated environment-specific responses required by OpenTelemetry
 </info added on 2025-05-23T01:30:03.603Z>
 
-## 4. Time Measurement Functions [done]
+## 4. 시간 측정 함수 [done]
 ### Dependencies: 4.3
 ### Description: Adapt high-resolution time measurement functions for IE11 compatibility
 ### Details:
@@ -199,7 +199,7 @@ Added 5 new bundle optimization tests (total 73) verifying chunk information, si
 Comprehensive documentation includes Bundle Optimization Guide with conditional loading, caching strategies, performance recommendations, and scenario-specific examples.
 </info added on 2025-05-23T01:34:03.191Z>
 
-## 5. Utility Function Adaptation [done]
+## 5. 유틸리티 함수 적응 [done]
 ### Dependencies: 4.2, 4.3
 ### Description: Modify core utility functions to work correctly in IE11
 ### Details:
@@ -269,7 +269,7 @@ Review and adapt all utility functions (object manipulation, string handling, et
 - Complete test coverage
 </info added on 2025-05-23T01:43:56.343Z>
 
-## 6. Performance Optimization [done]
+## 6. 성능 최적화 [done]
 ### Dependencies: 4.4, 4.5
 ### Description: Optimize adapted code for performance in IE11 while maintaining functionality
 ### Details:
@@ -313,7 +313,7 @@ opentelemetry-ie11.js: 1.62KB (메인 라이브러리)
 ```
 </info added on 2025-05-23T01:56:06.810Z>
 
-## 7. Integration Testing [done]
+## 7. 통합 테스트 [done]
 ### Dependencies: 4.6
 ### Description: Perform comprehensive integration testing of the adapted core package in IE11
 ### Details:
