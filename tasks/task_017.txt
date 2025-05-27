@@ -1,0 +1,55 @@
+# Task ID: 17
+# Title: Refactor Webpack to Generate Single agent.js Bundle
+# Status: pending
+# Dependencies: 1, 2, 3, 4, 5, 6
+# Priority: high
+# Description: Consolidate all existing webpack entry points into a single entry to produce one unified agent.js bundle, ensuring all modules, polyfills, and dependencies are included and IE11 compatibility is maintained.
+# Details:
+Update the webpack configuration by removing the four separate entry points (opentelemetry-js-ie11-browser.js, opentelemetry-js-ie11-dom-events.js, opentelemetry-ie11-performance.js, vendor-polyfills.js) and replacing them with a single entry that imports all required modules and polyfills in the correct order. Ensure that all necessary polyfills for IE11 are included at the top of the entry file. Adjust output settings to generate only agent.js. Review and update any optimization or splitChunks settings to prevent code splitting and guarantee a single output file. Validate that all dependencies, including vendor and polyfill code, are bundled. Carefully test for module initialization order to avoid runtime errors, and ensure that the resulting bundle does not break IE11 compatibility. Update documentation to reflect the new build process and bundle structure.
+
+# Test Strategy:
+1. Build the project and verify that only agent.js is produced in the output directory. 2. Confirm that agent.js contains all previously separate modules and polyfills by inspecting the bundle and checking for expected code. 3. Run the bundle in an IE11 environment (real or emulated) and validate that all agent functionality works as before, with no missing features or errors. 4. Execute automated and manual tests to ensure no regressions. 5. Review bundle size and initialization order to confirm all dependencies are loaded correctly and efficiently.
+
+# Subtasks:
+## 1. Analyze Current Webpack Configuration [pending]
+### Dependencies: None
+### Description: Review the existing Webpack configuration to identify all entry points, code splitting settings, and current bundle structure.
+### Details:
+Examine the current webpack.config.js file to understand how entry points are defined, identify any splitChunks configurations, and document the current bundling strategy. Pay special attention to any dynamic imports or require.ensure statements that might be causing code splitting.
+
+## 2. Consolidate Module Imports [pending]
+### Dependencies: 17.1
+### Description: Identify and consolidate all module imports that should be included in the single agent.js bundle.
+### Details:
+Create a comprehensive list of all dependencies that need to be included in the agent.js bundle. Replace any dynamic imports (System.import or require.ensure) with static imports to ensure all code is bundled together. Review lazy-loaded components in the SPA and modify them to be included in the main bundle.
+
+## 3. Configure IE11 Polyfills [pending]
+### Dependencies: 17.1
+### Description: Add necessary polyfills and configure Webpack to ensure compatibility with IE11.
+### Details:
+Update browserslist configuration to include IE11. Set target: ['web', 'es5'] in the Webpack configuration to ensure ES5 syntax compatibility. Identify and include all required polyfills for IE11 support, ensuring they're loaded before application code.
+
+## 4. Modify Output and Optimization Settings [pending]
+### Dependencies: 17.2, 17.3
+### Description: Update Webpack configuration to generate a single bundle and disable code splitting.
+### Details:
+Configure output.filename to generate agent.js. Disable code splitting by setting optimization.splitChunks.cacheGroups: { default: false, defaultVendors: false }. Remove any unnecessary default configurations. Ensure all assets and dependencies are properly included in the single bundle.
+
+## 5. Build and Validate in Development Environment [pending]
+### Dependencies: 17.4
+### Description: Build the application with the new configuration and validate functionality in a development environment.
+### Details:
+Run the build process with the updated configuration. Verify that only a single agent.js bundle is generated. Test the application in a modern browser to ensure basic functionality works before proceeding to IE11 testing.
+
+## 6. Test in IE11 Environment [pending]
+### Dependencies: 17.5
+### Description: Validate the single bundle works correctly in IE11.
+### Details:
+Set up an IE11 testing environment (virtual machine or BrowserStack). Test the application thoroughly in IE11, focusing on JavaScript functionality, polyfill effectiveness, and overall performance. Document any issues found and fix them before proceeding.
+
+## 7. Update Documentation and Run Regression Tests [pending]
+### Dependencies: 17.6
+### Description: Update project documentation to reflect the new bundling strategy and run comprehensive regression tests.
+### Details:
+Update the project README and any relevant documentation to describe the new bundling approach. Document any known limitations or considerations for future developers. Run full regression test suite across all supported browsers to ensure no functionality was broken during the refactoring process.
+

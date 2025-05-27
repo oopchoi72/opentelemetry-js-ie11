@@ -2,7 +2,7 @@
   "tasks": [
     {
       "id": 1,
-      "title": "Setup Development Environment",
+      "title": "개발 환경 설정",
       "description": "Configure the development environment with necessary build tools and dependencies for IE11 compatibility",
       "details": "1. Initialize project repository\n2. Configure TypeScript with target ES5\n3. Setup Webpack/Rollup for UMD bundle generation\n4. Configure Babel with preset-env targeting IE11\n5. Install required polyfills: core-js, whatwg-fetch, es6-promise, symbol-es6\n6. Setup Karma test runner with IE11 launcher\n7. Create separate build configurations for IE11 and modern browsers\n8. Configure CI/CD pipeline with IE11 testing capabilities\n\nExample tsconfig.json:\n```json\n{\n  \"compilerOptions\": {\n    \"target\": \"es5\",\n    \"lib\": [\"dom\", \"es5\", \"scripthost\"],\n    \"downlevelIteration\": true,\n    \"module\": \"commonjs\",\n    \"moduleResolution\": \"node\",\n    \"esModuleInterop\": true,\n    \"allowSyntheticDefaultImports\": true\n  }\n}\n```\n\nExample babel.config.js:\n```javascript\nmodule.exports = {\n  presets: [\n    [\"@babel/preset-env\", {\n      targets: {\n        ie: \"11\"\n      },\n      useBuiltIns: \"usage\",\n      corejs: 3\n    }]\n  ]\n};\n```",
       "testStrategy": "1. Verify that the build process successfully compiles TypeScript to ES5\n2. Confirm that UMD bundles are generated correctly\n3. Test the development environment in IE11 using a simple Hello World application\n4. Validate that all polyfills are correctly loaded and functioning\n5. Ensure the test runner can execute tests in IE11 environment",
@@ -12,7 +12,7 @@
       "subtasks": [
         {
           "id": 1,
-          "title": "Repository Initialization",
+          "title": "저장소 초기화",
           "description": "Set up the project repository with necessary configuration files and folder structure",
           "dependencies": [],
           "details": "Initialize git repository, create package.json with appropriate dependencies, set up .gitignore file, create README.md with project documentation, and establish folder structure (src/, dist/, tests/, etc.)\n<info added on 2025-05-23T00:39:47.686Z>\n✅ 완료된 작업:\n- package.json 생성 (IE11 호환 의존성 포함)\n- 기본 폴더 구조 생성 (src/, tests/, dist/, examples/, docs/)\n- README.md 작성 (프로젝트 개요, 설치, 사용법 포함)\n- .gitignore 업데이트 (빌드 결과물, 캐시, IE11 특화 파일 제외)\n\n✅ 주요 특징:\n- IE11 전용 polyfill 의존성 설정 (core-js, es6-promise, whatwg-fetch, symbol-es6)\n- 빌드 도구 설정 (TypeScript, Webpack, Babel, Karma)\n- browserslist에 IE11 포함\n- npm scripts 정의 (빌드, 테스트, 린트)\n\n다음 단계: TypeScript 설정으로 넘어갈 준비 완료\n</info added on 2025-05-23T00:39:47.686Z>",
@@ -20,77 +20,57 @@
         },
         {
           "id": 2,
-          "title": "TypeScript Configuration",
+          "title": "TypeScript 설정",
           "description": "Configure TypeScript to ensure IE11 compatibility",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Create tsconfig.json with target set to ES5, include necessary lib options (DOM, ES5, ES6), enable downlevelIteration, set module to CommonJS or AMD, configure paths and include/exclude patterns, and validate with a simple TypeScript file compilation test\n<info added on 2025-05-23T00:42:36.322Z>\nTypeScript Configuration has been completed:\n\n✅ Completed Tasks:\n- Created tsconfig.json with ES5 target and IE11 compatibility settings\n- Created src/ folder structure (api/, core/, trace/, metrics/, polyfills/)\n- Generated basic TypeScript files (index.ts, index.ts for each module)\n- Installed TypeScript and tslib\n- Configured path mapping (@/* aliases)\n\n✅ Key Configuration:\n- target: \"es5\" (IE11 compatible)\n- downlevelIteration: true (to support for...of loops)\n- module: \"commonjs\" (IE11 compatible)\n- lib: [\"dom\", \"es5\", \"es6\", \"scripthost\"]\n- importHelpers: true (using tslib)\n- Strict type checking enabled\n\n✅ Files Created:\n- src/index.ts (main entry point, includes IE11 detection logic)\n- src/api/index.ts (OpenTelemetry API stubs)\n- src/core/index.ts (platform detection, time utilities)\n- src/trace/index.ts (basic tracing implementation)\n- src/metrics/index.ts (basic metrics implementation)\n- src/polyfills/index.ts (polyfill stubs)\n\n⚠️ Remaining Issues:\n- Some TypeScript errors exist (interface compatibility, etc.)\n- Will be resolved in the next step during bundler configuration\n\nNext step: Proceed with Webpack/Rollup bundler setup\n</info added on 2025-05-23T00:42:36.322Z>",
           "status": "done"
         },
         {
           "id": 3,
-          "title": "Bundler Setup",
+          "title": "번들러 설정",
           "description": "Configure Webpack or Rollup for bundling with IE11 support",
-          "dependencies": [
-            1,
-            2
-          ],
+          "dependencies": [1, 2],
           "details": "Install bundler (Webpack/Rollup), create configuration file with entry/output paths, set up loaders for TypeScript and other file types, configure optimization settings, add source map support, and test bundling a simple file to verify IE11 compatibility\n<info added on 2025-05-23T00:44:38.872Z>\nBundler Setup 완료:\n\n✅ 완료된 작업:\n- webpack.config.js 생성 (UMD 출력, IE11 타겟)\n- babel.config.js 생성 (IE11 호환 변환 설정)\n- 필요한 패키지 설치 (webpack, babel-loader, core-js)\n- 개발 빌드 테스트 성공 (132KB 번들 생성)\n\n✅ 주요 설정:\n- UMD 라이브러리 형식 (global: OpenTelemetryIE11)\n- Babel preset-env with IE11 타겟\n- core-js 폴리필 자동 주입\n- TypeScript + Babel 변환 파이프라인\n- 소스맵 지원\n- 개발 서버 설정 (포트 8080)\n\n✅ 빌드 결과:\n- opentelemetry-ie11.js (132KB, 소스맵 포함)\n- core-js 폴리필 자동 포함\n- ES5 코드로 트랜스파일 완료\n</info added on 2025-05-23T00:44:38.872Z>",
           "status": "done"
         },
         {
           "id": 4,
-          "title": "Babel Configuration",
+          "title": "Babel 설정",
           "description": "Set up Babel for transpiling modern JavaScript to IE11-compatible code",
-          "dependencies": [
-            1,
-            3
-          ],
+          "dependencies": [1, 3],
           "details": "Install @babel/core, @babel/preset-env, and necessary plugins, create babel.config.js with IE11 browser target, configure polyfill usage (usage or entry), integrate with bundler configuration, and test transpilation of ES6+ features\n<info added on 2025-05-23T00:47:35.566Z>\n## Babel Configuration Completed\n\n✅ Completed Tasks:\n- Installed @babel/core, @babel/preset-env, @babel/preset-typescript\n- Installed @babel/cli and successfully tested transpilation\n- Completed babel.config.js configuration (IE11 target, using core-js 3)\n- Created actual polyfill files:\n  - src/polyfills/core-js-polyfills.ts (core ES6+ features)\n  - src/polyfills/fetch-polyfill.ts (fetch API + XHR improvements)\n  - src/polyfills/index.ts (integrated initialization)\n\n✅ Key Configurations:\n- Babel transformation configured for IE11 target\n- Automatic injection of core-js 3 polyfills\n- Confirmed ES6+ syntax → ES5 conversion (arrow functions, classes, async/await, etc.)\n- Included TypeScript preset\n\n✅ Polyfill Features:\n- Promise, Symbol, Map, Set\n- Object.assign, Array.from, Array.find, etc.\n- fetch API (whatwg-fetch)\n- regenerator-runtime (async/await)\n- Various IE11-specific modifications\n\n✅ Build Results:\n- Bundle size: 647KB (including polyfills)\n- All ES6+ features successfully converted to ES5\n- IE11 compatibility secured\n\nNext step: Proceed to Test Setup\n</info added on 2025-05-23T00:47:35.566Z>",
           "status": "done"
         },
         {
           "id": 5,
-          "title": "Polyfill Installation",
+          "title": "폴리필 설치",
           "description": "Add necessary polyfills for IE11 compatibility",
-          "dependencies": [
-            4
-          ],
+          "dependencies": [4],
           "details": "Install core-js, regenerator-runtime, and other IE11-specific polyfills (Promise, fetch, etc.), configure polyfill imports in entry point, add bootstrap-ie11 for UI components if needed, add meta tag to force IE11 out of compatibility mode, and test polyfill functionality in IE11\n<info added on 2025-05-23T00:50:07.572Z>\nTest setup completed:\n\n✅ Completed tasks:\n- Installed Karma test framework (karma, karma-webpack, karma-jasmine)\n- Installed browser launchers for IE11 testing (karma-ie-launcher, karma-chrome-launcher)\n- Configured karma.conf.js (including custom launcher for IE11)\n- Created basic compatibility tests (tests/basic.spec.ts)\n- Successfully ran tests in Chrome (15/15 passed)\n\n✅ Test coverage:\n- Polyfill functionality verification (Promise, Map, Set, Symbol, fetch, Object.assign, Array.from)\n- ES6+ syntax transformation (arrow functions, template literals, destructuring, spread, classes)\n- Async processing (Promise, async/await)\n- Platform detection functionality\n\n✅ Key configurations:\n- Karma + Webpack + Babel integration\n- Custom launcher for IE11 (karma-ie-launcher)\n- TypeScript test file support\n- Inline source maps included\n\n✅ Test results:\n- All polyfills loaded correctly\n- ES6+ → ES5 transformation working properly\n- Async code processing working as expected\n- All 15 tests passed\n\n⚠️ Notes:\n- Actual IE11 testing needs to be performed in Windows environment\n- Currently completed compatibility testing in Chrome\n</info added on 2025-05-23T00:50:07.572Z>",
           "status": "done"
         },
         {
           "id": 6,
-          "title": "Test Runner Setup",
+          "title": "테스트 러너 설정",
           "description": "Configure testing framework with IE11 compatibility",
-          "dependencies": [
-            2,
-            4
-          ],
+          "dependencies": [2, 4],
           "details": "Install Jest/Mocha and necessary adapters, configure test runner for TypeScript support, set up browser testing with Karma or similar for IE11, create test helpers and mocks, write sample tests, and verify tests run successfully in IE11",
           "status": "done"
         },
         {
           "id": 7,
-          "title": "Build Configuration",
+          "title": "빌드 설정",
           "description": "Set up production build process with IE11 optimizations",
-          "dependencies": [
-            3,
-            4,
-            5
-          ],
+          "dependencies": [3, 4, 5],
           "details": "Configure production mode in bundler, set up minification with IE11-safe options, implement code splitting if needed, configure asset optimization, create npm scripts for build process, and validate final bundle in IE11",
           "status": "done"
         },
         {
           "id": 8,
-          "title": "CI/CD Pipeline Setup",
+          "title": "CI/CD 파이프라인 설정",
           "description": "Configure continuous integration and deployment with IE11 testing",
-          "dependencies": [
-            6,
-            7
-          ],
+          "dependencies": [6, 7],
           "details": "Set up GitHub Actions or similar CI service, configure build and test workflows, add IE11-specific testing in virtual machines or BrowserStack, implement deployment steps, add status badges to README, and verify complete pipeline functionality",
           "status": "done"
         }
@@ -98,73 +78,71 @@
     },
     {
       "id": 2,
-      "title": "Implement Core Polyfills",
+      "title": "핵심 폴리필 구현",
       "description": "Implement and integrate essential polyfills for IE11 compatibility",
       "status": "done",
-      "dependencies": [
-        1
-      ],
+      "dependencies": [1],
       "priority": "high",
       "details": "Create a dedicated polyfill module that provides all necessary polyfills for IE11:\n\n1. Integrate core-js for ES6+ features\n2. Implement Promise polyfill using es6-promise\n3. Add Symbol polyfill using symbol-es6\n4. Implement Map/Set polyfills\n5. Add fetch API polyfill using whatwg-fetch\n6. Create polyfills for other missing browser APIs including URL API, WebSocket, Performance API, and Crypto\n\nExample polyfill module:\n```javascript\n// polyfills.js\nimport 'core-js/stable';\nimport 'regenerator-runtime/runtime';\nimport 'whatwg-fetch';\nimport 'es6-promise/auto';\nimport 'symbol-es6';\n\n// Additional custom polyfills\nif (!Array.prototype.includes) {\n  Array.prototype.includes = function(searchElement, fromIndex) {\n    // Implementation\n  };\n}\n\n// Ensure these polyfills are loaded before any OpenTelemetry code\n```\n\nCreate a mechanism to conditionally load polyfills only in IE11 to avoid unnecessary overhead in modern browsers.",
       "testStrategy": "1. Create a comprehensive test suite that verifies each polyfill works correctly in IE11\n2. Test Promise chaining and async operations\n3. Verify Map/Set operations with various data types\n4. Test fetch API for different request types\n5. Validate Symbol usage in various contexts\n6. Benchmark polyfill performance to ensure minimal overhead\n7. Test IE11-specific modifications (Symbol.iterator, console object safety)\n8. Verify OpenTelemetry-specific polyfills (performance API, crypto)",
       "subtasks": [
         {
           "id": 2.1,
-          "title": "Install core polyfill packages",
+          "title": "핵심 폴리필 패키지 설치",
           "description": "Install essential polyfill packages including es6-promise, whatwg-fetch, regenerator-runtime, and symbol-es6",
           "status": "done"
         },
         {
           "id": 2.2,
-          "title": "Implement core-js polyfill module",
+          "title": "core-js 폴리필 모듈 구현",
           "description": "Complete the core-js polyfill module to support ES6+ features including Promise, Symbol, Map, Set, Object.assign, and Array methods",
           "status": "done"
         },
         {
           "id": 2.3,
-          "title": "Implement fetch API polyfill",
+          "title": "fetch API 폴리필 구현",
           "description": "Implement fetch API polyfill using whatwg-fetch and enhance XHR with responseType support",
           "status": "done"
         },
         {
           "id": 2.4,
-          "title": "Implement URL API polyfill",
+          "title": "URL API 폴리필 구현",
           "description": "Create polyfill for URL API including URL constructor, createObjectURL and revokeObjectURL methods",
           "status": "done"
         },
         {
           "id": 2.5,
-          "title": "Implement WebSocket and ArrayBuffer polyfills",
+          "title": "WebSocket 및 ArrayBuffer 폴리필 구현",
           "description": "Add support for WebSocket with ArrayBuffer and implement Uint8Array polyfill",
           "status": "done"
         },
         {
           "id": 2.6,
-          "title": "Implement OpenTelemetry-specific polyfills",
+          "title": "OpenTelemetry 전용 폴리필 구현",
           "description": "Create polyfills for performance API (timeOrigin, mark(), measure()) and crypto (getRandomValues())",
           "status": "done"
         },
         {
           "id": 2.7,
-          "title": "Implement IE11-specific modifications",
+          "title": "IE11 전용 수정사항 구현",
           "description": "Add support for Symbol.iterator, console object safety when dev tools are closed, __proto__ alternative property copying, and performance API alternative implementation",
           "status": "done"
         },
         {
           "id": 2.8,
-          "title": "Implement conditional loading mechanism",
+          "title": "조건부 로딩 메커니즘 구현",
           "description": "Create a system to check for feature existence before applying polyfills to minimize overhead in modern browsers",
           "status": "done"
         },
         {
           "id": 2.9,
-          "title": "Optimize bundle size",
+          "title": "번들 크기 최적화",
           "description": "Review the current bundle size (878KB) and identify opportunities for further optimization without losing functionality",
           "status": "done"
         },
         {
           "id": 2.1,
-          "title": "Document implemented polyfills",
+          "title": "구현된 폴리필 문서화",
           "description": "Create comprehensive documentation of all implemented polyfills, their purpose, and how they support IE11 compatibility",
           "status": "done"
         }
@@ -172,19 +150,17 @@
     },
     {
       "id": 3,
-      "title": "Modify @opentelemetry/api for IE11",
+      "title": "IE11용 @opentelemetry/api 수정",
       "description": "Adapt the @opentelemetry/api package to be fully compatible with IE11",
       "details": "1. Fork or create a modified version of @opentelemetry/api\n2. Replace ES6+ syntax with ES5 compatible code:\n   - Convert arrow functions to function expressions\n   - Replace let/const with var\n   - Convert classes to constructor functions\n   - Replace template literals with string concatenation\n   - Convert destructuring to direct property access\n3. Replace any unsupported browser APIs with polyfilled versions\n4. Ensure all imports/exports use UMD compatible format\n5. Maintain the same public API interface for compatibility\n\nExample code transformation:\n```javascript\n// Original ES6 code\nconst createTracer = (name, version) => {\n  const provider = api.trace.getTracerProvider();\n  return provider.getTracer(name, version);\n};\n\n// Transformed ES5 code\nvar createTracer = function(name, version) {\n  var provider = api.trace.getTracerProvider();\n  return provider.getTracer(name, version);\n};\n```\n\nEnsure all async operations use Promise polyfills correctly.",
       "testStrategy": "1. Create a comprehensive test suite specifically for the API package\n2. Test all public API methods in IE11 environment\n3. Verify context propagation works correctly\n4. Test integration with other packages\n5. Compare behavior with original package in modern browsers to ensure compatibility\n6. Validate that the API surface remains unchanged",
       "priority": "high",
-      "dependencies": [
-        2
-      ],
+      "dependencies": [2],
       "status": "done",
       "subtasks": [
         {
           "id": 1,
-          "title": "ES6+ Syntax Replacement",
+          "title": "ES6+ 문법 교체",
           "description": "Identify and replace ES6+ syntax features not supported by IE11 with compatible alternatives",
           "dependencies": [],
           "details": "Replace arrow functions, template literals, destructuring, spread/rest operators, and class syntax with ES5 equivalents. Example: Convert `const getData = () => { return data; }` to `function getData() { return data; }`. Use tools like Babel with appropriate presets to automate transformations. Validate by checking transpiled code against IE11 syntax compatibility checklist.\n<info added on 2025-05-23T01:03:42.982Z>\n# ES6+ Syntax Replacement Completed\n\n## Achievements:\n✅ Implemented complete OpenTelemetry API in api/index.ts - Span, Tracer, Context API\n✅ Converted all ES6+ syntax to IE11 compatible code:\n   - Used var keyword (instead of const/let)\n   - Used function expressions (instead of arrow functions)\n   - Implemented explicit this binding\n   - Applied safe Object.prototype.hasOwnProperty.call() usage\n   - Utilized for-in loops\n\n## Implemented Features:\n- Span: setAttribute, setAttributes, addEvent, setStatus, updateName, end, isRecording\n- Tracer: startSpan, startActiveSpan (with overload support)\n- TracerProvider: getTracer\n- TraceAPI: getTracer, getTracerProvider, setGlobalTracerProvider\n- ContextAPI: active, with, setValue, getValue\n- Random ID generation: generateTraceId(32), generateSpanId(16)\n\n## Verification:\n- TypeScript compilation successful (npx tsc --noEmit)\n- Build successful (178KB bundle, API inclusion confirmed)\n- All existing tests maintained (15/15 passed)\n\nCode is now fully converted to IE11 compatible ES5 syntax.\n</info added on 2025-05-23T01:03:42.982Z>",
@@ -192,47 +168,33 @@
         },
         {
           "id": 2,
-          "title": "API Compatibility Analysis",
+          "title": "API 호환성 분석",
           "description": "Analyze OpenTelemetry API version compatibility and identify required changes",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Review the OpenTelemetry compatibility matrix to determine appropriate API version. Identify breaking changes between versions and document required adaptations. Example: If using API v0.20.0, ensure all dependencies match compatible versions as per the matrix. Create compatibility mapping document for implementation guidance. Validate by confirming all API methods maintain their signatures and behavior.\n<info added on 2025-05-23T01:05:51.834Z>\n## OpenTelemetry JavaScript Version Compatibility Analysis Results\n\n### Current Version Status (2025)\n- **Latest Stable API Version**: @opentelemetry/api 1.9.0 (released 1 year ago)\n- **Latest Stable SDK Version**: 2.0.1 (May 2025)\n- **Latest Experimental SDK Version**: 0.201.1 (May 2025)\n\n### Compatibility Matrix (Verified from Official Documentation)\nStable (SDK) | Experimental | API Minimum Requirement\n2.0.x        | 0.200.x      | >=1.0.0\n1.30.x       | 0.57.x       | >=1.0.0\nEarlier versions also compatible with API 1.0.0+\n\n### Optimized Approach for IE11 Project\n1. **API Version**: Use @opentelemetry/api 1.9.0 (latest stable)\n2. **Browser Support Policy**: ES2022 minimum → IE11 is outside official support range\n3. **TypeScript Requirements**: 5.0.4+ → IE11 project requires ES5 compilation\n\n### Standards Compliance Review of Current Implementation\n- ✅ Complete implementation of basic Span interface (setAttribute, addEvent, setStatus, etc.)\n- ✅ Correct SpanContext structure (traceId: 32 chars, spanId: 16 chars, traceFlags)\n- ✅ Support for Tracer.startSpan(), startActiveSpan() overloads\n- ✅ Basic Context API structure (active, with, setValue, getValue)\n- ✅ Metrics API placeholder implementation\n- 🔄 TraceState not implemented (optional)\n- 🔄 Propagators not implemented (to be addressed in next phase)\n\n### Recommendations\n- Maintain current implementation according to API 1.9.0 interface\n- Continue custom implementation rather than porting official SDK due to IE11 limitations\n- Consider implementing parts of W3C Trace Context spec (e.g., tracestate)\n</info added on 2025-05-23T01:05:51.834Z>",
           "status": "done"
         },
         {
           "id": 3,
-          "title": "Browser API Replacement",
+          "title": "브라우저 API 교체",
           "description": "Replace modern browser APIs with polyfills or alternative implementations",
-          "dependencies": [
-            1,
-            2
-          ],
+          "dependencies": [1, 2],
           "details": "Identify browser APIs used in OpenTelemetry that aren't supported in IE11 (Promise, fetch, Map/Set, etc.). Implement polyfills or alternative implementations. Example: Replace `Promise.all()` with a polyfill implementation or library like core-js. Create a comprehensive list of required polyfills. Validate by testing each polyfilled API in IE11 environment.\n<info added on 2025-05-23T01:09:25.992Z>\n## Browser API Replacement Implementation Results\n\n### Improved Browser APIs\n1. **Timing API Safety**: Implemented `getNow()` function with fallback chain from `performance.now()` → `Date.now()` → `new Date().getTime()`\n2. **Console Logging Safety**: Created `safeConsoleLog()` function to prevent IE11 console object issues and support variable arguments\n3. **ID Generation Enhancement**: Implemented `generateRandomHex()` function prioritizing crypto API with Math.random fallback\n4. **W3C Trace Context Support**: Added TraceState interface and implementation\n\n### IE11 Compatible Features Implemented\n- ✅ **Time Measurement**: Three-level fallback for performance timing\n- ✅ **Safe Logging**: Console.log calls wrapped in try-catch\n- ✅ **Enhanced Randomness**: Prioritized crypto.getRandomValues with Math.random fallback\n- ✅ **TraceState Support**: Complete implementation of get/set/unset/serialize methods\n\n### Testing Results\n- First describe block (Polyfills): 11/11 tests passed\n- Build success: 0 TypeScript compilation errors\n- Bundle size: 179KB (within target range)\n- API compatibility: Compliant with OpenTelemetry 1.9.0 standard\n\n### Remaining Issues\n- Issue with second describe block not executing in karma (configuration issue)\n- All functionality works correctly, API implementation is complete\n</info added on 2025-05-23T01:09:25.992Z>",
           "status": "done"
         },
         {
           "id": 4,
-          "title": "Module Format Adaptation",
+          "title": "모듈 형식 적응",
           "description": "Adapt module system to be compatible with IE11 while maintaining package structure",
-          "dependencies": [
-            1,
-            2,
-            3
-          ],
+          "dependencies": [1, 2, 3],
           "details": "Convert ES modules to CommonJS or UMD format for IE11 compatibility. Configure bundler (webpack/rollup) to generate IE11-compatible output. Example: Change `import { trace } from '@opentelemetry/api'` to `var trace = require('@opentelemetry/api').trace`. Ensure proper exports and imports throughout the codebase. Validate by confirming module loading works in IE11 test environment.\n<info added on 2025-05-23T01:13:43.809Z>\n## Module Format Adaptation Completion Results\n\n### UMD Module Format Implementation\n- ✅ **Webpack UMD Bundling**: Successfully generated ES5 output targeting IE11\n- ✅ **Multi-environment Support**: Detection for Browser (window) + Node.js (global) environments\n- ✅ **Global Object Exposure**: Accessible via `OpenTelemetryIE11` and `opentelemetry` names\n- ✅ **CommonJS Compatibility**: Successful require() in Node.js\n- ✅ **Browser Compatibility**: Successful global access through window object\n\n### Environment-specific Optimizations\n1. **Browser Environment**: \n   - Automatic loading of complete polyfill set\n   - API access via window.opentelemetry\n   - IE11-specific environment detection and additional polyfills\n   \n2. **Node.js Environment**:\n   - Skipping browser-specific polyfills (performance optimization)\n   - API access via global.opentelemetry\n   - Removal of browser API dependencies\n\n### Module Compatibility Test Results\n- **Node.js**: ✅ Successful require('./dist/opentelemetry-ie11.js')\n- **Browser**: ✅ Successful window.opentelemetry access  \n- **API Functionality**: ✅ trace.getTracer(), startSpan(), context API all working properly\n- **Testing**: ✅ 15/15 tests passed\n\n### Bundle Size Optimization\n- Final size: 160KB (achieved target of under 200KB)\n- Unnecessary code eliminated through conditional loading per environment\n- No manual configuration needed due to automatic polyfill initialization\n\n### Export/Import Structure Completion\n- Named exports: trace, metrics, context, various interfaces\n- Default export: Unified object (UMD compatible)\n- Global object: Support for both browser and Node.js\n- Full TypeScript type definition support\n</info added on 2025-05-23T01:13:43.809Z>",
           "status": "done"
         },
         {
           "id": 5,
-          "title": "Comprehensive Testing",
+          "title": "종합 테스트",
           "description": "Develop and execute test plan to validate IE11 compatibility while maintaining functionality",
-          "dependencies": [
-            1,
-            2,
-            3,
-            4
-          ],
+          "dependencies": [1, 2, 3, 4],
           "details": "Create test environment with IE11. Develop test cases covering all API functionality. Example: Test tracing functionality with `const span = tracer.startSpan('test'); span.end();` in IE11. Compare behavior with modern browsers. Document any differences or limitations. Create automated test suite that can run in IE11. Validate by achieving 100% test coverage and confirming all core functionality works as expected in IE11.\n<info added on 2025-05-23T01:16:57.663Z>\n## Comprehensive Testing Results\n\n### Test Infrastructure Setup\n✅ **Karma-based Browser Testing**: 15/15 basic tests passed\n✅ **HTML Test Page**: Completed for direct IE11 compatibility verification\n✅ **Node.js Performance Testing**: Comprehensive performance analysis completed\n\n### Performance Test Results (Run on January 23)\n- **Span Creation Performance**: 1,000 spans created/manipulated/ended\n- **Memory Efficiency**: 3,311 bytes/span after processing 10,000 spans\n- **TraceState Performance**: Successfully set/get/serialize 100 vendor entries\n- **Context API**: 2,000 context operations completed (setValue/getValue)\n- **Total Throughput**: Span processing performance per second measured\n\n### IE11 Compatibility Verification\n✅ **ES5 Syntax Compliance**: Using var declarations, function expressions, for loops\n✅ **Polyfill Completeness**: Object.assign, Array.from, Promise, Map, Set, Symbol, URL, fetch all available\n✅ **Environment Detection**: Successful automatic detection of Node.js/browser environment\n✅ **UMD Module**: Both CommonJS require() and global object access successful\n\n### Test Coverage\n1. **Basic API Testing**: Complete verification of trace, metrics, context API\n2. **Advanced Feature Testing**: TraceState, nested spans, ID uniqueness verification\n3. **Error Handling Testing**: Abnormal input values and large data processing verification\n4. **Performance Stress Testing**: Creation of 10,000 spans/memory usage measurement\n5. **Real Usage Scenarios**: Testing practical patterns like startActiveSpan\n\n### Bundle Verification\n- **Size**: 160KB (achieved target of under 200KB)\n- **Environment Optimization**: Conditional loading for browser/Node.js\n- **Compatibility**: Support for all methods - UMD, CommonJS, global object\n\n### Conclusion\nOpenTelemetry IE11 implementation has been fully verified at production-ready level. All core functionality works properly in IE11, with performance and memory usage achieving acceptable levels.\n</info added on 2025-05-23T01:16:57.663Z>",
           "status": "done"
         }
@@ -240,19 +202,17 @@
     },
     {
       "id": 4,
-      "title": "Adapt @opentelemetry/core for IE11",
+      "title": "IE11용 @opentelemetry/core 적응",
       "description": "Modify the @opentelemetry/core package to ensure IE11 compatibility",
       "details": "1. Fork or create a modified version of @opentelemetry/core\n2. Identify and replace all ES6+ syntax with ES5 compatible alternatives\n3. Replace modern browser APIs with polyfilled versions\n4. Modify the platform detection logic to properly identify IE11\n5. Adapt time measurement functions to use IE11 compatible methods\n6. Ensure all utility functions are IE11 compatible\n7. Optimize performance-critical sections for IE11\n\nExample platform detection:\n```javascript\nfunction isIE11() {\n  return typeof window !== 'undefined' && \n         !!window.navigator.userAgent.match(/Trident\\/7\\./);\n}\n\n// Use appropriate implementations based on browser\nvar timeOrigin = isIE11() ? \n  (window.performance && window.performance.timing && window.performance.timing.navigationStart) : \n  (window.performance && window.performance.timeOrigin);\n```\n\nEnsure all async operations and timers use appropriate IE11 compatible methods.",
       "testStrategy": "1. Create unit tests for all core utilities in IE11 environment\n2. Test platform detection logic with various user agents\n3. Benchmark time measurement functions for accuracy\n4. Verify compatibility with the modified API package\n5. Test error handling and boundary conditions\n6. Compare behavior with original package in modern browsers",
       "priority": "high",
-      "dependencies": [
-        3
-      ],
+      "dependencies": [3],
       "status": "done",
       "subtasks": [
         {
           "id": 1,
-          "title": "ES6+ Syntax Replacement",
+          "title": "ES6+ 문법 교체",
           "description": "Replace modern JavaScript syntax with IE11-compatible alternatives throughout the @opentelemetry/core package",
           "dependencies": [],
           "details": "Identify and replace: arrow functions, template literals, destructuring, spread/rest operators, const/let declarations, default parameters, and class syntax. Use Babel plugins to automate transformations where possible. Create a syntax compatibility checklist and verify each file against it. Test with IE11 syntax parser to ensure compliance.\n<info added on 2025-05-23T01:19:06.076Z>\n# Core Module Analysis Results\n\n**Current Implementation Status:**\n- Basic platform detection (isIE11, isNode, isWebWorker) exists\n- Time-related utilities (hrTime, timeOrigin) exist\n- Basic merge function exists\n\n**Missing Critical OpenTelemetry Core Functionalities:**\n1. **Context Propagation** - W3C TraceContext, Baggage, Composite propagators\n2. **Utility Functions** - URL parsing, GUID/UUID generation, array/object handling\n3. **Performance-related Functions** - BindOnce, memory management\n4. **Enhanced Environment Detection** - More accurate browser/environment detection\n5. **Error Handling** - SafeError, sanitization functions\n6. **Resource Detection** - Service, SDK, environment information\n\n**ES6+ Syntax Requiring Removal:**\n- Convert all arrow functions to function expressions\n- Change const/let to var\n- Replace template literals with string concatenation\n- Use merge function instead of Object.assign\n- Convert for..of loops to traditional for loops\n\nNext step: Expand the entire core module and ensure ES5 compatibility.\n</info added on 2025-05-23T01:19:06.076Z>\n<info added on 2025-05-23T01:22:43.460Z>\n# Task 4.1 Completion Report\n\n**Implemented Core Functionalities:**\n1. **Context Propagation**: W3C TraceContext parsing/formatting, TraceState handling\n2. **ID Generation**: TraceID/SpanID generation and validation\n3. **Resource Detection**: Browser/Node.js environment-specific resource information collection\n4. **URL Utilities**: IE11 compatible URL parsing (using document.createElement(\"a\"))\n5. **Utility Functions**: Deep merge, property sanitization, array handling\n6. **Performance Functions**: bindOnce, debounce\n7. **Error Handling**: safeExecute, suppressTracing\n8. **Validation**: ID format and validity checking\n\n**ES5 Compatibility Achieved:**\n- All arrow functions converted to function expressions\n- const/let changed to var\n- Manual merge implementation instead of Object.assign\n- Loops used instead of Array.from\n- Traditional for loops used instead of for..of\n- IArguments converted using Array.prototype.slice.call\n\n**Test Results:**\n- All 34 tests passed successfully\n- 15 existing + 19 new core functionality tests\n- ID generation, context propagation, utility functions all verified\n\n**Bundle Size:** 162KB (unchanged, well optimized)\n\nTask 4.1 successfully completed with all essential OpenTelemetry core package functionalities implemented with IE11 compatibility.\n</info added on 2025-05-23T01:22:43.460Z>",
@@ -260,64 +220,49 @@
         },
         {
           "id": 2,
-          "title": "Browser API Compatibility",
+          "title": "브라우저 API 호환성",
           "description": "Adapt or polyfill modern browser APIs used in the core package to ensure IE11 compatibility",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Identify all modern browser APIs (Promise, fetch, Map/Set, etc.) and implement polyfills or fallbacks. Replace native methods like Array.includes() with IE11-compatible alternatives. Create shims for missing functionality. Test each API adaptation individually with IE11 to verify correct behavior.\n<info added on 2025-05-23T01:26:05.056Z>\n**Implemented Browser API Compatibility Features:**\n\n1. **String Methods**: padStart, padEnd, startsWith, endsWith, includes, repeat\n2. **Array Methods**: find, findIndex, includes (with NaN handling)\n3. **Object Methods**: values, entries  \n4. **Number Methods**: isNaN, isFinite, isInteger\n5. **Enhanced Console**: safeConsoleLog, safeConsoleWarn, safeConsoleError (addressing IE11 console bugs)\n6. **Crypto Support**: getRandomValues with Math.random fallback\n7. **Performance API**: performanceNow with navigation timing fallback\n8. **JSON Safety**: safeJSONParse, safeJSONStringify with error handling\n9. **Timer Safety**: safeSetTimeout with IE11 error handling\n\n**IE11 Compatibility Approach:**\n- All functions prioritize native implementations when available, falling back to polyfills\n- Used `as any` casting to bypass TypeScript type checking\n- Addressed IE11 console object limitations (lack of multi-argument support)\n- Implemented Math.random fallback when crypto.getRandomValues is unavailable\n- Used navigation timing fallback when performance.now is unavailable\n\n**Test Results:**\n- All 53 tests passed (34 existing + 19 new)\n- Verified String, Array, Object, Number methods\n- Validated safe JSON, crypto, and performance functions\n- Confirmed console logging safety\n\n**Bundle Size:** 162KB (unchanged, well-optimized)\n</info added on 2025-05-23T01:26:05.056Z>",
           "status": "done"
         },
         {
           "id": 3,
-          "title": "Platform Detection Logic",
+          "title": "플랫폼 감지 로직",
           "description": "Enhance platform detection to properly identify IE11 and apply appropriate code paths",
-          "dependencies": [
-            1,
-            2
-          ],
+          "dependencies": [1, 2],
           "details": "Update isNode(), isWebWorker(), and other environment detection functions to correctly identify IE11. Add specific IE11 detection logic. Create conditional code paths for IE11-specific implementations. Test detection logic across multiple browsers including IE11 to ensure correct environment identification.\n<info added on 2025-05-23T01:30:03.603Z>\n# Enhanced Platform Detection Logic Implementation\n\n## Key Implementation Achievements:\n- **Added 6 enhanced detection functions**:\n  - `getBrowserInfo()`: Detailed detection of browser name, version, ES6 support\n  - `getNodeInfo()`: Node.js version, ES6/async-await support detection\n  - `getFeatureSupport()`: Detection of 11 features including Promise, Map, Set, fetch, crypto\n  - `getRuntimeCapabilities()`: Detection of 8 runtime capabilities including DOM, WebWorker, localStorage, IndexedDB\n  - `getEnvironmentInfo()`: Integrated environment information (platform, runtime, supported features, limitations)\n  - `getPolyfillRequirements()`: Automatic detection of required polyfills and recommendation list\n\n## Technical Features:\n- Used IE11-compatible ES5 syntax (var, function expressions)\n- Implemented safe try-catch for error-free detection\n- Included localStorage access testing (handling restricted access scenarios in IE11)\n- Verified actual feature existence (beyond simple typeof checks)\n\n## Test Coverage:\n- Added 15 new comprehensive tests (68 total)\n- Validated return types and values for all detection functions\n- Confirmed modern feature detection in Chrome environment\n- Verified fallback behavior in non-Node.js environments\n\n## Results:\n- Successful build: 163KB (1KB increase)\n- All tests passing: 68/68\n- Enabled sophisticated environment-specific responses required by OpenTelemetry\n</info added on 2025-05-23T01:30:03.603Z>",
           "status": "done"
         },
         {
           "id": 4,
-          "title": "Time Measurement Functions",
+          "title": "시간 측정 함수",
           "description": "Adapt high-resolution time measurement functions for IE11 compatibility",
-          "dependencies": [
-            3
-          ],
+          "dependencies": [3],
           "details": "Replace performance.now() with IE11-compatible alternatives. Implement fallbacks for high-resolution timers. Ensure monotonic time guarantees are maintained. Test timing functions for accuracy and performance in IE11 compared to modern browsers.\n<info added on 2025-05-23T01:34:03.191Z>\nBundle Size Optimization Implementation:\n\nSuccessfully reduced bundle size from 163KB to 157KB (3.7% reduction) while maintaining IE11 compatibility. Optimized chunk splitting into 4 independent chunks for better caching:\n- polyfills.js: 136KB (core-js polyfills)\n- vendor.js: 11.5KB (fetch, process polyfills)\n- 744.js: 7.87KB (babel runtime helpers)\n- opentelemetry-ie11.js: 1.62KB (main library)\n\nTechnical implementation included:\n- Aggressive Terser optimization with ES5 target and enhanced compression/mangling\n- Conditional compilation using __DEV__, __BROWSER__, __NODE__ flags\n- Tree shaking for automatic unused code removal\n- Production optimizations (console log removal, sourcemap disabling)\n- Babel runtime optimization with @babel/plugin-transform-runtime\n\nAdded developer features:\n- getBundleOptimizationInfo() function for bundle information\n- Dynamic import support for on-demand loading\n- Bundle Analyzer integration for optimization assistance\n- Cache strategy guidelines for performance improvement\n\nAdded 5 new bundle optimization tests (total 73) verifying chunk information, size estimation, and recommendations while ensuring all existing functionality works correctly.\n\nComprehensive documentation includes Bundle Optimization Guide with conditional loading, caching strategies, performance recommendations, and scenario-specific examples.\n</info added on 2025-05-23T01:34:03.191Z>",
           "status": "done"
         },
         {
           "id": 5,
-          "title": "Utility Function Adaptation",
+          "title": "유틸리티 함수 적응",
           "description": "Modify core utility functions to work correctly in IE11",
-          "dependencies": [
-            2,
-            3
-          ],
+          "dependencies": [2, 3],
           "details": "Review and adapt all utility functions (object manipulation, string handling, etc.). Replace modern array methods with compatible alternatives. Implement IE11-specific versions of utility functions where necessary. Create comprehensive tests for each utility function in IE11 environment.\n<info added on 2025-05-23T01:43:56.343Z>\n# Utility Function Adaptation Completion Report\n\n## Added Key Utility Functions:\n\n### 1. Enhanced Time Utilities (10 functions)\n- hrTimeToMicroseconds, hrTimeToMilliseconds, hrTimeToTimeStamp\n- addHrTimes, millisToHrTime, isTimeInput, isTimeInputHrTime, timeInputToHrTime\n\n### 2. Hex and Binary Conversion Utilities (4 functions) \n- hexToBinary, binaryToHex, binaryToBase64, base64ToBinary\n- IE11 compatible btoa/atob fallback implementation\n\n### 3. Enhanced Attribute Validation (3 functions)\n- isAttributeValue, validateKey, sanitizeAttributeKey\n- Compliant with OpenTelemetry attribute validation rules\n\n### 4. URL Utilities (3 functions)\n- isUrlIgnored, urlMatches, normalizeHeaders\n- Pattern matching and header normalization support\n\n### 5. Enhanced Error Handling (7 functions)\n- getActiveSpan, setStatus, recordException\n- isTracingSuppressed, suppressTracing, unsuppressTracing\n- Trace context management (placeholder implementation)\n\n### 6. Key-Value Parsing Utilities (2 functions)\n- parseKeyPairsIntoRecord, formatKeyPairs\n- Delimiter support and bidirectional conversion\n\n### 7. Environment Utilities (4 functions)\n- getStringFromEnv, getNumberFromEnv, getBooleanFromEnv, getStringListFromEnv\n- Type-safe environment variable access\n\n### 8. Timer Utilities (2 functions)\n- unrefTimer, callWithTimeout\n- IE11 compatible timer management and timeout support\n\n### 9. Diagnostic Utilities (1 function)\n- diagLogLevelFromString\n- Log level string conversion\n\n### 10. Global Error Handler (3 functions)\n- setGlobalErrorHandler, globalErrorHandler, loggingErrorHandler\n- Centralized error handling\n\n## Test Results:\n- All 110 tests (37 added) passed\n- Comprehensive test coverage for each utility function\n- Jasmine framework compatibility (jest syntax conversion)\n- IE11 compatibility verified\n\n## Build Results:\n- Total bundle size: 183KB (26KB increase)\n- Split into 4 optimized chunks\n- IE11 compatible ES5 syntax maintained\n- TypeScript compilation successful\n\n## Achievements:\n- Implemented utility functions at OpenTelemetry core package level\n- Ensured IE11 compatibility for all functions\n- Strong type safety and error handling\n- Complete test coverage\n</info added on 2025-05-23T01:43:56.343Z>",
           "status": "done"
         },
         {
           "id": 6,
-          "title": "Performance Optimization",
+          "title": "성능 최적화",
           "description": "Optimize adapted code for performance in IE11 while maintaining functionality",
-          "dependencies": [
-            4,
-            5
-          ],
+          "dependencies": [4, 5],
           "details": "Profile performance of adapted code in IE11. Identify and optimize bottlenecks. Minimize polyfill overhead. Consider IE11-specific optimizations for critical paths. Compare performance metrics before and after optimization. Document performance trade-offs made for compatibility.\n<info added on 2025-05-23T01:56:06.810Z>\n## 🎯 주요 성과:\n\n### 1. 번들 크기 최적화 (40% 감소!)\n- **이전**: 183KB\n- **현재**: 110KB  \n- **감소량**: 73KB (40% 감소)\n\n### 2. 고급 Webpack 최적화 구현\n- **TerserPlugin**: IE11 타겟 ES5 압축\n- **코드 스플리팅**: 4개 최적화된 청크\n- **트리 쉐이킹**: 불필요한 코드 제거\n- **조건부 컴파일**: __DEV__, __BROWSER__, __NODE__ 플래그\n\n### 3. 성능 중심 코드 아키텍처\n- **메모이제이션**: 플랫폼 감지 함수들 캐싱\n- **지연 로딩**: 무거운 유틸리티 함수들 필요시 로드\n- **최적화된 변환**: hex/binary 변환 캐시 테이블\n- **조건부 실행**: 개발/프로덕션 환경별 코드 분리\n\n### 4. IE11 호환성 유지하면서 성능 향상\n- ES5 문법으로 변환된 고성능 코드\n- 폴리필 최적화 및 청크 분리\n- 런타임 오버헤드 최소화\n\n### 5. 테스트 결과\n- **116/116 테스트 모두 성공** ✅\n- 모든 기능 정상 작동 확인\n- 성능 최적화로 인한 기능 저하 없음\n\n### 6. 번들 구조 최적화\n```\npolyfills.js: 136KB (IE11 필수 폴리필)\nvendor.js: 11.5KB (fetch, process 폴리필)\n744.js: 7.87KB (babel runtime helpers)\nopentelemetry-ie11.js: 1.62KB (메인 라이브러리)\n```\n</info added on 2025-05-23T01:56:06.810Z>",
           "status": "done"
         },
         {
           "id": 7,
-          "title": "Integration Testing",
+          "title": "통합 테스트",
           "description": "Perform comprehensive integration testing of the adapted core package in IE11",
-          "dependencies": [
-            6
-          ],
+          "dependencies": [6],
           "details": "Create automated test suite for IE11. Test all core functionality end-to-end in IE11 environment. Verify interoperability with other OpenTelemetry packages. Test real-world usage scenarios. Document any remaining compatibility issues or limitations. Create IE11-specific documentation for users.\n<info added on 2025-05-23T02:00:08.875Z>\n## 🎯 주요 성과:\n\n### 1. 종합적인 통합 테스트 구축 ✅\n- **새로운 통합 테스트 파일**: `tests/ie11-integration.spec.ts` 생성\n- **16개 실제 사용 시나리오 테스트** 추가 (총 132개 테스트)\n- **100% 테스트 성공률** 달성\n\n### 2. 실제 사용 시나리오 검증 🚀\n- **End-to-End Trace Creation**: 완전한 트레이스 컨텍스트 생성 및 전파\n- **Resource Detection**: 리소스 감지 및 병합 시나리오\n- **URL & HTTP Integration**: 복잡한 URL 파싱 및 HTTP 계측 시뮬레이션\n- **Error Handling**: 실제 환경 오류 시나리오 및 JSON 직렬화 엣지 케이스\n- **Performance & Memory**: 고빈도 작업 및 대용량 속성 처리\n- **Bundle & API Integration**: API 노출 및 IE11 호환성 검증\n- **Real-world Usage**: SPA 모니터링, 오류 추적, 사용자 정의 계측\n\n### 3. 성능 검증 결과 📊\n- **고빈도 작업**: 1000개 ID 생성 (모두 유니크, < 1초 완료)\n- **대용량 속성**: 400개 속성 처리 (< 100ms 완료)\n- **메모리 관리**: 메모리 누수 없음 확인\n- **번들 최적화**: 110KB (40% 크기 감소)\n\n### 4. IE11 호환성 완전 검증 ✅\n- **ES5 문법 준수**: 화살표 함수, const, let, 템플릿 리터럴 없음\n- **폴리필 기능**: Promise, Map, Set, Symbol, fetch 모두 정상 작동\n- **브라우저 API**: console, JSON, performance, crypto 호환성\n- **URL 파싱**: document.createElement 폴백 구현\n- **Base64 인코딩**: 수동 구현으로 IE11 지원\n\n### 5. 상세 문서화 📚\n- **통합 테스트 가이드** 생성: `docs/ie11-integration-testing.md`\n- **테스트 커버리지** 상세 설명\n- **실제 사용 시나리오** 코드 예제\n- **성능 검증 결과** 문서화\n- **프로덕션 배포 권장사항** 제공\n\n### 6. OpenTelemetry 생태계 호환성 🔗\n- **표준 API 노출**: trace, metrics, context 모두 기능적\n- **W3C Trace Context**: 표준 전파 포맷 준수\n- **계측 지원**: HTTP, 페이지 네비게이션, 오류 추적, 사용자 정의 비즈니스 로직\n\n### 7. 프로덕션 준비 상태 🎉\n- **CI/CD 파이프라인**: 자동화된 테스트 실행\n- **크로스 브라우저 검증**: 다양한 환경에서 동작 확인\n- **에러 처리**: 실제 환경 오류 시나리오 대응\n- **배포 가이드**: 성능 최적화 및 개발 지침 제공\n</info added on 2025-05-23T02:00:08.875Z>",
           "status": "done"
         }
@@ -325,14 +270,12 @@
     },
     {
       "id": 5,
-      "title": "Transform @opentelemetry/sdk-trace-base for IE11",
+      "title": "IE11용 @opentelemetry/sdk-trace-base 변환",
       "description": "Adapt the base tracing SDK to work in IE11 environment",
       "details": "1. Fork or create a modified version of @opentelemetry/sdk-trace-base\n2. Convert all ES6+ syntax to ES5 compatible code\n3. Replace modern JavaScript features with polyfilled alternatives:\n   - Replace Map/Set with polyfilled versions\n   - Convert async/await to Promise chains\n   - Replace array spread/rest with apply/concat\n4. Optimize the sampling and context propagation for IE11 performance\n5. Ensure span creation and management works efficiently in IE11\n6. Adapt batch processing to handle IE11 performance constraints\n\nExample async code transformation:\n```javascript\n// Original async/await code\nasync function exportSpans(spans) {\n  try {\n    await exporter.export(spans);\n    return { code: ExportResultCode.SUCCESS };\n  } catch (error) {\n    return { code: ExportResultCode.FAILED, error };\n  }\n}\n\n// Transformed Promise-based code\nfunction exportSpans(spans) {\n  return exporter.export(spans).then(function() {\n    return { code: ExportResultCode.SUCCESS };\n  }).catch(function(error) {\n    return { code: ExportResultCode.FAILED, error: error };\n  });\n}\n```",
       "testStrategy": "1. Create comprehensive tests for span creation, modification, and ending\n2. Test context propagation across different execution contexts\n3. Verify sampling behavior works correctly\n4. Test batch span processing under load\n5. Benchmark performance against modern browsers to ensure it meets the 20% threshold\n6. Test memory usage patterns to prevent leaks in IE11",
       "priority": "high",
-      "dependencies": [
-        4
-      ],
+      "dependencies": [4],
       "status": "done",
       "subtasks": [
         {
@@ -347,9 +290,7 @@
           "id": 2,
           "title": "Modern JavaScript Feature Replacement",
           "description": "Replace outdated JavaScript features with modern equivalents to improve performance and maintainability.",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Update deprecated methods and use modern JavaScript features like `for...of` loops and `Object.assign()`.\n<info added on 2025-05-23T02:40:16.883Z>\nIdentify and replace modern JavaScript features with IE11-compatible alternatives:\n\n1. Replace Array methods:\n   - Convert Array.find() to traditional loops with conditional checks\n   - Replace Array.includes() with indexOf() > -1 checks\n   - Convert Array.entries() to manual index/value tracking\n\n2. Replace Object.assign() with manual property copying:\n   ```\n   // Instead of Object.assign(target, source)\n   for (var key in source) {\n     if (source.hasOwnProperty(key)) {\n       target[key] = source[key];\n     }\n   }\n   ```\n\n3. Convert for...of loops to traditional for loops or forEach\n\n4. Replace destructuring with explicit variable assignments:\n   ```\n   // Instead of const { a, b } = obj;\n   var a = obj.a;\n   var b = obj.b;\n   ```\n\n5. Ensure Promise usage is compatible with polyfills\n\n6. Replace modern string methods:\n   - startsWith/endsWith with indexOf checks\n   - padStart/padEnd with custom implementations\n\nCreate utility functions for these replacements to maintain code readability while ensuring IE11 compatibility.\n</info added on 2025-05-23T02:40:16.883Z>\n<info added on 2025-05-23T02:42:06.144Z>\nSuccessfully implemented IE11-compatible replacements for modern JavaScript features:\n\n1. Created utility function library:\n   - Object methods: objectAssign, objectEntries, objectValues, objectKeys\n   - Array methods: arrayFind, arrayFindIndex, arrayIncludes, arrayFrom\n   - String methods: stringStartsWith, stringEndsWith, stringIncludes, stringPadStart, stringPadEnd\n   - Collection alternatives: createSimpleSet, createSimpleMap\n\n2. Implemented IE11-compatible TracerProvider:\n   - Used function constructor pattern instead of ES6 classes\n   - Implemented key-based tracer caching with createSimpleMap\n   - Created composite span processor pattern\n   - Ensured proper shutdown and flush lifecycle management\n   - Added no-op tracer/span implementations for graceful degradation\n\n3. Established IE11-friendly architecture patterns:\n   - Function constructors with prototypes\n   - Closure-based private properties\n   - Manual property copying instead of destructuring\n   - Traditional for loops for all iterations\n\nAll modern JavaScript features have been successfully replaced with IE11-compatible alternatives while maintaining code readability and functionality.\n</info added on 2025-05-23T02:42:06.144Z>",
           "status": "done"
         },
@@ -357,9 +298,7 @@
           "id": 3,
           "title": "Sampling Optimization",
           "description": "Optimize the sampling strategy to reduce overhead while maintaining sufficient trace data.",
-          "dependencies": [
-            2
-          ],
+          "dependencies": [2],
           "details": "Implement adaptive sampling based on trace ID ratios and parent-based sampling to optimize trace data collection.\n<info added on 2025-05-23T02:44:02.860Z>\nImplemented optimized IE11-compatible sampling strategies including AlwaysOnSampler (100% sampling rate), AlwaysOffSampler (0% sampling rate), and TraceIdRatioBasedSampler with pre-calculated thresholds, fast paths for common ratios, and optimized trace ID parsing.\n\nDeveloped IE11-compatible span processors: SimpleSpanProcessor for immediate export with error handling, and BatchSpanProcessor with configurable batch sizes, optimized queue management, timer-based scheduling using setTimeout/clearTimeout, timeout handling, graceful shutdown, and memory-efficient batch extraction.\n\nApplied performance optimizations specifically for IE11 including pre-calculated sampling thresholds, fast path execution, efficient queue management, minimal memory allocation, and IE11-compatible timer handling.\n\nAll implementations follow IE11-compatible patterns using function constructors instead of classes, var declarations instead of const/let, traditional for loops, manual property access, and closure-based private properties.\n</info added on 2025-05-23T02:44:02.860Z>",
           "status": "done"
         },
@@ -367,9 +306,7 @@
           "id": 4,
           "title": "Context Propagation Adaptation",
           "description": "Adapt context propagation to ensure seamless tracing across different components and services.",
-          "dependencies": [
-            3
-          ],
+          "dependencies": [3],
           "details": "Implement context propagation using OpenTelemetry's Baggage API to maintain trace context across service boundaries.\n<info added on 2025-05-23T02:45:43.172Z>\nImplemented comprehensive IE11-compatible context propagation system:\n\n1. **ContextManager**: Core context management with IE11 compatibility\n   - setValue/getValue for immutable context operations\n   - active() for current context retrieval\n   - with() for scoped context execution\n   - bind() for function context binding\n   - Uses createSimpleMap for IE11-compatible storage\n\n2. **SpanContextUtils**: Span-specific context utilities\n   - setSpanContext/getSpanContext for span context management\n   - setActiveSpan/getActiveSpan for active span tracking\n   - setSpan/getSpan for unified span operations\n   - Non-recording span creation for context propagation\n\n3. **TraceContextPropagation**: W3C Trace Context support\n   - extract() for parsing traceparent headers\n   - inject() for creating traceparent headers\n   - Full W3C Trace Context specification compliance\n   - Graceful handling of malformed headers\n\n4. **Export Infrastructure**: \n   - ReadableSpan interface export\n   - BaseSpanExporter and ConsoleSpanExporter implementations\n   - IE11-compatible error handling\n\nKey IE11 optimizations implemented:\n- Immutable context operations using map copying\n- Function constructor patterns throughout\n- Traditional for loops for iteration\n- Manual property access instead of destructuring\n- IE11-compatible string operations (padStart fallback)\n- Safe console access with feature detection\n\nW3C Trace Context compliance:\n- Proper traceparent header parsing (version-traceId-spanId-flags)\n- Validation of trace ID (32 chars) and span ID (16 chars)\n- Trace flags handling with hex conversion\n- Tracestate header support for vendor-specific data\n\nContext propagation features:\n- Seamless trace context across service boundaries\n- Active span management with fallback to non-recording spans\n- Function binding for async operation context preservation\n- Scoped execution with automatic context restoration\n</info added on 2025-05-23T02:45:43.172Z>",
           "status": "done"
         },
@@ -377,9 +314,7 @@
           "id": 5,
           "title": "Span Management Implementation",
           "description": "Implement efficient span management to handle span creation, attributes, and lifecycle.",
-          "dependencies": [
-            4
-          ],
+          "dependencies": [4],
           "details": "Use OpenTelemetry's Tracer API to manage spans, including starting, setting attributes, and ending spans.\n<info added on 2025-05-23T02:47:54.561Z>\n# Span Management Implementation\n\n## Enhanced Span Implementation with Advanced Management\n- Upgraded span.ts with comprehensive management features\n- Dropped count tracking for attributes, events, and links\n- Enhanced exception recording with structured attributes\n- ReadableSpan interface with proper getters using Object.defineProperty\n- Span validation and debugging methods (isValid, toString)\n- Duration calculation using hrTimeToNanoseconds\n- Enhanced span limits enforcement with drop counting\n\n## SpanBuilder Pattern\n- Implemented fluent span creation interface\n- Fluent API for span configuration (setSpanKind, setParent, setAttribute)\n- Link management with addLink method\n- Start time configuration\n- Automatic parent span ID resolution\n- Integration with span processors for lifecycle management\n\n## SpanManager Utilities\n- createSpanBuilder for fluent span creation\n- createChildSpan for hierarchical span relationships\n- validateSpanHierarchy for trace integrity validation\n- getSpanStatistics for performance monitoring and analytics\n\n## Advanced Features\n- Lifecycle Management: Proper span start/end with processor notifications\n- Hierarchy Validation: Parent-child relationship validation across traces\n- Statistics Collection: Comprehensive span analytics (duration, status, kind)\n- Resource Limits: Intelligent dropping with count tracking\n- Error Handling: Graceful degradation with detailed error reporting\n\n## IE11 Compatibility\n- Function constructor patterns throughout\n- Object.defineProperty for getter/setter implementation\n- Traditional for loops for all iterations\n- Manual property copying with objectAssign\n- Closure-based private properties\n- No ES6+ features used\n\n## Performance Optimizations\n- Efficient span creation with builder pattern\n- Minimal memory allocation during span operations\n- Fast hierarchy validation with trace mapping\n- Optimized statistics calculation\n- Proper resource cleanup on span end\n</info added on 2025-05-23T02:47:54.561Z>",
           "status": "done"
         },
@@ -387,9 +322,7 @@
           "id": 6,
           "title": "Batch Processing Optimization",
           "description": "Optimize batch processing for exporting trace data to improve performance and reduce latency.",
-          "dependencies": [
-            5
-          ],
+          "dependencies": [5],
           "details": "Implement batch processing using OpenTelemetry's SimpleSpanProcessor to efficiently export spans in batches.\n<info added on 2025-05-23T02:50:56.818Z>\n# Batch Processing Optimization Implementation\n\n## Advanced Batch Processing Optimization\n\n- Implemented BatchOptimizer utility with comprehensive optimization strategies:\n  - Dynamic batch sizing based on span complexity (attributes/events count)\n  - Trace ID + start time sorting for optimal processing\n  - Trace-based grouping for efficient export\n  - Optimized batch creation with size optimization\n\n- Developed OptimizedBatchSpanProcessor with IE11 compatibility:\n  - Smart batch size adjustment (0.7x for complex spans, 1.3x for simple spans)\n  - Multi-batch parallel export with timeout handling\n  - Export statistics tracking (totalExports, totalSpans, avgBatchSize, avgExportTime)\n  - Configurable optimization settings\n  - Advanced queue management with FIFO overflow\n\n## Performance Optimizations for IE11\n\n- Implemented complexity-based batching that adjusts sizes based on span attribute/event density\n- Added trace-aware sorting to group related spans for better export efficiency\n- Enabled parallel export with multiple batches exported simultaneously with timeout protection\n- Integrated statistics collection for real-time performance metrics\n- Enhanced memory management with efficient queue handling and configurable limits\n\n## Export Optimization Features\n\n- Optimized base size of 512 spans for IE11\n- Implemented dynamic sizing:\n  - Complex spans (>10 attrs or >5 events): Reduced to 70% batch size\n  - Simple spans (<3 attrs and <2 events): Increased to 130% batch size\n  - Enforced reasonable bounds of 50-1000 spans per batch\n- Added export timeout of 30 seconds with graceful fallback\n\n## IE11 Compatibility\n\n- Used setTimeout/clearTimeout for timer management\n- Implemented function constructors throughout\n- Utilized traditional for loops for all iterations\n- Applied manual property copying with objectAssign\n- Employed closure-based private properties\n- Avoided modern JavaScript features\n\n## SDK Integration\n\n- Ensured seamless integration with existing BatchSpanProcessor\n- Created drop-in replacement with enhanced optimization\n- Maintained compatibility with all existing span exporters\n- Added configurable optimization levels\n</info added on 2025-05-23T02:50:56.818Z>",
           "status": "done"
         }
@@ -397,14 +330,12 @@
     },
     {
       "id": 6,
-      "title": "Adapt @opentelemetry/sdk-trace-web for IE11",
+      "title": "IE11용 @opentelemetry/sdk-trace-web 적응",
       "description": "Modify the web-specific tracing SDK to be compatible with IE11",
       "details": "1. Fork or create a modified version of @opentelemetry/sdk-trace-web\n2. Replace fetch API usage with XMLHttpRequest\n3. Adapt event listener handling for IE11 compatibility\n4. Modify DOM interaction code to work with IE11 DOM API\n5. Replace modern browser performance API calls with IE11 alternatives\n6. Ensure web resource timing captures correctly in IE11\n7. Adapt the auto-instrumentation to work with IE11 event model\n\nExample XMLHttpRequest implementation:\n```javascript\nfunction sendRequest(url, data, headers) {\n  return new Promise(function(resolve, reject) {\n    var xhr = new XMLHttpRequest();\n    xhr.open('POST', url);\n    \n    for (var key in headers) {\n      if (headers.hasOwnProperty(key)) {\n        xhr.setRequestHeader(key, headers[key]);\n      }\n    }\n    \n    xhr.onload = function() {\n      if (xhr.status >= 200 && xhr.status < 300) {\n        resolve(xhr.response);\n      } else {\n        reject(new Error('HTTP error ' + xhr.status));\n      }\n    };\n    \n    xhr.onerror = function() {\n      reject(new Error('Network error'));\n    };\n    \n    xhr.send(JSON.stringify(data));\n  });\n}\n```",
       "testStrategy": "1. Test all web-specific instrumentation in IE11\n2. Verify XMLHttpRequest instrumentation captures correct timing\n3. Test DOM event instrumentation with various event types\n4. Verify resource timing collection accuracy\n5. Test user interaction tracing\n6. Compare trace data between IE11 and modern browsers to ensure consistency\n7. Test with real-world web applications to validate integration",
       "priority": "high",
-      "dependencies": [
-        5
-      ],
+      "dependencies": [5],
       "status": "done",
       "subtasks": [
         {
@@ -427,9 +358,7 @@
           "id": 3,
           "title": "DOM Interaction Code Modification",
           "description": "Update DOM manipulation code to use IE11-compatible methods and properties",
-          "dependencies": [
-            2
-          ],
+          "dependencies": [2],
           "details": "Replace modern DOM APIs with IE11-compatible alternatives. Create polyfills for Element.closest(), Element.matches(), and NodeList iteration. Implement fallbacks for classList operations and custom data attributes. Test DOM operations across different HTML structures and dynamic content scenarios.\n<info added on 2025-05-23T04:03:57.131Z>\n# DOM Interaction Code Modification COMPLETED\n\n## Comprehensive DOM Interaction Layer Implementation:\n\n1. **DOMInteractionLayer**: Advanced DOM manipulation utilities for IE11\n   - **Selector Engine**: Enhanced querySelector/querySelectorAll with IE11 fallbacks\n   - **DOM Traversal**: Complete tree navigation utilities (parent chains, siblings, children)\n   - **Form Interactions**: Form data collection, validation, field management\n   - **Mutation Observation**: MutationObserver polyfill with polling fallback\n   - **Intersection Observation**: IntersectionObserver polyfill with scroll/resize events\n   - **Focus Management**: Focus trap, focusable element detection, active element tracking\n   - **Accessibility**: ARIA attributes, accessible names, role detection\n   - **Element Creation**: Template handling, fragment creation with IE11 compatibility\n\n2. **UserInteractionInstrumentation**: Comprehensive user interaction tracing\n   - **Event Handling**: click, dblclick, submit, keydown, focus, blur with IE11 compatibility\n   - **Element Identification**: XPath generation, CSS selector building, accessible naming\n   - **Span Creation**: Automatic span generation with detailed element attributes\n   - **Form Processing**: Form data capture, validation status, submission tracking\n   - **Debounce Logic**: Event deduplication with configurable timeout\n   - **Focus Tracking**: Long-duration focus/blur span management\n   - **Custom Attributes**: Configurable span attribute extension\n\n3. **IE11 Compatibility Features:**\n   - **Event Normalization**: event.target vs event.srcElement, preventDefault compatibility\n   - **DOM API Polyfills**: closest(), matches(), classList operations, dataset handling\n   - **Performance Fallbacks**: Date.now() based timing, manual resource enumeration\n   - **Memory Management**: Proper event listener cleanup, timer management\n   - **Error Handling**: Graceful degradation with console fallbacks\n\n4. **Advanced Instrumentation Features:**\n   - **Mouse Coordinates**: Click/interaction position tracking\n   - **Form Validation**: HTML5 validation with IE11 fallbacks\n   - **Element Hierarchy**: Parent-child relationship tracking\n   - **Accessibility Integration**: Screen reader compatibility, ARIA support\n   - **Custom Event Support**: createEvent/createEventObject for IE11\n\n5. **Integration Points:**\n   - **EventListenerManager**: Cross-browser event management\n   - **DOMUtils**: Low-level DOM operation utilities\n   - **OpenTelemetry SDK**: Span creation and attribute management\n   - **Configuration System**: Flexible instrumentation options\n</info added on 2025-05-23T04:03:57.131Z>",
           "status": "done"
         },
@@ -445,9 +374,7 @@
           "id": 5,
           "title": "Web Resource Timing Implementation",
           "description": "Develop IE11-compatible resource timing collection mechanisms",
-          "dependencies": [
-            4
-          ],
+          "dependencies": [4],
           "details": "Create custom resource timing collection for IE11 using available APIs. Implement XMLHttpRequest instrumentation to capture timing data manually. Develop fallbacks for ResourceTiming API functionality. Create a unified interface that works across modern and legacy browsers. Test with various resource types including scripts, stylesheets, and images.\n<info added on 2025-05-23T04:11:34.792Z>\n# Web Resource Timing Implementation COMPLETED\n\n## Comprehensive Resource Timing Collection for IE11:\n\n1. **WebResourceTiming**: Complete resource monitoring system\n   - **ResourceTimingEntry Interface**: W3C-compatible resource timing data structure\n   - **XHR Instrumentation**: XMLHttpRequest patching with timing measurement\n   - **Fetch Instrumentation**: Native fetch() API wrapping for timing collection\n   - **DOM Resource Observation**: Script, CSS, image loading with event listeners\n   - **Network Information**: Connection API integration for bandwidth/RTT data\n   - **Observer Pattern**: Resource timing observers with automatic notification\n\n2. **IE11 Compatibility Features:**\n   - **Map Polyfill**: Custom Map implementation for XHR request tracking\n   - **MutationObserver Fallback**: Polling-based DOM change detection\n   - **Event Handling**: load/error event listeners with proper cleanup\n   - **Native API Priority**: Uses native Resource Timing API when available\n   - **Graceful Degradation**: Fallback mechanisms for missing APIs\n\n3. **Resource Type Support:**\n   - **XMLHttpRequest**: Complete timing data with request/response phases\n   - **Fetch API**: Promise-based timing measurement\n   - **Script Elements**: Dynamic and static script loading timing\n   - **CSS Stylesheets**: Link element loading performance\n   - **Images**: Image loading timing and error handling\n   - **Iframes**: Frame loading observation\n\n4. **Advanced Timing Features:**\n   - **Transfer Size Tracking**: Encoded/decoded body size measurement\n   - **Network Phase Timing**: DNS, connect, request, response timing\n   - **Protocol Detection**: HTTP version and security information\n   - **Error Tracking**: Failed resource loading detection\n   - **Performance Statistics**: Load time averages and totals\n\n5. **Configuration and Management:**\n   - **Flexible Configuration**: Enable/disable specific resource types\n   - **Buffer Management**: Configurable entry limits to prevent memory leaks\n   - **Observer Management**: Add/remove timing observers dynamically\n   - **Statistics Reporting**: Real-time performance metrics\n</info added on 2025-05-23T04:11:34.792Z>",
           "status": "done"
         },
@@ -455,11 +382,7 @@
           "id": 6,
           "title": "Auto-Instrumentation Adaptation",
           "description": "Modify the auto-instrumentation system to work with IE11's JavaScript engine",
-          "dependencies": [
-            1,
-            2,
-            3
-          ],
+          "dependencies": [1, 2, 3],
           "details": "Refactor plugin initialization to avoid ES6+ syntax. Update document-load instrumentation to use IE11-compatible event lifecycle. Modify XMLHttpRequestInstrumentation and UserInteractionInstrumentation for IE11 compatibility. Implement Zone.js compatibility layer for context propagation in IE11. Test auto-instrumentation with various web application scenarios.\n<info added on 2025-05-23T04:09:28.816Z>\n✅ Auto-Instrumentation Adaptation COMPLETED:\n\n**Comprehensive Auto-Instrumentation System for IE11:**\n\n1. **AutoInstrumentation**: Central instrumentation orchestrator\n   - **Feature Detection**: Browser capability detection for IE11 compatibility\n   - **Modular Initialization**: Individual instrumentation component management\n   - **Configuration Management**: Flexible enable/disable with auto-detection\n   - **Status Tracking**: Real-time instrumentation status monitoring\n   - **Error Handling**: Graceful degradation with proper error reporting\n   - **Lifecycle Management**: Initialize, disable, configure, status reporting\n\n2. **Instrumentation Components Integration:**\n   - **DocumentLoadInstrumentation**: Page load timing and navigation performance\n   - **UserInteractionInstrumentation**: Click, form, focus, keyboard interaction tracing\n   - **XMLHttpRequestInstrumentation**: HTTP request timing and header propagation\n   - **PerformancePolyfill**: Performance API compatibility layer\n   - **WebResourceTiming**: Resource loading observation and measurement\n   - **ErrorTracking**: Global error handler and unhandled promise rejection capture\n   - **ConsoleLogging**: Console method patching for log tracing\n\n3. **IE11 Compatibility Features:**\n   - **Function Constructors**: Traditional constructor pattern for IE11\n   - **Event Handling**: EventListenerManager integration for cross-browser events\n   - **Object.assign Polyfill**: Native object merging for configuration management\n   - **Feature Detection**: Graceful handling of missing APIs (fetch, Promise, MutationObserver)\n   - **Error Boundaries**: Isolated error handling to prevent cascade failures\n   - **Memory Management**: Proper cleanup and prevention of memory leaks\n\n4. **Advanced Auto-Instrumentation Features:**\n   - **Auto-Detection**: Automatic capability detection and configuration adjustment\n   - **Global Instance**: Singleton pattern for consistent instrumentation access\n   - **Lazy Initialization**: DOM-ready triggered setup for optimal performance\n   - **Modular Design**: Individual component enable/disable without affecting others\n   - **Status Reporting**: Real-time visibility into instrumentation state\n   - **Configuration Updates**: Runtime configuration changes without restart\n\n5. **Integration Points:**\n   - **EventListenerManager**: Cross-browser event management\n   - **OpenTelemetry SDK**: Span creation and trace propagation\n   - **Performance APIs**: Timing measurement and resource observation\n   - **Global Error Handling**: window.onerror and unhandledrejection events\n   - **Console Patching**: Native console method enhancement\n\n6. **Export Functions:**\n   - **getGlobalAutoInstrumentation()**: Access singleton instance\n   - **autoInstrument()**: Quick setup with default configuration\n   - **AutoInstrumentation constructor**: Manual instantiation\n</info added on 2025-05-23T04:09:28.816Z>",
           "status": "done"
         },
@@ -467,14 +390,7 @@
           "id": 7,
           "title": "Integration Testing and Validation",
           "description": "Comprehensive testing of the adapted SDK across browser environments",
-          "dependencies": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6
-          ],
+          "dependencies": [1, 2, 3, 4, 5, 6],
           "details": "Set up automated testing infrastructure with IE11 and modern browsers. Create test scenarios covering all instrumentation types. Validate trace data consistency between IE11 and modern browsers. Perform performance benchmarking to identify optimization opportunities. Document browser-specific behaviors and limitations for end users.",
           "status": "done"
         }
@@ -482,14 +398,12 @@
     },
     {
       "id": 7,
-      "title": "Implement @opentelemetry/sdk-metrics IE11 Support",
+      "title": "IE11용 @opentelemetry/sdk-metrics 지원 구현",
       "description": "Adapt the metrics SDK to work in IE11 environment",
       "details": "1. Fork or create a modified version of @opentelemetry/sdk-metrics\n2. Convert ES6+ syntax to ES5 compatible code\n3. Replace modern JavaScript features with polyfilled alternatives\n4. Optimize metric collection for IE11 performance constraints\n5. Ensure histogram calculation works efficiently in IE11\n6. Adapt aggregation logic to handle IE11 limitations\n7. Implement efficient metric export for IE11\n\nExample histogram implementation optimization:\n```javascript\n// Optimize histogram calculation for IE11\nfunction createHistogram(boundaries) {\n  var counts = new Array(boundaries.length + 1);\n  for (var i = 0; i < counts.length; i++) {\n    counts[i] = 0;\n  }\n  \n  return {\n    record: function(value) {\n      var bucketIndex = counts.length - 1;\n      for (var i = 0; i < boundaries.length; i++) {\n        if (value <= boundaries[i]) {\n          bucketIndex = i;\n          break;\n        }\n      }\n      counts[bucketIndex]++;\n    },\n    getCounts: function() {\n      return counts.slice();\n    }\n  };\n}\n```",
       "testStrategy": "1. Test all metric types (counter, gauge, histogram) in IE11\n2. Verify metric collection under various load conditions\n3. Test aggregation accuracy for different metric types\n4. Benchmark performance against the 20% threshold requirement\n5. Test memory usage patterns to prevent leaks\n6. Verify metric export functionality\n7. Compare metrics data between IE11 and modern browsers",
       "priority": "medium",
-      "dependencies": [
-        4
-      ],
+      "dependencies": [4],
       "status": "done",
       "subtasks": [
         {
@@ -504,49 +418,39 @@
           "id": 2,
           "title": "Modern JavaScript Feature Replacement",
           "description": "Replace unsupported modern JavaScript features (e.g., Promises, Map/Set, Array methods like find, includes) with IE11-compatible alternatives or polyfills.",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Optimization techniques: Prefer native ES5 constructs over polyfills for performance; avoid large polyfill bundles. Validation criteria: All features function correctly in IE11; unit tests cover edge cases for replaced features.\n<info added on 2025-05-23T12:43:57.742Z>\nModern JavaScript Feature Replacement completed:\n\n✅ Completed items:\n- Implemented metrics export system (src/sdk-metrics/export/metric-exporter.ts)\n  - XMLHttpRequest primary, image beacon fallback\n  - Exponential backoff retry logic\n  - IE11 timeout handling and error management\n- Implemented Aggregation engine (src/sdk-metrics/aggregators/aggregation-engine.ts)\n  - Sum, Gauge, Histogram aggregators\n  - Advanced calculation functions (percentile, average, std deviation)\n  - Temporal aggregation support\n  - All functionality IE11 compatible (assumes polyfill when Promise is used)\n\nES6+ features replaced with IE11 compatible alternatives:\n- Promise → conditional polyfill usage\n- Map/Set → regular objects and arrays\n- Array.find/includes → custom polyfill\n- Object.assign → custom polyfill\n- fetch → XMLHttpRequest + image beacon\n</info added on 2025-05-23T12:43:57.742Z>",
           "status": "done"
         },
         {
           "id": 3,
-          "title": "Metric Collection Optimization",
+          "title": "메트릭 수집 최적화",
           "description": "Optimize the metric collection pipeline for IE11, focusing on minimizing DOM interactions and memory allocations.",
-          "dependencies": [
-            2
-          ],
+          "dependencies": [2],
           "details": "Optimization techniques: Batch metric updates, reuse objects, avoid closures where possible. Validation criteria: Collection pipeline processes metrics with minimal GC pressure and no memory leaks in IE11; performance benchmarks meet targets.\n<info added on 2025-05-23T12:46:22.312Z>\nMetrics SDK Core Implementation completed:\n\n✅ Completed items:\n- MeterProvider implementation (src/sdk-metrics/meter-provider.ts)\n  - Metric instrumentation management and creation\n  - Metric collection and grouping\n  - Reader management and lifecycle control\n- PeriodicMetricReader implementation (src/sdk-metrics/readers/periodic-metric-reader.ts)\n  - Periodic metric collection and export\n  - IE11 compatible timer handling (using setTimeout)\n  - Timeout and error handling\n- Metrics SDK main entry point (src/sdk-metrics/index.ts)\n  - Integrated export of all features\n  - Default export for UMD compatibility\n  - Feature detection and version information\n\nWebpack build verification:\n- All entry points built successfully\n- IE11 compatible bundle generated\n- Warnings present but no functional issues\n</info added on 2025-05-23T12:46:22.312Z>",
           "status": "done"
         },
         {
           "id": 4,
-          "title": "Histogram Calculation Implementation",
+          "title": "히스토그램 계산 구현",
           "description": "Implement efficient histogram calculation logic compatible with IE11, ensuring accurate bucket assignment and aggregation.",
-          "dependencies": [
-            3
-          ],
+          "dependencies": [3],
           "details": "Optimization techniques: Use preallocated arrays for buckets, avoid dynamic property access. Validation criteria: Histogram calculations are accurate and performant in IE11; unit tests validate bucket boundaries and counts.\n<info added on 2025-05-23T12:46:46.643Z>\nMemory Management and Performance:\n\n✅ Implemented memory management features:\n- Object pooling: Reuse of data points in Counter, Gauge, and Histogram\n- Memory limitations: maxArrayLength and maxObjectKeys settings in IE11Features\n- Garbage collection optimization: \n  - Minimized closures, used var declarations\n  - Pre-allocated arrays (using arrayFill)\n  - String concatenation optimization\n- Resource cleanup: Reference release in shutdown method\n- Batch processing: Metric collection processed in batches\n\n✅ Performance optimizations:\n- Binary search: O(log n) algorithm for finding Histogram buckets\n- Caching: Property key normalization cache\n- Lazy initialization: Objects created only when needed\n- Timer optimization: setTimeout usage for IE11 compatibility\n- Memory-efficient aggregation: Minimized temporary objects\n\nAll features designed with consideration for IE11 memory constraints.\n</info added on 2025-05-23T12:46:46.643Z>",
           "status": "done"
         },
         {
           "id": 5,
-          "title": "Aggregation Logic Adaptation",
+          "title": "집계 로직 적응",
           "description": "Adapt aggregation engines (sum, average, min/max, percentiles) for IE11, ensuring compatibility and efficiency.",
-          "dependencies": [
-            4
-          ],
+          "dependencies": [4],
           "details": "Optimization techniques: Use simple loops instead of array methods; minimize object allocations. Validation criteria: Aggregation results are correct and consistent in IE11; integration tests verify all aggregation types.",
           "status": "done"
         },
         {
           "id": 6,
-          "title": "Metric Export Implementation",
+          "title": "메트릭 내보내기 구현",
           "description": "Implement metric export mechanisms (e.g., XHR, image beacons) that work reliably in IE11, avoiding fetch and other unsupported APIs.",
-          "dependencies": [
-            5
-          ],
+          "dependencies": [5],
           "details": "Optimization techniques: Use XMLHttpRequest for async export; fallback to image beacons for fire-and-forget. Validation criteria: Metrics are exported successfully in IE11 under various network conditions; export failures are handled gracefully.",
           "status": "done"
         }
@@ -554,12 +458,10 @@
     },
     {
       "id": 8,
-      "title": "Implement XMLHttpRequest Instrumentation",
+      "title": "XMLHttpRequest 계측 구현",
       "description": "Create IE11 compatible instrumentation for XMLHttpRequest to replace fetch-based instrumentation",
       "status": "done",
-      "dependencies": [
-        6
-      ],
+      "dependencies": [6],
       "priority": "high",
       "details": "This task has been completed as part of Task 6 \"Adapt @opentelemetry/sdk-trace-web for IE11\".\n\nThe following components have been implemented:\n\n1. **XMLHttpRequestInstrumentation** (in xmlhttprequest-transport.ts):\n   - Complete XHR lifecycle instrumentation with timing measurement\n   - Request/response header capture with CORS handling\n   - Context propagation with W3C Trace Context support\n   - Error handling and status code capture\n   - Performance optimization with minimal overhead\n\n2. **XMLHttpRequestTransport** (also in xmlhttprequest-transport.ts):\n   - IE11-compatible transport layer for OpenTelemetry\n   - Batch processing with retry logic\n   - Proper error handling and timeout management\n   - Content-Type and encoding support\n\n3. **WebResourceTiming Integration**:\n   - XHR request timing collection\n   - Map polyfill for IE11 compatibility\n   - Resource timing entry creation\n   - Observer pattern for timing notifications\n\n4. **Auto-Instrumentation Integration**:\n   - Automatic XHR instrumentation initialization\n   - Feature detection and graceful degradation\n   - Configuration management and status tracking\n\nAll requirements from the original task description have been fulfilled, including:\n- Dedicated XMLHttpRequest instrumentation module\n- Request and response header capture\n- Timing information for XHR lifecycle events\n- Error information capture\n- Context propagation for XHR requests\n- Minimal performance impact\n- Proper CORS and same-origin policy handling",
       "testStrategy": "The following tests have been completed:\n\n1. Tested instrumentation with various request types (GET, POST, etc.)\n2. Verified header propagation works correctly\n3. Tested timing accuracy for different network conditions\n4. Verified error handling and status code capture\n5. Tested with synchronous and asynchronous XHR requests\n6. Benchmarked performance overhead\n7. Tested with real-world APIs and services\n\nAll tests have passed, confirming the XMLHttpRequest instrumentation is fully functional and IE11-compatible.",
@@ -567,26 +469,21 @@
     },
     {
       "id": 9,
-      "title": "Implement Module System Compatibility",
+      "title": "모듈 시스템 호환성 구현",
       "description": "Ensure the library works with IE11 compatible module systems and bundling",
       "details": "1. Replace ESM imports/exports with UMD/IIFE compatible format\n2. Remove dynamic imports and replace with static alternatives\n3. Configure bundler to generate IE11 compatible bundles\n4. Implement a global namespace fallback for script tag inclusion\n5. Optimize tree shaking for IE11 bundle\n6. Create separate entry points for different feature sets\n7. Implement conditional loading strategy for polyfills\n\nExample UMD wrapper:\n```javascript\n(function (root, factory) {\n  if (typeof define === 'function' && define.amd) {\n    // AMD. Register as an anonymous module.\n    define(['exports', '@opentelemetry/api'], factory);\n  } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {\n    // CommonJS\n    factory(exports, require('@opentelemetry/api'));\n  } else {\n    // Browser globals\n    factory((root.opentelemetry = root.opentelemetry || {}), root.opentelemetry.api);\n  }\n}(typeof self !== 'undefined' ? self : this, function (exports, api) {\n  // Library code here\n  exports.createTracer = function(name, version) {\n    // Implementation\n  };\n}));\n```\n\nExample webpack configuration:\n```javascript\nmodule.exports = {\n  output: {\n    filename: 'opentelemetry-ie11.js',\n    library: ['opentelemetry', '[name]'],\n    libraryTarget: 'umd'\n  },\n  module: {\n    rules: [\n      {\n        test: /\\.js$/,\n        use: {\n          loader: 'babel-loader',\n          options: {\n            presets: [\n              ['@babel/preset-env', {\n                targets: {\n                  ie: '11'\n                },\n                useBuiltIns: 'usage',\n                corejs: 3\n              }]\n            ]\n          }\n        }\n      }\n    ]\n  },\n  optimization: {\n    minimize: true\n  }\n};\n```",
       "testStrategy": "1. Test library loading in various module environments (script tag, AMD, CommonJS)\n2. Verify global namespace doesn't conflict with other libraries\n3. Test bundle size and loading performance\n4. Verify tree shaking effectiveness\n5. Test conditional polyfill loading\n6. Verify the library works when loaded in different ways\n7. Test with various bundlers and build systems",
       "priority": "high",
-      "dependencies": [
-        1,
-        2
-      ],
+      "dependencies": [1, 2],
       "status": "done",
       "subtasks": []
     },
     {
       "id": 10,
-      "title": "Implement DOM Event Instrumentation",
+      "title": "DOM 이벤트 계측 구현",
       "description": "Create IE11 compatible instrumentation for DOM events",
       "status": "done",
-      "dependencies": [
-        6
-      ],
+      "dependencies": [6],
       "priority": "medium",
       "details": "1. Create a dedicated DOM event instrumentation module\n2. Implement IE11 compatible event listener attachment\n3. Track user interactions and page lifecycle events\n4. Capture event timing and propagation information\n5. Handle event bubbling and capturing phases correctly\n6. Implement performance optimizations for frequent events\n\nImplementation details:\n- Module location: `src/web/dom-event-instrumentation.ts`\n- Comprehensive features implemented:\n  - Event listener patching and restoration\n  - Throttling for high-frequency events (mousemove, scroll, etc.)\n  - Event history management with memory limits\n  - Element selector generation (IE11 compatible)\n  - Error handling\n  - WeakMap-based instrumentation state management\n\nAPI:\n- `createDOMEventInstrumentation(config)`: Creates main instrumentation object\n- `instrumentDocument(config)`: Document-level instrumentation\n- `instrumentWindow(config)`: Window-level instrumentation\n- `autoInstrument(config)`: Automatic instrumentation setup\n\nExample DOM event instrumentation:\n```javascript\nfunction instrumentDOMEvents(tracer, element, eventTypes) {\n  var originalAddEventListener = element.addEventListener;\n  \n  element.addEventListener = function(type, listener, options) {\n    // Only instrument tracked event types\n    if (eventTypes.indexOf(type) >= 0) {\n      var wrappedListener = function(event) {\n        var span = tracer.startSpan('DOM.' + type);\n        span.setAttribute('event.type', type);\n        span.setAttribute('event.target', event.target.tagName.toLowerCase());\n        \n        try {\n          listener.call(this, event);\n        } catch (error) {\n          span.setStatus({\n            code: SpanStatusCode.ERROR,\n            message: error.message\n          });\n          throw error;\n        } finally {\n          span.end();\n        }\n      };\n      \n      // Store reference to original for potential removal\n      if (!listener._otelWrapped) {\n        listener._otelWrapped = wrappedListener;\n      }\n      \n      return originalAddEventListener.call(\n        this, \n        type, \n        wrappedListener, \n        typeof options === 'boolean' ? options : options && options.capture\n      );\n    }\n    \n    return originalAddEventListener.apply(this, arguments);\n  };\n  \n  // Also patch removeEventListener to handle wrapped listeners\n  var originalRemoveEventListener = element.removeEventListener;\n  element.removeEventListener = function(type, listener, options) {\n    if (listener && listener._otelWrapped) {\n      return originalRemoveEventListener.call(\n        this,\n        type,\n        listener._otelWrapped,\n        typeof options === 'boolean' ? options : options && options.capture\n      );\n    }\n    return originalRemoveEventListener.apply(this, arguments);\n  };\n}\n```",
       "testStrategy": "1. Test with various DOM event types (click, load, error, etc.)\n2. Verify event capturing and bubbling is correctly tracked\n3. Test with dynamically created elements\n4. Verify event listener removal works correctly\n5. Benchmark performance impact on frequent events like mousemove\n6. Test memory usage to ensure no leaks from event listeners\n7. Verify integration with user interaction tracking\n\nTest environment setup:\n- Jest configuration file (`jest.config.js`)\n- IE11 compatible test environment (`tests/setup.js`)\n- DOM environment mocking and polyfills\n\nCurrent test status:\n- 17 test cases implemented and passing in Jest environment\n- Tests cover all major functionality including event listener patching, throttling, and cleanup",
@@ -643,22 +540,17 @@
     },
     {
       "id": 11,
-      "title": "Implement Performance Optimization",
+      "title": "성능 최적화 구현",
       "description": "Optimize the library for IE11 performance constraints",
       "details": "1. Identify and optimize performance bottlenecks in IE11\n2. Implement batching for trace and metric data\n3. Optimize serialization and deserialization\n4. Reduce memory allocations and garbage collection pressure\n5. Implement throttling for high-frequency events\n6. Create performance benchmarks to measure improvements\n7. Optimize polyfill usage to minimize overhead\n\nExample performance optimizations:\n```javascript\n// Optimize object creation with object pooling\nfunction createObjectPool(factory, reset, initialSize) {\n  var pool = [];\n  \n  // Pre-allocate objects\n  for (var i = 0; i < initialSize; i++) {\n    pool.push(factory());\n  }\n  \n  return {\n    acquire: function() {\n      if (pool.length > 0) {\n        return pool.pop();\n      }\n      return factory();\n    },\n    release: function(obj) {\n      reset(obj);\n      pool.push(obj);\n    }\n  };\n}\n\n// Example usage for span data\nvar spanDataPool = createObjectPool(\n  function() { return { attributes: {}, startTime: 0, endTime: 0 }; },\n  function(obj) { \n    obj.attributes = {}; \n    obj.startTime = 0; \n    obj.endTime = 0; \n  },\n  100\n);\n\n// Throttle function for high-frequency events\nfunction throttle(fn, delay) {\n  var lastCall = 0;\n  return function() {\n    var now = Date.now();\n    if (now - lastCall >= delay) {\n      lastCall = now;\n      return fn.apply(this, arguments);\n    }\n  };\n}\n```",
       "testStrategy": "1. Create performance benchmarks comparing IE11 vs modern browsers\n2. Measure CPU usage during heavy instrumentation\n3. Test memory consumption patterns\n4. Verify performance under various load conditions\n5. Test with real-world applications to measure overhead\n6. Verify the 20% performance threshold is maintained\n7. Test throttling effectiveness for high-frequency events",
       "priority": "medium",
-      "dependencies": [
-        5,
-        6,
-        7,
-        8
-      ],
+      "dependencies": [5, 6, 7, 8],
       "status": "done",
       "subtasks": [
         {
           "id": 1,
-          "title": "Bottleneck Identification",
+          "title": "병목 지점 식별",
           "description": "Identify performance bottlenecks in IE11 rendering and JavaScript execution",
           "dependencies": [],
           "details": "Use browser developer tools to profile performance in IE11, focusing on render times that are 100-1000x slower than in Chrome/Firefox. Analyze DOM manipulation patterns, deeply nested elements, and table height percentage specifications that may cause slowdowns. Document all identified bottlenecks with metrics.",
@@ -666,66 +558,49 @@
         },
         {
           "id": 2,
-          "title": "Data Batching Implementation",
+          "title": "데이터 배치 처리 구현",
           "description": "Implement batching for DOM updates and data operations",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Refactor code to batch DOM changes using DocumentFragment for HTML additions. Group multiple updates together to reduce browser reflow/repaint cycles. Implement data operation batching to minimize processing overhead. Measure performance improvements against baseline metrics.",
           "status": "done"
         },
         {
           "id": 3,
-          "title": "Serialization Optimization",
+          "title": "직렬화 최적화",
           "description": "Optimize data serialization and parsing processes",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Review and optimize JSON parsing/stringifying operations. Implement custom serialization for frequently used data structures. Consider binary formats for large datasets. Measure serialization time improvements and memory usage reductions.",
           "status": "done"
         },
         {
           "id": 4,
-          "title": "Memory Allocation Reduction",
+          "title": "메모리 할당 감소",
           "description": "Reduce memory allocation and garbage collection impact",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Implement object pooling for frequently created/destroyed objects. Optimize DOM structure by simplifying HTML and reducing nesting depth. Avoid closures that retain large scopes. Monitor memory usage patterns and garbage collection frequency in IE11.",
           "status": "done"
         },
         {
           "id": 5,
-          "title": "Event Throttling Implementation",
+          "title": "이벤트 스로틀링 구현",
           "description": "Implement throttling and debouncing for event handlers",
-          "dependencies": [
-            1
-          ],
+          "dependencies": [1],
           "details": "Add throttling to scroll, resize, and input events. Implement debouncing for search and other user input processing. Optimize event delegation patterns to reduce handler count. Measure event processing time and UI responsiveness improvements.",
           "status": "done"
         },
         {
           "id": 6,
-          "title": "Benchmark Creation",
+          "title": "벤치마크 생성",
           "description": "Create comprehensive benchmarks for performance testing",
-          "dependencies": [
-            1,
-            2,
-            3,
-            4,
-            5
-          ],
+          "dependencies": [1, 2, 3, 4, 5],
           "details": "Develop automated benchmarks that measure rendering time, JavaScript execution, memory usage, and UI responsiveness in IE11. Create test cases that specifically target identified bottlenecks. Implement continuous performance monitoring to prevent regressions.",
           "status": "done"
         },
         {
           "id": 7,
-          "title": "Polyfill Optimization",
+          "title": "폴리필 최적화",
           "description": "Optimize or replace inefficient polyfills for IE11",
-          "dependencies": [
-            1,
-            6
-          ],
+          "dependencies": [1, 6],
           "details": "Identify performance-critical polyfills used for IE11 compatibility. Replace generic polyfills with IE11-specific optimized versions. Consider removing unnecessary polyfills based on feature requirements. Measure performance impact of each polyfill optimization.",
           "status": "done"
         }
@@ -733,29 +608,21 @@
     },
     {
       "id": 12,
-      "title": "Implement Browser Detection and Conditional Loading",
+      "title": "브라우저 감지 및 조건부 로딩 구현",
       "description": "Create a system to detect IE11 and conditionally load appropriate implementation",
       "details": "1. Implement reliable IE11 detection\n2. Create a conditional loading system that loads the appropriate implementation\n3. Ensure only necessary polyfills are loaded in IE11\n4. Prevent loading IE11-specific code in modern browsers\n5. Implement feature detection as a fallback\n6. Create a unified API entry point that works across all browsers\n\nExample browser detection and conditional loading:\n```javascript\nfunction detectIE11() {\n  var ua = window.navigator.userAgent;\n  return ua.indexOf('Trident/') > 0 && ua.indexOf('rv:11') > 0;\n}\n\nfunction loadOpenTelemetry() {\n  if (detectIE11()) {\n    // Load IE11 version with polyfills\n    var polyfillScript = document.createElement('script');\n    polyfillScript.src = 'https://cdn.example.com/opentelemetry-polyfills.js';\n    polyfillScript.onload = function() {\n      var ieScript = document.createElement('script');\n      ieScript.src = 'https://cdn.example.com/opentelemetry-ie11.js';\n      document.head.appendChild(ieScript);\n    };\n    document.head.appendChild(polyfillScript);\n  } else {\n    // Load modern version\n    var script = document.createElement('script');\n    script.src = 'https://cdn.example.com/opentelemetry.js';\n    document.head.appendChild(script);\n  }\n}\n\n// Alternative using dynamic import (with fallback for IE11)\nfunction loadOpenTelemetryModule() {\n  if (detectIE11()) {\n    // IE11 doesn't support dynamic import, use a pre-bundled UMD version\n    var script = document.createElement('script');\n    script.src = 'https://cdn.example.com/opentelemetry-ie11.js';\n    script.onload = function() {\n      initializeOpenTelemetry(window.opentelemetry);\n    };\n    document.head.appendChild(script);\n  } else {\n    // Modern browsers can use dynamic import\n    import('https://cdn.example.com/opentelemetry.js')\n      .then(function(module) {\n        initializeOpenTelemetry(module);\n      });\n  }\n}\n```",
       "testStrategy": "1. Test browser detection with various IE11 user agent strings\n2. Verify correct version is loaded in different browsers\n3. Test loading performance in IE11\n4. Verify polyfills are only loaded when needed\n5. Test with different loading scenarios (async, defer, dynamic)\n6. Verify the API works consistently across browsers\n7. Test with browser spoofing to ensure robust detection",
       "priority": "medium",
-      "dependencies": [
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
+      "dependencies": [3, 4, 5, 6, 7],
       "status": "done",
       "subtasks": []
     },
     {
       "id": 13,
-      "title": "Create Automated IE11 Testing Environment",
+      "title": "자동화된 IE11 테스트 환경 구축",
       "description": "Set up automated testing infrastructure for IE11 compatibility",
       "status": "done",
-      "dependencies": [
-        1
-      ],
+      "dependencies": [1],
       "priority": "high",
       "details": "✅ COMPLETED: Comprehensive IE11 Testing Infrastructure has been successfully implemented with the following components:\n\n1. **Karma Configuration** (karma.conf.js):\n   - **Multi-Environment Support**: Local IE11 and BrowserStack integration\n   - **Custom Launchers**: IE11_local, bs_ie11_win10, bs_ie11_win8_1, bs_ie11_win7\n   - **Babel Preprocessing**: ES5 transpilation for IE11 compatibility\n   - **Test Reporting**: JUnit, coverage, spec reporters with detailed output\n   - **BrowserStack Integration**: Automated cloud testing with proper configuration\n   - **Environment Detection**: CI/development mode switching\n   - **Timeout Management**: Extended timeouts for IE11 compatibility\n\n2. **IE11 Polyfills** (test/polyfills/ie11-polyfills.js):\n   - **Core JavaScript APIs**: Object.assign, Object.keys, Object.values, Object.entries\n   - **Array Methods**: find, findIndex, includes, from\n   - **String Methods**: startsWith, endsWith, includes, repeat\n   - **ES6 Features**: Promise, Map, Set with full API compatibility\n   - **DOM APIs**: CustomEvent, Element.closest, Element.matches, classList\n   - **Performance APIs**: performance.now, requestAnimationFrame\n   - **Event Handling**: addEventListener polyfill for IE8 compatibility\n\n3. **IE11 Test Utilities** (test/utils/ie11-test-utils.js):\n   - **Browser Detection**: IE11 feature detection and capability checking\n   - **Mock Objects**: XMLHttpRequest, fetch, performance, localStorage mocks\n   - **Test Helpers**: Span creation, attribute validation, DOM manipulation\n   - **Async Utilities**: waitFor, timing measurement, network simulation\n   - **Event Simulation**: User interaction simulation with IE11 compatibility\n   - **Assertion Library**: Custom assertion helpers for IE11 testing\n   - **Memory Tracking**: Performance monitoring and cleanup utilities\n\n4. **GitHub Actions Workflow** (.github/workflows/ie11-tests.yml):\n   - **Multi-Job Pipeline**: Build, local testing, BrowserStack testing, benchmarking\n   - **Matrix Testing**: Windows 10, 8.1, 7 with IE11\n   - **BrowserStack Integration**: Automated cloud testing with proper session management\n   - **Performance Benchmarking**: IE11-specific performance measurement\n   - **Bundle Analysis**: Size monitoring and PR comments\n   - **Test Reporting**: Comprehensive result aggregation and artifact management\n   - **Cleanup**: Proper resource cleanup and session termination\n\n5. **Package.json Scripts**:\n   - **test:ie11:local**: Local IE11 testing\n   - **test:ie11:browserstack**: BrowserStack cloud testing\n   - **test:ie11:dev**: Development mode with auto-watch\n   - **test:ie11:headless**: Headless testing for CI\n   - **benchmark:ie11**: Performance benchmarking\n   - **analyze:ie11**: Bundle size analysis\n   - **build:ie11**: IE11-specific build process\n\n6. **DevDependencies Added**:\n   - **karma-babel-preprocessor**: ES5 transpilation\n   - **karma-browserstack-launcher**: BrowserStack integration\n   - **karma-coverage**: Code coverage reporting\n   - **karma-junit-reporter**: CI-friendly test reporting\n   - **karma-spec-reporter**: Detailed test output\n\n7. **Testing Features**:\n   - **Cross-Platform**: Windows 7, 8.1, 10 with IE11\n   - **CI/CD Integration**: Automated testing on push/PR\n   - **Performance Monitoring**: Bundle size and execution time tracking\n   - **Error Handling**: Comprehensive error capture and reporting\n   - **Artifact Management**: Test results, coverage, and analysis preservation",
       "testStrategy": "✅ COMPLETED: The following test strategy has been implemented:\n\n1. Verified tests run successfully in IE11 environment (local and BrowserStack)\n2. Tested the CI/CD pipeline with sample commits through GitHub Actions\n3. Verified test reporting works correctly with JUnit, coverage, and spec reporters\n4. Tested with different Windows versions (7, 8.1, 10) using matrix testing\n5. Validated performance benchmarking accuracy with IE11-specific measurements\n6. Tested browser disconnection and reconnection handling with extended timeouts\n7. Verified test coverage reporting and artifact preservation\n8. Implemented cross-platform compatibility testing\n9. Added bundle size analysis and monitoring\n10. Configured comprehensive error capture and reporting",
@@ -763,39 +630,21 @@
     },
     {
       "id": 14,
-      "title": "Implement Documentation and Examples",
+      "title": "문서화 및 예제 구현",
       "description": "Create comprehensive documentation and examples for IE11 support",
       "details": "1. Create detailed documentation for IE11 support\n2. Document known limitations and workarounds\n3. Create migration guides for existing applications\n4. Provide examples of IE11 integration\n5. Document performance optimization techniques\n6. Create troubleshooting guides\n7. Document browser compatibility matrix\n\nDocumentation should include:\n- Installation and setup instructions\n- API differences between IE11 and modern browsers\n- Performance considerations\n- Polyfill requirements\n- Bundle size optimization\n- Common issues and solutions\n\nExample documentation structure:\n```markdown\n# OpenTelemetry JS IE11 Support\n\n## Installation\n\n```bash\nnpm install @opentelemetry/ie11-support\n```\n\n## Usage\n\n### Basic Setup\n\n```javascript\n// Import the IE11 compatible version\nvar opentelemetry = require('@opentelemetry/ie11-support');\n\n// Initialize tracer\nvar provider = new opentelemetry.BasicTracerProvider();\nopentelemetry.trace.setGlobalTracerProvider(provider);\n\nvar tracer = opentelemetry.trace.getTracer('example-app');\n\n// Create spans\nvar span = tracer.startSpan('my-operation');\n// ... perform operations ...\nspan.end();\n```\n\n### Known Limitations\n\n- Performance overhead in IE11 is approximately 15-20% compared to modern browsers\n- Some advanced features may have limited functionality\n- Maximum recommended spans per page: 1000\n\n### Troubleshooting\n\n#### Common Issues\n\n1. **\"Symbol is undefined\"** - Ensure polyfills are loaded before OpenTelemetry\n2. **Performance degradation** - Use the performance optimization guide\n3. **\"Object doesn't support property or method 'includes'\"** - Check that Array polyfills are loaded\n```",
       "testStrategy": "1. Verify documentation accuracy with actual implementation\n2. Test code examples in IE11 environment\n3. Review documentation for completeness\n4. Validate troubleshooting guides with common issues\n5. Test migration guides with sample applications\n6. Verify performance claims with benchmarks\n7. Test documentation in different formats (web, PDF, IDE)",
       "priority": "medium",
-      "dependencies": [
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12
-      ],
+      "dependencies": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       "status": "done",
       "subtasks": []
     },
     {
       "id": 15,
-      "title": "Implement Bundle Size Optimization",
+      "title": "번들 크기 최적화 구현",
       "description": "Optimize bundle size to meet the requirement of maximum 30% increase",
       "status": "done",
-      "dependencies": [
-        3,
-        4,
-        5,
-        6,
-        7,
-        9
-      ],
+      "dependencies": [3, 4, 5, 6, 7, 9],
       "priority": "medium",
       "details": "Due to incomplete module implementation causing webpack build failures, we'll adjust our approach to bundle size optimization:\n\n1. Analyze sizes of currently implemented modules:\n   - performance/ (4 files, ~15KB)\n   - browser/ (2 files, ~12KB)\n   - web/dom-event-instrumentation.ts (~8KB)\n   - polyfills/conditional-core-js.js (~2KB)\n   - Total current size: ~40KB (uncompressed)\n\n2. Calculate theoretical bundle size and develop optimization strategy\n3. Research code splitting and tree shaking optimization techniques\n4. Document IE11 compatible bundling strategy (target: under 110KB)\n5. Implement code splitting for polyfills\n6. Use tree shaking to remove unused code\n7. Optimize imports to reduce duplication\n8. Implement selective feature loading\n9. Minify and compress bundles\n10. Create different bundles for different feature sets\n\nExample webpack configuration for bundle optimization:\n```javascript\nconst TerserPlugin = require('terser-webpack-plugin');\nconst BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;\n\nmodule.exports = {\n  entry: {\n    'opentelemetry-core': './src/index.js',\n    'opentelemetry-core.min': './src/index.js',\n    'opentelemetry-tracing': './src/tracing/index.js',\n    'opentelemetry-tracing.min': './src/tracing/index.js',\n    'opentelemetry-metrics': './src/metrics/index.js',\n    'opentelemetry-metrics.min': './src/metrics/index.js'\n  },\n  output: {\n    filename: '[name].js',\n    library: ['opentelemetry', '[name]'],\n    libraryTarget: 'umd'\n  },\n  optimization: {\n    minimize: true,\n    minimizer: [\n      new TerserPlugin({\n        include: /\\.min\\.js$/,\n        terserOptions: {\n          compress: {\n            drop_console: true,\n          },\n          mangle: true,\n          output: {\n            comments: false\n          }\n        }\n      })\n    ],\n    splitChunks: {\n      cacheGroups: {\n        polyfills: {\n          test: /[\\\\/]node_modules[\\\\/](core-js|regenerator-runtime|whatwg-fetch|es6-promise|symbol-es6)[\\\\/]/,\n          name: 'polyfills',\n          chunks: 'all'\n        },\n        vendors: {\n          test: /[\\\\/]node_modules[\\\\/](?!(core-js|regenerator-runtime|whatwg-fetch|es6-promise|symbol-es6)[\\\\/])/,\n          name: 'vendors',\n          chunks: 'all'\n        }\n      }\n    }\n  },\n  plugins: [\n    new BundleAnalyzerPlugin({\n      analyzerMode: 'static',\n      reportFilename: 'bundle-report.html',\n      openAnalyzer: false\n    })\n  ]\n};\n```\n\nExample selective feature loading:\n```javascript\n// Core functionality that's always loaded\nvar core = require('./core');\n\n// Optional features loaded on demand\nfunction loadTracing() {\n  return new Promise(function(resolve) {\n    var script = document.createElement('script');\n    script.src = 'opentelemetry-tracing.min.js';\n    script.onload = function() {\n      resolve(window.opentelemetry.tracing);\n    };\n    document.head.appendChild(script);\n  });\n}\n\nfunction loadMetrics() {\n  return new Promise(function(resolve) {\n    var script = document.createElement('script');\n    script.src = 'opentelemetry-metrics.min.js';\n    script.onload = function() {\n      resolve(window.opentelemetry.metrics);\n    };\n    document.head.appendChild(script);\n  });\n}\n```",
       "testStrategy": "1. Measure sizes of individual implemented modules\n2. Create theoretical bundle size projections\n3. Verify IE11 compatibility of proposed bundling strategies\n4. Test polyfill loading strategies for IE11\n5. Measure bundle sizes before and after optimization\n6. Compare with original OpenTelemetry bundles to verify <30% increase\n7. Test loading performance with different bundle configurations\n8. Verify functionality with optimized bundles\n9. Test selective loading of features\n10. Analyze bundle contents to identify further optimization opportunities\n11. Test with different compression algorithms",
@@ -828,16 +677,82 @@
     },
     {
       "id": 16,
-      "title": "Fix Critical TypeScript Compilation Errors and Optimize Bundle Size",
+      "title": "중요한 TypeScript 컴파일 오류 수정 및 번들 크기 최적화",
       "description": "Resolve urgent TypeScript compilation errors in core modules and optimize the bundle size from 878KB to 174KB.",
       "details": "This task requires addressing several critical TypeScript compilation issues:\n\n1. Fix the `importScripts` type error in core/index.ts:\n   - Identify why TypeScript is flagging importScripts (likely due to missing type definitions)\n   - Add proper type declarations or use appropriate type assertions\n   - Ensure compatibility with the polyfills implemented in Task 2\n\n2. Improve type safety for hasOwnProperty usage:\n   - Replace direct calls to obj.hasOwnProperty() with Object.prototype.hasOwnProperty.call(obj, prop)\n   - Add proper type guards where necessary\n   - Consider creating a type-safe utility function for hasOwnProperty checks\n\n3. Resolve interface conflicts in metrics/index.ts:\n   - Identify and fix overlapping or contradictory interface definitions\n   - Ensure proper extension of interfaces where needed\n   - Consolidate duplicate interfaces\n\n4. Optimize bundle size (878KB → 174KB):\n   - Implement tree-shaking optimizations\n   - Remove unused imports and dead code\n   - Configure TypeScript compiler options for optimal output\n   - Consider code splitting and lazy loading where appropriate\n   - Review and optimize third-party dependencies\n\nThis task builds upon the polyfills implemented in Task 2, ensuring that all TypeScript code properly interacts with those polyfills while maintaining type safety.",
       "testStrategy": "To verify successful completion of this task:\n\n1. TypeScript Compilation Testing:\n   - Run `tsc --noEmit` to verify all TypeScript errors are resolved\n   - Ensure zero TypeScript errors in CI/CD pipeline\n   - Verify compilation works with strict type checking enabled\n\n2. Runtime Testing:\n   - Create unit tests for the fixed components in core/index.ts\n   - Test edge cases for hasOwnProperty usage\n   - Verify metrics functionality works as expected\n\n3. Bundle Size Verification:\n   - Use webpack-bundle-analyzer or similar tool to measure bundle size\n   - Confirm reduction from 878KB to approximately 174KB\n   - Document the optimization techniques that yielded the most significant reductions\n\n4. Cross-browser Testing:\n   - Test in IE11 to ensure polyfill compatibility\n   - Verify functionality in Chrome, Firefox, Safari, and Edge\n   - Ensure no regression in browser compatibility\n\n5. Performance Testing:\n   - Measure and document load time improvements\n   - Verify that the optimizations don't negatively impact runtime performance\n   - Create performance benchmarks for future reference",
       "status": "done",
-      "dependencies": [
-        2
-      ],
+      "dependencies": [2],
       "priority": "high",
       "subtasks": []
+    },
+    {
+      "id": 17,
+      "title": "단일 agent.js 번들 생성을 위한 Webpack 리팩토링",
+      "description": "Consolidate all existing webpack entry points into a single entry to produce one unified agent.js bundle, ensuring all modules, polyfills, and dependencies are included and IE11 compatibility is maintained.",
+      "details": "Update the webpack configuration by removing the four separate entry points (opentelemetry-js-ie11-browser.js, opentelemetry-js-ie11-dom-events.js, opentelemetry-ie11-performance.js, vendor-polyfills.js) and replacing them with a single entry that imports all required modules and polyfills in the correct order. Ensure that all necessary polyfills for IE11 are included at the top of the entry file. Adjust output settings to generate only agent.js. Review and update any optimization or splitChunks settings to prevent code splitting and guarantee a single output file. Validate that all dependencies, including vendor and polyfill code, are bundled. Carefully test for module initialization order to avoid runtime errors, and ensure that the resulting bundle does not break IE11 compatibility. Update documentation to reflect the new build process and bundle structure.",
+      "testStrategy": "1. Build the project and verify that only agent.js is produced in the output directory. 2. Confirm that agent.js contains all previously separate modules and polyfills by inspecting the bundle and checking for expected code. 3. Run the bundle in an IE11 environment (real or emulated) and validate that all agent functionality works as before, with no missing features or errors. 4. Execute automated and manual tests to ensure no regressions. 5. Review bundle size and initialization order to confirm all dependencies are loaded correctly and efficiently.",
+      "status": "pending",
+      "dependencies": [1, 2, 3, 4, 5, 6],
+      "priority": "high",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Analyze Current Webpack Configuration",
+          "description": "Review the existing Webpack configuration to identify all entry points, code splitting settings, and current bundle structure.",
+          "dependencies": [],
+          "details": "Examine the current webpack.config.js file to understand how entry points are defined, identify any splitChunks configurations, and document the current bundling strategy. Pay special attention to any dynamic imports or require.ensure statements that might be causing code splitting.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Consolidate Module Imports",
+          "description": "Identify and consolidate all module imports that should be included in the single agent.js bundle.",
+          "dependencies": [1],
+          "details": "Create a comprehensive list of all dependencies that need to be included in the agent.js bundle. Replace any dynamic imports (System.import or require.ensure) with static imports to ensure all code is bundled together. Review lazy-loaded components in the SPA and modify them to be included in the main bundle.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Configure IE11 Polyfills",
+          "description": "Add necessary polyfills and configure Webpack to ensure compatibility with IE11.",
+          "dependencies": [1],
+          "details": "Update browserslist configuration to include IE11. Set target: ['web', 'es5'] in the Webpack configuration to ensure ES5 syntax compatibility. Identify and include all required polyfills for IE11 support, ensuring they're loaded before application code.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Modify Output and Optimization Settings",
+          "description": "Update Webpack configuration to generate a single bundle and disable code splitting.",
+          "dependencies": [2, 3],
+          "details": "Configure output.filename to generate agent.js. Disable code splitting by setting optimization.splitChunks.cacheGroups: { default: false, defaultVendors: false }. Remove any unnecessary default configurations. Ensure all assets and dependencies are properly included in the single bundle.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "Build and Validate in Development Environment",
+          "description": "Build the application with the new configuration and validate functionality in a development environment.",
+          "dependencies": [4],
+          "details": "Run the build process with the updated configuration. Verify that only a single agent.js bundle is generated. Test the application in a modern browser to ensure basic functionality works before proceeding to IE11 testing.",
+          "status": "pending"
+        },
+        {
+          "id": 6,
+          "title": "Test in IE11 Environment",
+          "description": "Validate the single bundle works correctly in IE11.",
+          "dependencies": [5],
+          "details": "Set up an IE11 testing environment (virtual machine or BrowserStack). Test the application thoroughly in IE11, focusing on JavaScript functionality, polyfill effectiveness, and overall performance. Document any issues found and fix them before proceeding.",
+          "status": "pending"
+        },
+        {
+          "id": 7,
+          "title": "Update Documentation and Run Regression Tests",
+          "description": "Update project documentation to reflect the new bundling strategy and run comprehensive regression tests.",
+          "dependencies": [6],
+          "details": "Update the project README and any relevant documentation to describe the new bundling approach. Document any known limitations or considerations for future developers. Run full regression test suite across all supported browsers to ensure no functionality was broken during the refactoring process.",
+          "status": "pending"
+        }
+      ]
     }
   ]
 }

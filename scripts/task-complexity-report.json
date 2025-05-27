@@ -1,131 +1,19 @@
 {
   "meta": {
-    "generatedAt": "2025-05-23T00:26:39.713Z",
-    "tasksAnalyzed": 15,
+    "generatedAt": "2025-05-27T01:29:03.926Z",
+    "tasksAnalyzed": 1,
     "thresholdScore": 5,
     "projectName": "Taskmaster",
     "usedResearch": true
   },
   "complexityAnalysis": [
     {
-      "taskId": 1,
-      "taskTitle": "Setup Development Environment",
-      "complexityScore": 7,
-      "recommendedSubtasks": 8,
-      "expansionPrompt": "Break down the development environment setup task into 8 subtasks, focusing on repository initialization, TypeScript configuration, bundler setup, Babel configuration, polyfill installation, test runner setup, build configuration, and CI/CD pipeline setup. For each subtask, include specific configuration details and validation steps.",
-      "reasoning": "This task involves multiple technical components including TypeScript, Webpack/Rollup, Babel, polyfills, test runners, and CI/CD configuration. The complexity comes from ensuring all these components work together specifically for IE11 compatibility. The task already has 8 natural divisions in its description."
-    },
-    {
-      "taskId": 2,
-      "taskTitle": "Implement Core Polyfills",
-      "complexityScore": 6,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Divide the core polyfills implementation task into 6 subtasks, each focusing on a specific polyfill category: core-js integration, Promise polyfill, Symbol polyfill, Map/Set polyfills, fetch API polyfill, and custom browser API polyfills. Include implementation details, testing strategies, and conditional loading mechanisms for each subtask.",
-      "reasoning": "This task requires implementing multiple polyfills with different complexities. Each polyfill type has its own implementation challenges and testing requirements. The task naturally breaks down into 6 components based on the different polyfill categories mentioned in the description."
-    },
-    {
-      "taskId": 3,
-      "taskTitle": "Modify @opentelemetry/api for IE11",
-      "complexityScore": 8,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Break down the @opentelemetry/api modification task into 5 subtasks: ES6+ syntax replacement, API compatibility analysis, browser API replacement, module format adaptation, and comprehensive testing. For each subtask, include specific code transformation examples and validation criteria.",
-      "reasoning": "This task involves modifying an existing package to be IE11 compatible while maintaining the same API surface. The complexity is high because it requires deep understanding of both the OpenTelemetry API and IE11 limitations. Code transformations need to be comprehensive while preserving functionality."
-    },
-    {
-      "taskId": 4,
-      "taskTitle": "Adapt @opentelemetry/core for IE11",
-      "complexityScore": 7,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Divide the @opentelemetry/core adaptation task into 7 subtasks: ES6+ syntax replacement, browser API compatibility, platform detection logic, time measurement functions, utility function adaptation, performance optimization, and integration testing. For each subtask, include specific implementation approaches and testing criteria.",
-      "reasoning": "This task requires modifying core functionality with attention to platform-specific implementations. The complexity comes from ensuring all utility functions work correctly in IE11 while maintaining performance. The task naturally breaks into 7 components based on the different aspects of the core package."
-    },
-    {
-      "taskId": 5,
-      "taskTitle": "Transform @opentelemetry/sdk-trace-base for IE11",
-      "complexityScore": 9,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Break down the sdk-trace-base transformation task into 6 subtasks: ES6+ syntax conversion, modern JavaScript feature replacement, sampling optimization, context propagation adaptation, span management implementation, and batch processing optimization. For each subtask, include specific code transformation examples and performance benchmarking criteria.",
-      "reasoning": "This task involves complex transformations of the tracing SDK with significant performance implications. The high complexity score reflects the need to maintain functionality while optimizing for IE11 performance constraints. The task requires deep understanding of both the tracing SDK and IE11 limitations."
-    },
-    {
-      "taskId": 6,
-      "taskTitle": "Adapt @opentelemetry/sdk-trace-web for IE11",
+      "taskId": 17,
+      "taskTitle": "Refactor Webpack to Generate Single agent.js Bundle",
       "complexityScore": 8,
       "recommendedSubtasks": 7,
-      "expansionPrompt": "Divide the sdk-trace-web adaptation task into 7 subtasks: fetch API replacement with XMLHttpRequest, event listener handling adaptation, DOM interaction code modification, performance API replacement, web resource timing implementation, auto-instrumentation adaptation, and integration testing. For each subtask, include specific implementation approaches and cross-browser testing criteria.",
-      "reasoning": "This task requires adapting web-specific functionality to IE11's limited APIs. The complexity comes from replacing modern browser APIs with IE11 alternatives while maintaining the same functionality. The task naturally breaks into 7 components based on different web-specific features."
-    },
-    {
-      "taskId": 7,
-      "taskTitle": "Implement @opentelemetry/sdk-metrics IE11 Support",
-      "complexityScore": 7,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Break down the sdk-metrics IE11 support task into 7 subtasks: ES6+ syntax conversion, modern JavaScript feature replacement, metric collection optimization, histogram calculation implementation, aggregation logic adaptation, metric export implementation, and performance testing. For each subtask, include specific optimization techniques and validation criteria.",
-      "reasoning": "This task involves adapting the metrics SDK for IE11 with attention to performance constraints. The complexity comes from ensuring efficient metric collection and aggregation in IE11. The task naturally breaks into 7 components based on different aspects of the metrics SDK."
-    },
-    {
-      "taskId": 8,
-      "taskTitle": "Implement XMLHttpRequest Instrumentation",
-      "complexityScore": 6,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Divide the XMLHttpRequest instrumentation task into 7 subtasks: instrumentation module creation, request/response header capture, timing information tracking, error information capture, context propagation implementation, performance optimization, and CORS handling. For each subtask, include specific implementation details and testing scenarios.",
-      "reasoning": "This task requires creating a dedicated instrumentation module for XMLHttpRequest with attention to various aspects of request lifecycle. The complexity comes from ensuring proper instrumentation without significant performance impact. The task naturally breaks into 7 components based on different instrumentation requirements."
-    },
-    {
-      "taskId": 9,
-      "taskTitle": "Implement Module System Compatibility",
-      "complexityScore": 7,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Break down the module system compatibility task into 7 subtasks: ESM to UMD/IIFE conversion, dynamic import replacement, bundler configuration, global namespace implementation, tree shaking optimization, entry point creation, and conditional loading strategy. For each subtask, include specific implementation approaches and testing scenarios.",
-      "reasoning": "This task involves ensuring the library works with different module systems and bundling approaches. The complexity comes from supporting multiple loading mechanisms while optimizing bundle size. The task naturally breaks into 7 components based on different module system requirements."
-    },
-    {
-      "taskId": 10,
-      "taskTitle": "Implement DOM Event Instrumentation",
-      "complexityScore": 6,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Divide the DOM event instrumentation task into 6 subtasks: instrumentation module creation, event listener attachment implementation, user interaction tracking, event timing capture, event propagation handling, and performance optimization. For each subtask, include specific implementation details and testing scenarios.",
-      "reasoning": "This task requires creating instrumentation for DOM events with attention to IE11's event model. The complexity comes from handling different event types and phases correctly. The task naturally breaks into 6 components based on different aspects of DOM event instrumentation."
-    },
-    {
-      "taskId": 11,
-      "taskTitle": "Implement Performance Optimization",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Break down the performance optimization task into 7 subtasks: bottleneck identification, data batching implementation, serialization optimization, memory allocation reduction, event throttling implementation, benchmark creation, and polyfill optimization. For each subtask, include specific optimization techniques and measurement criteria.",
-      "reasoning": "This task involves optimizing the library for IE11's performance constraints. The high complexity reflects the challenge of meeting performance requirements while maintaining functionality. The task requires deep understanding of IE11 performance characteristics and optimization techniques."
-    },
-    {
-      "taskId": 12,
-      "taskTitle": "Implement Browser Detection and Conditional Loading",
-      "complexityScore": 5,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Divide the browser detection and conditional loading task into 6 subtasks: IE11 detection implementation, conditional loading system creation, polyfill loading optimization, modern browser optimization, feature detection implementation, and unified API entry point creation. For each subtask, include specific implementation approaches and testing scenarios.",
-      "reasoning": "This task involves creating a system to detect browsers and load appropriate implementations. The moderate complexity comes from ensuring reliable detection and efficient loading. The task naturally breaks into 6 components based on different aspects of browser detection and loading."
-    },
-    {
-      "taskId": 13,
-      "taskTitle": "Create Automated IE11 Testing Environment",
-      "complexityScore": 7,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Break down the automated IE11 testing environment task into 7 subtasks: Karma test runner configuration, BrowserStack integration, IE11-specific test suite creation, test utility implementation, test reporting setup, performance benchmarking configuration, and test matrix creation. For each subtask, include specific configuration details and validation criteria.",
-      "reasoning": "This task involves setting up comprehensive testing infrastructure for IE11. The complexity comes from configuring various testing tools and ensuring reliable test execution in IE11. The task naturally breaks into 7 components based on different aspects of the testing environment."
-    },
-    {
-      "taskId": 14,
-      "taskTitle": "Implement Documentation and Examples",
-      "complexityScore": 4,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Divide the documentation and examples task into 7 subtasks: IE11 support documentation, limitations and workarounds documentation, migration guide creation, example implementation, performance optimization documentation, troubleshooting guide creation, and compatibility matrix documentation. For each subtask, include specific content requirements and validation criteria.",
-      "reasoning": "This task involves creating comprehensive documentation and examples. The lower complexity reflects the straightforward nature of documentation tasks. The task naturally breaks into 7 components based on different documentation needs."
-    },
-    {
-      "taskId": 15,
-      "taskTitle": "Implement Bundle Size Optimization",
-      "complexityScore": 6,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Break down the bundle size optimization task into 7 subtasks: bundle analysis, code splitting implementation, tree shaking optimization, import optimization, selective feature loading implementation, minification and compression, and bundle creation. For each subtask, include specific optimization techniques and measurement criteria.",
-      "reasoning": "This task involves optimizing bundle size to meet specific requirements. The complexity comes from implementing various optimization techniques while maintaining functionality. The task naturally breaks into 7 components based on different optimization approaches."
+      "expansionPrompt": "Break down the process of refactoring the Webpack configuration to generate a single agent.js bundle into clear, actionable subtasks. Consider steps such as analyzing current entry points, consolidating imports, updating polyfills for IE11, modifying output and optimization settings, validating the build in IE11, updating documentation, and running regression tests.",
+      "reasoning": "This task involves significant configuration changes, careful dependency management, and compatibility testing for a legacy browser (IE11), which increases both technical and testing complexity. Ensuring all modules and polyfills are included in the correct order, preventing code splitting, and validating in a legacy environment require deep understanding of both the build system and the application's runtime behavior. The task also impacts documentation and requires thorough regression testing, justifying a high complexity score and the need for multiple subtasks to manage risk and ensure quality."
     }
   ]
 }
